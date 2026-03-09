@@ -1,0 +1,77 @@
+<div class="container mt-4 pb-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Minhas Solicitações</h2>
+      <p class="text-muted">Acompanhe o histórico de manutenção dos seus equipamentos.</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-lg"></i> Nova Solicitação
+      </button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Data / Hora</th>
+              <th>Equipamento</th>
+              <th>Estado</th>
+              <th class="text-center">Ações Disponíveis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of solicitacoes">
+              <td class="ps-4">
+                {{ s.dataHora | date: 'dd/MM/yyyy HH:mm' }} [cite: 110]
+              </td>
+              <td>
+                {{ getDescricaoCurta(s.descricao) }} [cite: 14]
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-secondary': s.estado === 'ABERTA',
+                  'bg-warning text-dark': s.estado === 'ORÇADA',
+                  'bg-danger': s.estado === 'REJEITADA',
+                  'bg-info text-dark': s.estado === 'APROVADA',
+                  'bg-primary': s.estado === 'ARRUMADA'
+                }">{{ s.estado }}</span>
+              </td>
+              <td class="text-center px-4">
+                <div *ngIf="s.estado === 'ORÇADA'" class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-success">Aprovar/Rejeitar</button> [cite: 18]
+                </div>
+
+                <button *ngIf="s.estado === 'REJEITADA'" class="btn btn-sm btn-outline-primary">
+                  Resgatar Serviço
+                </button> [cite: 20]
+
+                <button *ngIf="s.estado === 'ARRUMADA'" class="btn btn-sm btn-success">
+                  Pagar Serviço
+                </button> [cite: 21]
+
+                <button *ngIf="s.estado !== 'ORÇADA' && s.estado !== 'REJEITADA' && s.estado !== 'ARRUMADA'" 
+                        class="btn btn-sm btn-light border">
+                  Visualizar Solicitação
+                </button> [cite: 15, 22]
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 p-4 bg-light rounded shadow-sm border">
+    <h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i> Próximos Passos</h6>
+    <small class="text-muted d-block">
+      1. Clique em "Visualizar" para ver o histórico completo de atualizações. [cite: 15, 33]
+    </small>
+    <small class="text-muted d-block">
+      2. Solicitações em estado "ORÇADA" aguardam sua aprovação de valor. [cite: 18]
+    </small>
+  </div>
+</div>
