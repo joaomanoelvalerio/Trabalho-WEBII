@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-// 1. Importação corrigida
 import { ClienteHomeComponent } from './client-home';
 
 describe('ClienteHomeComponent', () => {
@@ -8,13 +7,12 @@ describe('ClienteHomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      // Como seu componente é Standalone, ele vai em imports
       imports: [ClienteHomeComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ClienteHomeComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // É boa prática rodar o detectChanges aqui
+    fixture.detectChanges();
   });
 
   it('should create', () => {
