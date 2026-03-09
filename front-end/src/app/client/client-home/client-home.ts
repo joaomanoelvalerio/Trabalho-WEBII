@@ -13,9 +13,10 @@ interface Solicitacao {
   standalone: true,
   imports: [CommonModule],
   providers: [DatePipe],
-  templateUrl: './cliente-home.component.html',
-  styleUrls: ['./cliente-home.component.css']
+  templateUrl: './client-home.html',
+  styleUrls: ['./client-home.css'],
 })
+
 export class ClienteHomeComponent implements OnInit {
   // Massa de dados inicial para teste conforme RF089/RF090
   solicitacoes: Solicitacao[] = [
@@ -27,11 +28,11 @@ export class ClienteHomeComponent implements OnInit {
 
   ngOnInit(): void {
     // RF003: Ordenadas de forma crescente por data/hora
-    this.solicitacoes.sort((a, b) => a.dataHora.getTime() - b.dataHora.getTime()); [cite: 13]
+    this.solicitacoes.sort((a, b) => a.dataHora.getTime() - b.dataHora.getTime());
   }
 
   getDescricaoCurta(desc: string): string {
     // RF003: Descrição limitada a 30 caracteres
-    return desc.length > 30 ? desc.substring(0, 27) + '...' : desc; [cite: 14]
+    return desc.length > 30 ? desc.substring(0, 27) + '...' : desc; 
   }
 }

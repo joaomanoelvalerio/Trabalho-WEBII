@@ -26,10 +26,10 @@
           <tbody>
             <tr *ngFor="let s of solicitacoes">
               <td class="ps-4">
-                {{ s.dataHora | date: 'dd/MM/yyyy HH:mm' }} [cite: 110]
+                {{ s.dataHora | date: 'dd/MM/yyyy HH:mm' }}
               </td>
               <td>
-                {{ getDescricaoCurta(s.descricao) }} [cite: 14]
+                {{ getDescricaoCurta(s.descricao) }}
               </td>
               <td>
                 <span class="badge" [ngClass]="{
@@ -42,21 +42,21 @@
               </td>
               <td class="text-center px-4">
                 <div *ngIf="s.estado === 'ORÇADA'" class="btn-group btn-group-sm">
-                  <button class="btn btn-outline-success">Aprovar/Rejeitar</button> [cite: 18]
+                  <button class="btn btn-outline-success">Aprovar/Rejeitar</button> 
                 </div>
 
                 <button *ngIf="s.estado === 'REJEITADA'" class="btn btn-sm btn-outline-primary">
                   Resgatar Serviço
-                </button> [cite: 20]
+                </button> 
 
                 <button *ngIf="s.estado === 'ARRUMADA'" class="btn btn-sm btn-success">
                   Pagar Serviço
-                </button> [cite: 21]
+                </button> 
 
                 <button *ngIf="s.estado !== 'ORÇADA' && s.estado !== 'REJEITADA' && s.estado !== 'ARRUMADA'" 
                         class="btn btn-sm btn-light border">
                   Visualizar Solicitação
-                </button> [cite: 15, 22]
+                </button> 
               </td>
             </tr>
           </tbody>
@@ -68,10 +68,10 @@
   <div class="mt-4 p-4 bg-light rounded shadow-sm border">
     <h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i> Próximos Passos</h6>
     <small class="text-muted d-block">
-      1. Clique em "Visualizar" para ver o histórico completo de atualizações. [cite: 15, 33]
+      1. Clique em "Visualizar" para ver o histórico completo de atualizações. 
     </small>
     <small class="text-muted d-block">
-      2. Solicitações em estado "ORÇADA" aguardam sua aprovação de valor. [cite: 18]
+      2. Solicitações em estado "ORÇADA" aguardam sua aprovação de valor. 
     </small>
   </div>
 </div>
