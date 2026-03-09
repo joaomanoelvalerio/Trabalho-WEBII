@@ -1,19 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+// 1. Importação corrigida
+import { ClienteHomeComponent } from './client-home';
 
-import { ClientHome } from './client-home';
-
-describe('ClientHome', () => {
-  let component: ClientHome;
-  let fixture: ComponentFixture<ClientHome>;
+describe('ClienteHomeComponent', () => {
+  let component: ClienteHomeComponent;
+  let fixture: ComponentFixture<ClienteHomeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ClientHome],
+      // Como seu componente é Standalone, ele vai em imports
+      imports: [ClienteHomeComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ClientHome);
+    fixture = TestBed.createComponent(ClienteHomeComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges(); // É boa prática rodar o detectChanges aqui
   });
 
   it('should create', () => {
