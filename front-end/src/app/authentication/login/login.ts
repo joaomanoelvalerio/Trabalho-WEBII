@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router'; 
+import { MudaPagina } from '../../services/muda-pagina';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./login.css']
 })
 export class LoginComponent {
+  MudaPagina = inject(MudaPagina);
+
   usuario = {
     email: '',
     senha: ''
@@ -19,5 +22,9 @@ export class LoginComponent {
   onSubmit() {
     console.log('Dados enviados:', this.usuario);
     // Falta integrar com a API aqui ! ! !
-  }
+  }  
+
+click(event: MouseEvent) {
+  this.MudaPagina.mudarPagina(event, '/register');
+}
 }
