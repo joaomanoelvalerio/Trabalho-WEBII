@@ -1,1 +1,49 @@
-<p>register works!</p>
+<div class="register-container">
+    <h1>Login</h1>
+    <form (ngSubmit)="onSubmit()" #CadForm="ngForm">
+        <div id="texto">
+            <div class='camposCadastro'>
+                <label for="inputCPF">CPF:</label>
+                <input
+                    type="text"
+                    name="cpf"
+                    [(ngModel)]="usuario.cpf"
+                    id="inputSenha"
+                    required>
+                
+                <label for="inputNome">Nome:</label>
+                <input
+                    type="text"
+                    name="nome"
+                    [(ngModel)]="usuario.nome"
+                    id="inputSenha"
+                    required>
+
+                <label for="inputTelefone">Telefone:</label>
+                <input 
+                    type="tel" 
+                    name="telefone" 
+                    pattern="[0-9]{10,11}"
+                    [(ngModel)]="usuario.telefone"
+                    id="inputTelefone" 
+                    required>
+
+                
+                <label for="inputCEP">CEP:</label>
+                <input
+                    type="text"
+                    name="cep"
+                    [(ngModel)]="usuario.cep"
+                    id="inputCEP"
+                    required>
+            </div>
+        </div>
+        
+        <div class="Botoes">
+            <button type="submit" id="Botao">Entrar</button>
+            <button (click)="click($event)" type="button" id="BotaoSecundario">
+                Já possui uma conta?
+            </button>
+        </div>
+    </form>
+</div>

@@ -23,7 +23,7 @@ h1 {
     text-align: center;
 }
 
-.camposCadastro {
+.camposLogin {
     display: flex;
     flex-direction: column;
     gap: 1rem;
