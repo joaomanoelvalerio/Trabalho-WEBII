@@ -1,4 +1,5 @@
 export enum EstadoSolicitacao {
+
   ABERTA = 'ABERTA',
   ORCADA = 'ORCADA',
   APROVADA = 'APROVADA',
@@ -8,10 +9,16 @@ export enum EstadoSolicitacao {
   PAGA = 'PAGA',
   FINALIZADA = 'FINALIZADA'
 }
+
     export interface Solicitacao {
        id: number;
+
        dataSolicitacao:string;
+
       descricao: string;
+
       estado: EstadoSolicitacao;
+
      clienteId: number;
+
  }
