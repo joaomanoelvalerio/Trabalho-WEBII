@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Endereco } from '../models/endereco.model';
 
 @Injectable({
@@ -9,13 +9,23 @@ import { Endereco } from '../models/endereco.model';
 export class ViaCepService {
   private http = inject(HttpClient);
 
-  constructor() { }
-
   buscarCep(cep: string): Observable<Endereco> {
     const cepFormatado = cep.replace(/\D/g, '');
-    if (cepFormatado.length !== 8) {
-      return new Observable(observer => observer.error('CEP inválido. Deve conter 8 dígitos.'));
-    }
-    return this.http.get<Endereco>(`https://viacep.com.br/ws/${cepFormatado}/json/`);
+    
+    return this.http.get<any>(`https://viacep.com.br/ws/${cepFormatado}/json/`).pipe(
+      map(dados => {
+        if (dados.erro) {
+          throw new Error('CEP não encontrado');
+        }
+        return {
+          cep: dados.cep,
+          logradouro: dados.logradouro,
+          bairro: dados.bairro,
+          cidade: dados.localidade,
+          estado: dados.uf,    
+          complemento: dados.complemento
+        } as Endereco;
+      })
+    );
   }
 }

@@ -14,7 +14,7 @@ form {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 800px;
 }
 
 h1 {
@@ -30,9 +30,10 @@ h1 {
 }
 
 label {
+    display: block;
     font-weight: 600;
     color: #555;
-    margin-bottom: -0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 input {

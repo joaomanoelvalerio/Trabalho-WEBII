@@ -1,69 +1,97 @@
-<div class="register-container">
-  <h1>Crie sua Conta</h1>
-  <form (ngSubmit)="onSubmit()" #regForm="ngForm">
-    <div class="form-section">
-      <h4>Dados Pessoais</h4>
-      <div class="form-field">
-        <label for="nome">Nome Completo:</label>
-        <input type="text" name="nome" [(ngModel)]="usuario.nome" required />
-      </div>
-      <div class="form-field">
-        <label for="email">E-mail:</label>
-        <input type="email" name="email" [(ngModel)]="usuario.email" required email />
-      </div>
-      <div class="form-field">
-        <label for="cpf">CPF:</label>
-        <input type="text" name="cpf" [(ngModel)]="usuario.cpf" required />
-      </div>
-      <div class="form-field">
-        <label for="telefone">Telefone:</label>
-        <input type="tel" name="telefone" [(ngModel)]="usuario.telefone" required />
-      </div>
-    </div>
+<div class="register-container container mt-5">
+  <div class="card shadow-sm p-4">
+  <h1 class="text-center">Crie sua Conta</h1>
 
-    <div class="form-section">
-      <h4>Endereço</h4>
-      <div class="form-field">
-        <label for="cep">CEP:</label>
-        <input type="text" name="cep" [(ngModel)]="usuario.endereco.cep" (blur)="onCepBlur()" required />
-      </div>
-      <div class="form-field">
-        <label for="logradouro">Rua/Logradouro:</label>
-        <input type="text" name="logradouro" [(ngModel)]="usuario.endereco.logradouro" required [disabled]="isAddressLoading" />
-      </div>
-      <div class="form-field">
-        <label for="numero">Número:</label>
-        <input type="text" name="numero" [(ngModel)]="usuario.endereco.numero" required />
-      </div>
-      <div class="form-field">
-        <label for="complemento">Complemento:</label>
-        <input type="text" name="complemento" [(ngModel)]="usuario.endereco.complemento" />
-      </div>
-      <div class="form-field">
-        <label for="bairro">Bairro:</label>
-        <input type="text" name="bairro" [(ngModel)]="usuario.endereco.bairro" required [disabled]="isAddressLoading" />
-      </div>
-      <div class="form-field">
-        <label for="localidade">Cidade:</label>
-        <input type="text" name="localidade" [(ngModel)]="usuario.endereco.cidade" required [disabled]="isAddressLoading" />
-      </div>
-      <div class="form-field">
-        <label for="uf">Estado:</label>
-        <input type="text" name="uf" [(ngModel)]="usuario.endereco.estado" required [disabled]="isAddressLoading" />
-      </div>
-    </div>
+    <form (ngSubmit)="onSubmit()" #regForm="ngForm">
+      
+      <div class="form-section mb-4">
+        <h4 class="border-bottom pb-2 mb-3">Dados Pessoais</h4>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="nome" class="form-label fw-bold">Nome Completo:</label>
+            <input type="text" class="form-control" name="nome" [(ngModel)]="usuario.nome" required />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label fw-bold">E-mail:</label>
+            <input type="email" class="form-control" name="email" [(ngModel)]="usuario.email" required email />
+          </div>
 
-    <div *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
+          <div class="col-md-6 mb-3">
+            <label for="cpf" class="form-label fw-bold">CPF:</label>
+            <input type="text" class="form-control" name="cpf" [(ngModel)]="usuario.cpf" required />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="telefone" class="form-label fw-bold">Telefone:</label>
+            <input type="tel" class="form-control" name="telefone" [(ngModel)]="usuario.telefone" required />
+          </div>
+        </div>
+      </div>
 
-    <div class="Botoes">
-      <button type="submit" id="Botao" [disabled]="regForm.invalid || isAddressLoading">
-        Cadastrar
-      </button>
-      <button (click)="navigateToLogin()" type="button" id="BotaoSecundario">
-        Já possui uma conta?
-      </button>
-    </div>
-  </form>
+      <div class="form-section mb-4">
+        <h4 class="border-bottom pb-2 mb-3">Endereço</h4>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="cep" class="form-label fw-bold">CEP:</label>
+            <div class="input-group">
+              <input type="text" class="form-control" name="cep" [(ngModel)]="usuario.endereco.cep" (blur)="onCepBlur()" required />
+              <span class="input-group-text" *ngIf="isAddressLoading">
+                <span class="spinner-border spinner-border-sm"></span>
+              </span>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="logradouro" class="form-label fw-bold">Rua/Logradouro:</label>
+            <input type="text" class="form-control" name="logradouro" [(ngModel)]="usuario.endereco.logradouro" 
+                   [readonly]="usuario.endereco.logradouro !== ''" required />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="numero" class="form-label fw-bold">Número:</label>
+            <input type="text" class="form-control" name="numero" [(ngModel)]="usuario.endereco.numero" required />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="bairro" class="form-label fw-bold">Bairro:</label>
+            <input type="text" class="form-control" name="bairro" [(ngModel)]="usuario.endereco.bairro" 
+                   [readonly]="usuario.endereco.bairro !== ''" required />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="localidade" class="form-label fw-bold">Cidade:</label>
+            <input type="text" class="form-control" name="localidade" [(ngModel)]="usuario.endereco.cidade" 
+                   [readonly]="usuario.endereco.cidade !== ''" required />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="uf" class="form-label fw-bold">Estado:</label>
+            <input type="text" class="form-control" name="uf" [(ngModel)]="usuario.endereco.estado" 
+                   [readonly]="usuario.endereco.estado !== ''" required />
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label for="complemento" class="form-label fw-bold">Complemento (Opcional):</label>
+            <input type="text" class="form-control" name="complemento" [(ngModel)]="usuario.endereco.complemento" />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger shadow-sm">
+        {{ errorMessage }}
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6 mb-2">
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" [disabled]="regForm.invalid || isAddressLoading">
+            Cadastrar
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button (click)="navigateToLogin()" type="button" class="btn btn-outline-secondary w-100 py-2">
+            Já possui uma conta?
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
 </div>
