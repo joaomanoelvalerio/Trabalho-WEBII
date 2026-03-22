@@ -1,4 +1,4 @@
-import { Endereco } from './endereco.model';
+import { Address } from './address.model';
 
 export interface Usuario {
   id: number;
@@ -7,6 +7,6 @@ export interface Usuario {
   email: string;
   telefone: string;
   perfil: 'cliente' | 'funcionario' | 'admin';
-  endereco: Endereco;
+  endereco: Address;
   senha: string;
 }

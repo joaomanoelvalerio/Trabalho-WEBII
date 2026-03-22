@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Usuario } from '../models/usuario.model';
+import { Usuario } from '../../../shared/models/usuario.model';
 import { of, throwError } from 'rxjs';
 
 @Injectable({
