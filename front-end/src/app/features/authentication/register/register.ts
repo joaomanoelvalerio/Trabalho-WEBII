@@ -15,9 +15,11 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./register.css'],
 })
 export class RegisterComponent {
-  private router = inject(Router);
-  private viaCepService = inject(ViaCepService);
-  private authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly viaCepService = inject(ViaCepService);
+  private readonly authService = inject(AuthService);
+
+  currentStep = 1;
 
   usuario: Omit<Usuario, 'id' | 'perfil' | 'senha'> = {
     nome: '',
@@ -38,26 +40,52 @@ export class RegisterComponent {
   isAddressLoading = false;
   errorMessage: string | null = null;
 
-  onCepBlur() {
-    const cep = this.usuario.endereco.zipCode;
-    if (cep && cep.length >= 8) {
-      this.isAddressLoading = true;
-      this.errorMessage = null;
-      this.viaCepService.buscarCep(cep).subscribe({
-        next: (endereco: Address) => {
-          this.usuario.endereco.street = endereco.street;
-          this.usuario.endereco.neighborhood = endereco.neighborhood;
-          this.usuario.endereco.city = endereco.city;
-          this.usuario.endereco.state = endereco.state;
-          this.isAddressLoading = false;
-        },
-        error: () => {
-          this.errorMessage = 'CEP não encontrado ou inválido.';
-          this.isAddressLoading = false;
-        },
-      });
-    }
+  nextStep() {
+    this.currentStep = 2;
   }
+
+  prevStep() {
+    this.currentStep = 1;
+  }
+
+  formatZipCode(event: Event) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value.replace(/\D/g, '');
+  if (value.length > 5) {
+    value = value.substring(0, 5) + '-' + value.substring(5, 8);
+  }
+  input.value = value;
+  this.usuario.endereco.zipCode = value;
+
+  if (value.length === 9) {
+    this.onZipCodeBlur();
+  }
+}
+
+ onZipCodeBlur() {
+  const zipCode = this.usuario.endereco.zipCode.replace(/\D/g, '');
+  
+  if (!zipCode || zipCode.length !== 8) {
+    this.isAddressLoading = false;
+    return;
+  }
+
+  this.isAddressLoading = true;
+  this.errorMessage = null;
+  this.viaCepService.buscarCep(zipCode).subscribe({
+    next: (address: Address) => {
+      this.usuario.endereco.street = address.street;
+      this.usuario.endereco.neighborhood = address.neighborhood;
+      this.usuario.endereco.city = address.city;
+      this.usuario.endereco.state = address.state;
+      this.isAddressLoading = false;
+    },
+    error: () => {
+      this.errorMessage = 'CEP não encontrado ou inválido.';
+      this.isAddressLoading = false;
+    },
+  });
+}
 
   onSubmit() {
     this.errorMessage = null;

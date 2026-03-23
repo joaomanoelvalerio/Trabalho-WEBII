@@ -12,6 +12,10 @@ export class ViaCepService {
   buscarCep(cep: string): Observable<Address> {
     const cepFormatado = cep.replace(/\D/g, '');
 
+    if (cepFormatado.length !== 8) {
+      return new Observable(observer => observer.error('CEP inválido.'));
+    }
+
     return this.http.get<any>(`https://viacep.com.br/ws/${cepFormatado}/json/`).pipe(
       map(dados => {
         if (dados.erro) {

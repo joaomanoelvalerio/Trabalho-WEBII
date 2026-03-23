@@ -1,90 +1,115 @@
-<div class="register-container container mt-5">
+<div class="register-container">
   <div class="card shadow-sm p-4">
-    <h1 class="text-center">Crie sua Conta</h1>
 
-    <form (ngSubmit)="onSubmit()" #regForm="ngForm">
+    <h1 class="text-center mb-1">Crie sua Conta</h1>
 
-      <div class="form-section mb-4">
-        <h4 class="border-bottom pb-2 mb-3">Dados Pessoais</h4>
+    <div class="steps-indicator mb-4">
+      <div class="step" [class.active]="currentStep === 1" [class.done]="currentStep === 2">
+        <span class="step-number">1</span>
+        <span class="step-label">Dados Pessoais</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" [class.active]="currentStep === 2">
+        <span class="step-number">2</span>
+        <span class="step-label">Endereço</span>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+
+      <!-- Step 1 -->
+      <div *ngIf="currentStep === 1">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="nome" class="form-label fw-bold">Nome Completo:</label>
-            <input type="text" class="form-control" name="nome" [(ngModel)]="usuario.nome" required />
+            <label class="form-label fw-bold">Nome Completo:</label>
+            <input type="text" class="form-control" name="name" [(ngModel)]="usuario.nome" required />
           </div>
           <div class="col-md-6 mb-3">
-            <label for="email" class="form-label fw-bold">E-mail:</label>
+            <label class="form-label fw-bold">E-mail:</label>
             <input type="email" class="form-control" name="email" [(ngModel)]="usuario.email" required email />
           </div>
           <div class="col-md-6 mb-3">
-            <label for="cpf" class="form-label fw-bold">CPF:</label>
+            <label class="form-label fw-bold">CPF:</label>
             <input type="text" class="form-control" name="cpf" [(ngModel)]="usuario.cpf" required />
           </div>
           <div class="col-md-6 mb-3">
-            <label for="telefone" class="form-label fw-bold">Telefone:</label>
-            <input type="tel" class="form-control" name="telefone" [(ngModel)]="usuario.telefone" required />
+            <label class="form-label fw-bold">Telefone:</label>
+            <input type="tel" class="form-control" name="phone" [(ngModel)]="usuario.telefone" required />
           </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-outline-secondary" (click)="navigateToLogin()">
+            Já possui uma conta?
+          </button>
+          <button type="button" class="btn btn-primary px-4"
+            [disabled]="!usuario.nome || !usuario.email || !usuario.cpf || !usuario.telefone"
+            (click)="nextStep()">
+            Próximo
+          </button>
         </div>
       </div>
 
-      <div class="form-section mb-4">
-        <h4 class="border-bottom pb-2 mb-3">Endereço</h4>
+      <!-- Step 2 -->
+      <div *ngIf="currentStep === 2">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="cep" class="form-label fw-bold">CEP:</label>
+            <label class="form-label fw-bold">CEP:</label>
             <div class="input-group">
-              <input type="text" class="form-control" name="cep" [(ngModel)]="usuario.endereco.zipCode" (blur)="onCepBlur()" required />
+              <input type="text" class="form-control" name="zipCode"
+                [(ngModel)]="usuario.endereco.zipCode"
+                (blur)="onZipCodeBlur()"
+                (input)="formatZipCode($event)"
+                maxlength="9"
+                placeholder="00000-000"
+                required />
               <span class="input-group-text" *ngIf="isAddressLoading">
                 <span class="spinner-border spinner-border-sm"></span>
               </span>
             </div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="logradouro" class="form-label fw-bold">Rua/Logradouro:</label>
-            <input type="text" class="form-control" name="logradouro" [(ngModel)]="usuario.endereco.street"
+            <label class="form-label fw-bold">Rua/Logradouro:</label>
+            <input type="text" class="form-control" name="street" [(ngModel)]="usuario.endereco.street"
                    [readonly]="usuario.endereco.street !== ''" required />
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="numero" class="form-label fw-bold">Número:</label>
-            <input type="text" class="form-control" name="numero" [(ngModel)]="usuario.endereco.number" required />
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Número:</label>
+            <input type="text" class="form-control" name="number" [(ngModel)]="usuario.endereco.number" required />
+          </div>
+          <div class="col-md-8 mb-3">
+            <label class="form-label fw-bold">Complemento (Opcional):</label>
+            <input type="text" class="form-control" name="complement" [(ngModel)]="usuario.endereco.complement" />
           </div>
           <div class="col-md-6 mb-3">
-            <label for="bairro" class="form-label fw-bold">Bairro:</label>
-            <input type="text" class="form-control" name="bairro" [(ngModel)]="usuario.endereco.neighborhood"
+            <label class="form-label fw-bold">Bairro:</label>
+            <input type="text" class="form-control" name="neighborhood" [(ngModel)]="usuario.endereco.neighborhood"
                    [readonly]="usuario.endereco.neighborhood !== ''" required />
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="localidade" class="form-label fw-bold">Cidade:</label>
-            <input type="text" class="form-control" name="localidade" [(ngModel)]="usuario.endereco.city"
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Cidade:</label>
+            <input type="text" class="form-control" name="city" [(ngModel)]="usuario.endereco.city"
                    [readonly]="usuario.endereco.city !== ''" required />
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="uf" class="form-label fw-bold">Estado:</label>
-            <input type="text" class="form-control" name="uf" [(ngModel)]="usuario.endereco.state"
+          <div class="col-md-2 mb-3">
+            <label class="form-label fw-bold">Estado:</label>
+            <input type="text" class="form-control" name="state" [(ngModel)]="usuario.endereco.state"
                    [readonly]="usuario.endereco.state !== ''" required />
           </div>
-          <div class="col-md-12 mb-3">
-            <label for="complemento" class="form-label fw-bold">Complemento (Opcional):</label>
-            <input type="text" class="form-control" name="complemento" [(ngModel)]="usuario.endereco.complement" />
-          </div>
         </div>
-      </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger shadow-sm">
-        {{ errorMessage }}
-      </div>
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-      <div class="row mt-4">
-        <div class="col-md-6 mb-2">
-          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" [disabled]="regForm.invalid || isAddressLoading">
-            Cadastrar
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-outline-secondary" (click)="prevStep()">
+            Voltar
           </button>
-        </div>
-        <div class="col-md-6">
-          <button (click)="navigateToLogin()" type="button" class="btn btn-outline-secondary w-100 py-2">
-            Já possui uma conta?
+          <button type="submit" class="btn btn-primary px-4" [disabled]="registerForm.invalid || isAddressLoading">
+            Cadastrar
           </button>
         </div>
       </div>
 
     </form>
   </div>
+</div>
