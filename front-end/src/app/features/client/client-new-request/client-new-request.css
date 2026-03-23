@@ -1,0 +1,23 @@
+:host {
+  --ch-primary:        #3f51b5;
+  --ch-primary-dark:   #1a237e;
+  --ch-text-secondary: rgba(0, 0, 0, .54);
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.btn-primary {
+  background-color: var(--ch-primary) !important;
+  border-color: var(--ch-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--ch-primary-dark) !important;
+  border-color: var(--ch-primary-dark) !important;
+}
+
+.text-muted {
+  color: var(--ch-text-secondary) !important;
+}

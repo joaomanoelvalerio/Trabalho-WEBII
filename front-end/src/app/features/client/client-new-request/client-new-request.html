@@ -1,0 +1,70 @@
+<div class="container mt-4 pb-5">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Nova Solicitação</h2>
+      <p class="text-muted">
+        Preencha as informações do equipamento e descreva o defeito detalhadamente.
+      </p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4 p-md-5">
+      
+      <form class="d-flex flex-column gap-3">
+        
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Descrição do Equipamento</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="newRequest.descricaoEquipamento" 
+            name="equipamento" 
+            placeholder="Ex: Notebook Dell Inspiron 15" 
+            required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Categoria</mat-label>
+          <mat-select [(ngModel)]="newRequest.categoria" name="categoria" required>
+            @for (category of categories; track category.id) {
+              <mat-option [value]="category.id">
+                {{ category.nome }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Descrição do Defeito</mat-label>
+          <textarea 
+            matInput 
+            [(ngModel)]="newRequest.descricaoDefeito" 
+            name="defeito" 
+            rows="5" 
+            placeholder="Descreva o problema com o maior detalhe possível..." 
+            required></textarea>
+        </mat-form-field>
+
+        <div class="d-flex justify-content-end gap-3 mt-3">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary px-4 shadow-sm" 
+            (click)="voltar()">
+            Cancelar
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn btn-primary px-4 shadow-sm" 
+            (click)="enviarSolicitacao()">
+            Enviar Solicitação
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
