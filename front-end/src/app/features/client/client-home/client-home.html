@@ -1,121 +1,103 @@
-<div class="ch-page">
+<div class="container mt-4 pb-5">
 
-  <div class="ch-header">
-    <div class="ch-header__text">
-      <h1 class="ch-title">Minhas Solicitações</h1>
-      <p class="ch-subtitle">Acompanhe o histórico de manutenção dos seus equipamentos.</p>
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Minhas Solicitações</h2>
+      <p class="text-muted">
+        Acompanhe o histórico de manutenção dos seus equipamentos.
+      </p>
     </div>
-
-    <button mat-flat-button
-            color="primary"
-            class="ch-new-btn"
-            (click)="onNewRequest()">
-      <mat-icon>add</mat-icon>
-      Nova Solicitação
-    </button>
+    <div class="col-auto">
+      <button class="btn btn-primary shadow-sm" (click)="onNewRequest()">
+        + Nova Solicitação
+      </button>
+    </div>
   </div>
 
-  <mat-card class="ch-card" appearance="outlined">
-    <div class="ch-table-container">
-      <table mat-table [dataSource]="requests" class="ch-table">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Data / Hora</th>
+              <th>Equipamento</th>
+              <th>Estado</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
 
-        <ng-container matColumnDef="openedAt">
-          <th mat-header-cell *matHeaderCellDef>Data / Hora</th>
-          <td mat-cell *matCellDef="let req" class="ch-col-date">
-            <span class="ch-date-cell">
-              <mat-icon class="ch-date-icon">calendar_today</mat-icon>
-              {{ req.openedAt | date: 'dd/MM/yyyy HH:mm' }}
-            </span>
-          </td>
-        </ng-container>
+            <tr *ngFor="let req of requests">
+              <td class="ps-4">{{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ getShortDescription(req.equipmentDescription) }}</td>
+              <td>
+                <span class="badge rounded-pill" [ngClass]="{
+                  'bg-secondary': req.status === 'OPEN',
+                  'bg-warning text-dark': req.status === 'QUOTED',
+                  'bg-success':   req.status === 'APPROVED',
+                  'bg-danger':    req.status === 'REJECTED',
+                  'bg-info':      req.status === 'FIXED',
+                  'bg-primary':   req.status === 'PAID',
+                  'bg-dark':      req.status === 'FINALIZED'
+                }">{{ getStatusMeta(req.status).label }}</span>
+              </td>
+              <td class="text-center">
 
-        <ng-container matColumnDef="equipmentDescription">
-          <th mat-header-cell *matHeaderCellDef>Equipamento</th>
-          <td mat-cell *matCellDef="let req"
-              class="ch-equipment-cell"
-              [matTooltip]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : null"
-              matTooltipPosition="above">
-            {{ getShortDescription(req.equipmentDescription) }}
-          </td>
-        </ng-container>
+                <button *ngIf="req.status === 'QUOTED'"
+                  class="btn btn-sm btn-outline-warning shadow-sm"
+                  (click)="onApproveRejectQuote(req)">
+                  Aprovar / Rejeitar
+                </button>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let req">
-            <ng-container *ngTemplateOutlet="statusChip; context: { $implicit: getStatusMeta(req.status) }">
-            </ng-container>
-          </td>
-        </ng-container>
+                <button *ngIf="req.status === 'REJECTED'"
+                  class="btn btn-sm btn-outline-danger shadow-sm"
+                  (click)="onRescueService(req)">
+                  Resgatar Serviço
+                </button>
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="ch-col-actions">Ações</th>
-          <td mat-cell *matCellDef="let req" class="ch-col-actions">
+                <button *ngIf="req.status === 'FIXED'"
+                  class="btn btn-sm btn-success shadow-sm"
+                  (click)="onPayService(req)">
+                  Pagar Serviço
+                </button>
 
-            <button *ngIf="req.status === 'QUOTED'"
-                    mat-stroked-button
-                    color="accent"
-                    class="ch-action-btn"
-                    (click)="onApproveRejectQuote(req)">
-              <mat-icon>receipt_long</mat-icon>
-              Aprovar / Rejeitar
-            </button>
+                <span *ngIf="req.status === 'APPROVED'" class="text-muted fst-italic">
+                  Em andamento
+                </span>
 
-            <button *ngIf="req.status === 'REJECTED'"
-                    mat-stroked-button
-                    color="warn"
-                    class="ch-action-btn"
-                    (click)="onRescueService(req)">
-              <mat-icon>replay</mat-icon>
-              Resgatar Serviço
-            </button>
+                <button *ngIf="showViewButton(req.status)"
+                  class="btn btn-sm btn-outline-secondary shadow-sm"
+                  (click)="onViewRequest(req)">
+                  Visualizar
+                </button>
 
-            <button *ngIf="req.status === 'FIXED'"
-                    mat-flat-button
-                    color="primary"
-                    class="ch-action-btn"
-                    (click)="onPayService(req)">
-              <mat-icon>payments</mat-icon>
-              Pagar Serviço
-            </button>
+              </td>
+            </tr>
 
-            <span *ngIf="req.status === 'APPROVED'" class="ch-in-progress">
-              <mat-icon class="ch-in-progress__icon">hourglass_top</mat-icon>
-              Em andamento
-            </span>
+            <tr *ngIf="requests.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">
+                Nenhuma solicitação encontrada.
+              </td>
+            </tr>
 
-            <button *ngIf="showViewButton(req.status)"
-                    mat-button
-                    class="ch-action-btn ch-action-btn--view"
-                    (click)="onViewRequest(req)">
-              <mat-icon>visibility</mat-icon>
-              Visualizar
-            </button>
-
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="ch-data-row"></tr>
-
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </mat-card>
+  </div>
 
-  <aside class="ch-info-panel" role="note">
-    <mat-icon class="ch-info-panel__icon">info</mat-icon>
-    <div class="ch-info-panel__body">
-      <p>Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações.</p>
-      <p>Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor.</p>
-    </div>
-  </aside>
+  <div class="mt-4 p-4 bg-light border rounded shadow-sm">
+    <h6 class="fw-bold">
+      <i class="bi bi-info-circle me-2"></i>
+      Informação
+    </h6>
+    <small class="text-muted d-block">
+      Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações.
+    </small>
+    <small class="text-muted d-block">
+      Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor.
+    </small>
+  </div>
 
 </div>
-
-<ng-template #statusChip let-meta>
-  <mat-chip-set>
-    <mat-chip [ngClass]="meta.cssClass" disableRipple>
-      <mat-icon matChipLeadingIcon>{{ meta.icon }}</mat-icon>
-      {{ meta.label }}
-    </mat-chip>
-  </mat-chip-set>
-</ng-template>

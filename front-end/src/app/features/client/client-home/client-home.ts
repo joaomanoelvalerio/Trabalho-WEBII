@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule }      from '@angular/common';
-
-import { MatTableModule }   from '@angular/material/table';
-import { MatButtonModule }  from '@angular/material/button';
-import { MatIconModule }    from '@angular/material/icon';
-import { MatChipsModule }   from '@angular/material/chips';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule }    from '@angular/material/card';
-
+import { MatCardModule } from '@angular/material/card';
 
 export type RequestStatus =
   | 'OPEN'
@@ -35,14 +33,14 @@ export interface StatusMeta {
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  OPEN:       { label: 'Open',       cssClass: 'chip-open',       icon: 'radio_button_unchecked' },
-  QUOTED:     { label: 'Quoted',     cssClass: 'chip-quoted',     icon: 'receipt_long'           },
-  APPROVED:   { label: 'Approved',   cssClass: 'chip-approved',   icon: 'check_circle'           },
-  REJECTED:   { label: 'Rejected',   cssClass: 'chip-rejected',   icon: 'cancel'                 },
-  FIXED:      { label: 'Fixed',      cssClass: 'chip-fixed',      icon: 'build_circle'           },
-  PAID:       { label: 'Paid',       cssClass: 'chip-paid',       icon: 'payments'               },
-  FINALIZED:  { label: 'Finalized',  cssClass: 'chip-finalized',  icon: 'task_alt'               },
-  REDIRECTED: { label: 'Redirected', cssClass: 'chip-redirected', icon: 'swap_horiz'             },
+  OPEN:       { label: 'Aberta',      cssClass: 'chip-open',       icon: 'radio_button_unchecked' },
+  QUOTED:     { label: 'Orçada',      cssClass: 'chip-quoted',     icon: 'receipt_long'           },
+  APPROVED:   { label: 'Aprovada',    cssClass: 'chip-approved',   icon: 'check_circle'           },
+  REJECTED:   { label: 'Rejeitada',   cssClass: 'chip-rejected',   icon: 'cancel'                 },
+  FIXED:      { label: 'Consertada',  cssClass: 'chip-fixed',      icon: 'build_circle'           },
+  PAID:       { label: 'Paga',        cssClass: 'chip-paid',       icon: 'payments'               },
+  FINALIZED:  { label: 'Finalizada',  cssClass: 'chip-finalized',  icon: 'task_alt'               },
+  REDIRECTED: { label: 'Redirecionada', cssClass: 'chip-redirected', icon: 'swap_horiz'           },
 };
 
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
@@ -64,7 +62,6 @@ const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
   templateUrl: './client-home.html',
   styleUrls: ['./client-home.css'],
 })
-
 export class ClientHomeComponent implements OnInit {
 
   readonly displayedColumns: string[] = ['openedAt', 'equipmentDescription', 'status', 'actions'];
@@ -86,9 +83,10 @@ export class ClientHomeComponent implements OnInit {
   }
 
   getShortDescription(description: string): string {
-    return description.length > SHORT_DESC_LIMIT
-      ? `${description.substring(0, SHORT_DESC_LIMIT - 3)}...`
-      : description;
+    if (!description) return '';
+    return description.length <= SHORT_DESC_LIMIT
+      ? description
+      : description.substring(0, SHORT_DESC_LIMIT) + '...';
   }
 
   isTruncated(description: string): boolean {
@@ -100,22 +98,22 @@ export class ClientHomeComponent implements OnInit {
   }
 
   onNewRequest(): void {
-    console.log('RF004 — new request');
+    console.log('new request');
   }
 
   onViewRequest(req: ServiceRequest): void {
-    console.log('RF008 — view request', req.id);
+    console.log('view request', req.id);
   }
 
   onApproveRejectQuote(req: ServiceRequest): void {
-    console.log('RF005 — quote for request', req.id);
+    console.log('approve/reject quote', req.id);
   }
 
   onRescueService(req: ServiceRequest): void {
-    console.log('RF009 — rescue request', req.id);
+    console.log('rescue request', req.id);
   }
 
   onPayService(req: ServiceRequest): void {
-    console.log('RF010 — pay request', req.id);
+    console.log('pay request', req.id);
   }
 }
