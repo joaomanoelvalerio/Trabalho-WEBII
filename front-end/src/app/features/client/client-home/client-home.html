@@ -33,13 +33,13 @@
               <td>{{ getShortDescription(req.equipmentDescription) }}</td>
               <td>
                 <span class="badge rounded-pill" [ngClass]="{
-                  'bg-secondary': req.status === 'OPEN',
+                  'bg-secondary':         req.status === 'OPEN',
                   'bg-warning text-dark': req.status === 'QUOTED',
-                  'bg-success':   req.status === 'APPROVED',
-                  'bg-danger':    req.status === 'REJECTED',
-                  'bg-info':      req.status === 'FIXED',
-                  'bg-primary':   req.status === 'PAID',
-                  'bg-dark':      req.status === 'FINALIZED'
+                  'bg-success':           req.status === 'APPROVED',
+                  'bg-danger':            req.status === 'REJECTED',
+                  'bg-info':              req.status === 'FIXED',
+                  'bg-primary':           req.status === 'PAID',
+                  'bg-dark':              req.status === 'FINALIZED'
                 }">{{ getStatusMeta(req.status).label }}</span>
               </td>
               <td class="text-center">
