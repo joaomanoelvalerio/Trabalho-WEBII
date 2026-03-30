@@ -1,0 +1,25 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">Manutenção de Equipamentos</a>
+
+    @if (authService.getLoggedInUser(); as user) {
+      <div>
+        <span class="text-white me-3">Olá, {{ user.name }}</span>
+        
+        @if (user.role === 'CLIENT') {
+          <a class="btn btn-sm btn-light me-2" routerLink="/client">
+            Minhas Solicitações
+          </a>
+        }
+
+        @if (user.role == 'EMPLOYEE') {
+          <a class="btn btn-sm btn-light me-2" routerLink="/employee">
+            Solicitações
+          </a>
+        }
+
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">Sair</button>
+      </div>
+    }
+  </div>
+</nav>
