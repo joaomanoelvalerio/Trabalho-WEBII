@@ -62,6 +62,56 @@ export class RegisterComponent {
     }
   }
 
+  formatCpf(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    value = value.replace(/\D/g, '');
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+
+    input.value = value;
+    this.user.cpf = value;
+  }
+
+  formatPhone(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length === 0) {
+      input.value = '';
+      this.user.phone = '';
+      return;
+    }
+
+    if (value.length <= 2) {
+      value = value.replace(/^(\d{1,2})/, '($1');
+    } else if (value.length <= 6) {
+      value = value.replace(/^(\d{2})(\d{1,4})/, '($1) $2');
+    } else if (value.length <= 10) {
+      value = value.replace(/^(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
+    } else {
+      value = value.replace(/^(\d{2})(\d{5})(\d{1,4})/, '($1) $2-$3');
+    }
+
+    input.value = value;
+    this.user.phone = value;
+  }
+  
   onZipCodeBlur() {
     const zipCode = this.user.address.zipCode.replace(/\D/g, '');
 

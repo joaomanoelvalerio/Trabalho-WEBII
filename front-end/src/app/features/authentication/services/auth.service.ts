@@ -23,7 +23,7 @@ export class AuthService {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
   }
 
-  register(data: Omit<User, 'id' | 'role' | 'password'>) {
+register(data: Omit<User, 'id' | 'role' | 'password'>) {
     const users = this.getUsers();
 
     if (users.some(u => u.cpf === data.cpf)) {
@@ -33,10 +33,12 @@ export class AuthService {
       return throwError(() => new Error('Email já cadastrado.'));
     }
 
+    const randomPassword = Math.floor(1000 + Math.random() * 9000).toString();
+
     const newUser: User = {
       id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       role: 'CLIENT',
-      password: '123456',
+      password: randomPassword,
       ...data
     };
 
