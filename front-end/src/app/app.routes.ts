@@ -8,10 +8,11 @@ import { noAuthGuard } from './features/authentication/guards/no.auth-guard';
 import { ClientNewRequest } from './features/client/client-new-request/client-new-request';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent /*, canActivate: [noAuthGuard]*/ },
-  { path: 'register', component: RegisterComponent /*, canActivate: [noAuthGuard]*/ },
-  { path: 'employee', component: Employee /*, canActivate: [authGuard]*/ },
-  { path: 'client', component: ClientHomeComponent /*, canActivate: [authGuard]*/ },
-  { path: 'client/new-request', component: ClientNewRequest },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login',              component: LoginComponent,       canActivate: [noAuthGuard] },
+  { path: 'register',           component: RegisterComponent,    canActivate: [noAuthGuard] },
+  { path: 'employee',           component: Employee,             canActivate: [authGuard]   },
+  { path: 'client',             component: ClientHomeComponent,  canActivate: [authGuard]   },
+  { path: 'client/new-request', component: ClientNewRequest,     canActivate: [authGuard]   },
+  { path: '',                   redirectTo: '/login',            pathMatch: 'full'          },
+  { path: '**',                 redirectTo: '/login'                                        },
 ];

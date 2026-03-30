@@ -4,23 +4,23 @@
         <div id="texto">
             <div class='camposLogin'>
                 <label for="inputEmail">Email:</label>
-                <input 
-                    type="email" 
-                    name="email" 
-                    [(ngModel)]="usuario.email" 
-                    id="inputEmail" 
+                <input
+                    type="email"
+                    name="email"
+                    [(ngModel)]="credentials.email"
+                    id="inputEmail"
                     required>
 
-                <label for="inputSenha">Senha:</label>
-                <input 
-                    type="password" 
-                    name="senha" 
-                    [(ngModel)]="usuario.senha" 
-                    id="inputSenha" 
+                <label for="inputPassword">Senha:</label>
+                <input
+                    type="password"
+                    name="password"
+                    [(ngModel)]="credentials.password"
+                    id="inputPassword"
                     required>
             </div>
         </div>
-        
+
         <div class="Botoes">
             <button type="submit" id="Botao">Entrar</button>
             <button (click)="navigateToRegister()" type="button" id="BotaoSecundario">

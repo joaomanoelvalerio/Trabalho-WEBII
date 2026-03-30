@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Usuario } from '../../../shared/models/usuario.model';
+import { User } from '../../../shared/models/user.model';
 import { of, throwError } from 'rxjs';
 
 @Injectable({
@@ -13,14 +13,17 @@ export class AuthService {
       localStorage.setItem(this.USERS_KEY, JSON.stringify([]));
     }
   }
-  private getUsers(): Usuario[] {
+
+  private getUsers(): User[] {
     const usersJson = localStorage.getItem(this.USERS_KEY);
     return JSON.parse(usersJson || '[]');
   }
-  private saveUsers(users: Usuario[]): void {
+
+  private saveUsers(users: User[]): void {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
   }
-  register(data: Omit<Usuario, 'id' | 'perfil' | 'senha'>) {
+
+  register(data: Omit<User, 'id' | 'role' | 'password'>) {
     const users = this.getUsers();
 
     if (users.some(u => u.cpf === data.cpf)) {
@@ -29,21 +32,23 @@ export class AuthService {
     if (users.some(u => u.email === data.email)) {
       return throwError(() => new Error('Email já cadastrado.'));
     }
-    const newUser: Usuario = {
+
+    const newUser: User = {
       id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
-      perfil: 'cliente',
-      senha: '123456',
+      role: 'CLIENT',
+      password: '123456',
       ...data
     };
+
     users.push(newUser);
     this.saveUsers(users);
 
-    return of({ success: true, message: 'Usuário registrado!', senhaTemporaria: newUser.senha });
+    return of({ success: true, message: 'Usuário registrado!', temporaryPassword: newUser.password });
   }
 
-  login(email: string, senha: string) {
+  login(email: string, password: string) {
     const users = this.getUsers();
-    const user = users.find(u => u.email === email && u.senha === senha);
+    const user = users.find(u => u.email === email && u.password === password);
 
     if (user) {
       localStorage.setItem('loggedInUser', JSON.stringify(user));
@@ -52,10 +57,12 @@ export class AuthService {
       return throwError(() => new Error('Email ou senha inválidos.'));
     }
   }
+
   logout() {
     localStorage.removeItem('loggedInUser');
   }
-  getLoggedInUser(): Usuario | null {
+
+  getLoggedInUser(): User | null {
     const userJson = localStorage.getItem('loggedInUser');
     return userJson ? JSON.parse(userJson) : null;
   }

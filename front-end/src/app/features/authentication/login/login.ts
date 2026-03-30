@@ -15,22 +15,22 @@ export class LoginComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  usuario = {
+  credentials = {
     email: '',
-    senha: '',
+    password: '',
   };
 
   errorMessage: string | null = null;
 
   onSubmit() {
     this.errorMessage = null;
-    this.authService.login(this.usuario.email, this.usuario.senha).subscribe({
+    this.authService.login(this.credentials.email, this.credentials.password).subscribe({
       next: (response) => {
-        const perfil = response.user.perfil;
-        if (perfil === 'cliente') {
-          this.router.navigate(['/client-home']);
-        } else if (perfil === 'funcionario' || perfil === 'admin') {
-          this.router.navigate(['/funcionario']);
+        const role = response.user.role;
+        if (role === 'CLIENT') {
+          this.router.navigate(['/client']);
+        } else if (role === 'EMPLOYEE' || role === 'ADMIN') {
+          this.router.navigate(['/employee']);
         } else {
           this.router.navigate(['/']);
         }
