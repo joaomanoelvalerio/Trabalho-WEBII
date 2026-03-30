@@ -1,18 +1,19 @@
-export enum RequestState {
-  ABERTA = 'ABERTA',
-  ORCADA = 'ORCADA',
-  APROVADA = 'APROVADA',
-  REJEITADA = 'REJEITADA',
-  EM_EXECUCAO = 'EM_EXECUCAO',
-  ARRUMADA = 'ARRUMADA',
-  PAGA = 'PAGA',
-  FINALIZADA = 'FINALIZADA',
+export enum RequestStatus {
+  OPEN        = 'OPEN',
+  QUOTED      = 'QUOTED',
+  APPROVED    = 'APPROVED',
+  REJECTED    = 'REJECTED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FIXED       = 'FIXED',
+  PAID        = 'PAID',
+  FINALIZED   = 'FINALIZED',
+  REDIRECTED  = 'REDIRECTED',
 }
 
 export interface Solicitation {
   id: number;
-  dataSolicitacao: string;
-  descricao: string;
-  estado: RequestState;
-  clienteId: number;
+  openedAt: string;
+  equipmentDescription: string;
+  status: RequestStatus;
+  clientId: number;
 }

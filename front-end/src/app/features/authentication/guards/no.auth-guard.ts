@@ -12,7 +12,7 @@ export const noAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  if (user.perfil === 'cliente') {
+  if (user.role === 'CLIENT') {
     router.navigate(['/client']);
   } else {
     router.navigate(['/employee']);

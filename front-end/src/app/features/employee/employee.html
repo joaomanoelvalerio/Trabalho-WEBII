@@ -4,12 +4,12 @@
     <div class="col">
       <h2 class="fw-bold text-primary">Solicitações Abertas</h2>
       <p class="text-muted">
-        Solicitações que aguardam orçamento do funcionário.
+        Solicitações que aguardam orçamento.
       </p>
     </div>
     <div class="col-auto">
-      <span class="badge bg-danger fs-6">
-        {{ requests.length }} pendentes
+      <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3 py-2">
+        <i class="bi bi-clipboard-data me-1"></i> {{ requests.length }} pendentes
       </span>
     </div>
   </div>
@@ -22,35 +22,31 @@
             <tr>
               <th class="ps-4">Data / Hora</th>
               <th>Cliente</th>
-              <th>Produto</th>
-              <th class="text-center">Ação</th>
+              <th>Equipamento</th>
+              <th>Estado</th>
+              <th class="text-center">Ações</th>
             </tr>
           </thead>
           <tbody>
 
-            <tr *ngFor="let request of requests">
-              <td class="ps-4">
-                {{ request.dateTime | date:'dd/MM/yyyy HH:mm' }}
+            <tr *ngFor="let req of requests">
+              <td class="ps-4">{{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ req.clientName }}</td>
+              <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''">
+                {{ getShortDescription(req.equipmentDescription) }}
               </td>
               <td>
-                <span class="fw-semibold">{{ request.clientName }}</span>
-              </td>
-              <td>
-                {{ getShortDescription(request.description) }}
+                <span class="badge rounded-pill bg-secondary">Aberta</span>
               </td>
               <td class="text-center">
-                <button
-                  class="btn btn-sm btn-primary shadow-sm"
-                  (click)="submitQuote(request.id)"
-                >
-                  <i class="bi bi-cash-coin"></i>
+                <button class="btn btn-sm btn-outline-dark shadow-sm" (click)="onSubmitQuote(req)">
                   Efetuar Orçamento
                 </button>
               </td>
             </tr>
 
             <tr *ngIf="requests.length === 0">
-              <td colspan="4" class="text-center text-muted py-4">
+              <td colspan="5" class="text-center text-muted py-4">
                 Nenhuma solicitação aberta no momento.
               </td>
             </tr>
@@ -63,14 +59,13 @@
 
   <div class="mt-4 p-4 bg-light border rounded shadow-sm">
     <h6 class="fw-bold">
-      <i class="bi bi-info-circle me-2"></i>
       Informação
     </h6>
     <small class="text-muted d-block">
-      Todas as solicitações listadas estão no estado <strong>ABERTA</strong>.
+      Todas as solicitações listadas estão no estado <strong>Aberta</strong>.
     </small>
     <small class="text-muted d-block">
-      Clique em <strong>Efetuar Orçamento</strong> para informar o valor do serviço ao cliente.
+      Clique em <strong>Efetuar Orçamento</strong> para informar o valor ao cliente.
     </small>
   </div>
 
