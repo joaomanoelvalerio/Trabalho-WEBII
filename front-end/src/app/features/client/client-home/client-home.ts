@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
+import { StorageService } from '../../../shared/services/storage';
 
 export type RequestStatus =
   | 'OPEN'
@@ -68,43 +69,48 @@ const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
 })
 export class ClientHomeComponent implements OnInit {
   private router = inject(Router);
+  private storageService = inject(StorageService);
 
   readonly displayedColumns: string[] = ['openedAt', 'equipmentDescription', 'status', 'actions'];
 
-  requests: ServiceRequest[] = [
-    {
-      id: 1,
-      openedAt: new Date('2024-03-01T10:00:00'),
-      equipmentDescription: 'Dell Inspiron Notebook – Cracked Screen',
-      status: 'OPEN',
-    },
-    {
-      id: 2,
-      openedAt: new Date('2024-03-02T14:30:00'),
-      equipmentDescription: 'HP LaserJet Printer – Paper Jam',
-      status: 'QUOTED',
-    },
-    {
-      id: 3,
-      openedAt: new Date('2024-03-05T09:15:00'),
-      equipmentDescription: 'Gaming Desktop – Full Cleaning & Thermal Paste',
-      status: 'REJECTED',
-    },
-    {
-      id: 4,
-      openedAt: new Date('2024-03-07T16:00:00'),
-      equipmentDescription: 'LG Monitor – No Power After Outage',
-      status: 'FIXED',
-    },
-    {
-      id: 5,
-      openedAt: new Date('2024-03-08T11:00:00'),
-      equipmentDescription: 'Lenovo ThinkPad – Keyboard Replacement',
-      status: 'APPROVED',
-    },
-  ];
+  requests: any[] = [];
+  // requests: ServiceRequest[] = [
+  //   {
+  //     id: 1,
+  //     openedAt: new Date('2024-03-01T10:00:00'),
+  //     equipmentDescription: 'Dell Inspiron Notebook – Cracked Screen',
+  //     status: 'OPEN',
+  //   },
+  //   {
+  //     id: 2,
+  //     openedAt: new Date('2024-03-02T14:30:00'),
+  //     equipmentDescription: 'HP LaserJet Printer – Paper Jam',
+  //     status: 'QUOTED',
+  //   },
+  //   {
+  //     id: 3,
+  //     openedAt: new Date('2024-03-05T09:15:00'),
+  //     equipmentDescription: 'Gaming Desktop – Full Cleaning & Thermal Paste',
+  //     status: 'REJECTED',
+  //   },
+  //   {
+  //     id: 4,
+  //     openedAt: new Date('2024-03-07T16:00:00'),
+  //     equipmentDescription: 'LG Monitor – No Power After Outage',
+  //     status: 'FIXED',
+  //   },
+  //   {
+  //     id: 5,
+  //     openedAt: new Date('2024-03-08T11:00:00'),
+  //     equipmentDescription: 'Lenovo ThinkPad – Keyboard Replacement',
+  //     status: 'APPROVED',
+  //   },
+  // ];
 
   ngOnInit(): void {
+    this.requests = this.storageService.getSolicitacoes();
+
+    this.requests.forEach((req) => (req.openedAt = new Date(req.openedAt)));
     this.requests.sort((a, b) => a.openedAt.getTime() - b.openedAt.getTime());
   }
 

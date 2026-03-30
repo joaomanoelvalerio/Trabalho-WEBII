@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { StorageService } from '../../../shared/services/storage';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class ClientNewRequest {
   private router = inject(Router);
+  private storageService = inject(StorageService);
   categories: { id: number; nome: string }[] = [
     { id: 1, nome: 'Notebook' },
     { id: 2, nome: 'Desktop' },
@@ -30,6 +32,7 @@ export class ClientNewRequest {
 
   enviarSolicitacao(): void {
     console.log(this.newRequest);
+    this.storageService.salvarSolicitacao(this.newRequest);
 
     alert('Solicitação enviada com sucesso!');
 
