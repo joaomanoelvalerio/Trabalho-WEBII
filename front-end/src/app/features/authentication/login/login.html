@@ -1,35 +1,83 @@
-<div class="login-container">
-    <h1>Login</h1>
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-        <div id="texto">
-            <div class='camposLogin'>
-                <label for="inputEmail">Email:</label>
-                <input
-                    type="email"
-                    name="email"
-                    [(ngModel)]="credentials.email"
-                    id="inputEmail"
-                    required>
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-100" style="max-width: 900px;">
+    
+    <mat-card appearance="outlined" class="shadow-sm">
+      <mat-card-content class="p-0">
+        <div class="row g-0">
+          
+          <div class="col-md-5 bg-light p-5 d-flex flex-column justify-content-center align-items-center border-end">
+            <img
+              ngSrc="/images/logoWeb.svg"
+              alt="Logo"
+              height="64"
+              width="64"
+              class="mb-4" />
+            <h1 class="display-6 fw-bold text-header">Login</h1>
+          </div>
 
-                <label for="inputPassword">Senha:</label>
-                <input
-                    type="password"
-                    name="password"
-                    [(ngModel)]="credentials.password"
-                    id="inputPassword"
-                    required>
+          <div class="col-md-7 bg-light p-5">
+            <div class="d-flex flex-column gap-3">
+
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>E-mail</mat-label>
+                <input matInput type="email" text-header1 formControlName="email"  />
+                <mat-icon matSuffix>email</mat-icon>
+                
+                @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+                  <mat-error>O e-mail é obrigatório</mat-error>
+                }
+                @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+                  <mat-error>Formato de e-mail inválido</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Senha</mat-label>
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+                <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+
+                @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
+                  <mat-error>A senha é obrigatória</mat-error>
+                }
+                @if (form.get('password')?.touched && form.get('password')?.hasError('minlength')) {
+                  <mat-error>A senha deve ter 4 caracteres</mat-error>
+                }
+                @if (form.get('password')?.touched && form.get('password')?.hasError('maxlength')) {
+                  <mat-error>A senha deve ter 4 caracteres</mat-error>
+                }
+              </mat-form-field>
+
+              @if (errorMessage) {
+                <div class="alert alert-danger py-2 mb-0 border-0 shadow-sm d-flex align-items-center">
+                  <mat-icon class="me-2">error_outline</mat-icon>
+                  <small>{{ errorMessage }}</small>
+                </div>
+              }
+
+              <div class="text-end">
+                <a mat-button color="primary" class="small">Esqueceu a senha?</a>
+              </div>
             </div>
+          </div>
         </div>
+      </mat-card-content>
 
-        <div *ngIf="errorMessage" class="error-alert">
-            {{ errorMessage }}
-        </div>
+      <mat-card-actions class="p-4 bg-light d-flex justify-content-between border-top">
+        <button type="button" mat-button (click)="navigateToRegister()">
+          Criar nova conta
+        </button>
+        <button 
+          mat-flat-button 
+          color="primary" 
+          type="submit" 
+          [disabled]="form.invalid"
+          class="px-5 py-2">
+          ENTRAR
+        </button>
+      </mat-card-actions>
+    </mat-card>
 
-        <div class="Botoes">
-            <button type="submit" id="Botao" [disabled]="loginForm.invalid">Entrar</button>
-            <button (click)="navigateToRegister()" type="button" id="BotaoSecundario">
-                Cadastrar
-            </button>
-        </div>
-    </form>
+  </form>
 </div>

@@ -1,30 +1,54 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NgOptimizedImage, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css'],
+  styleUrls: ['./logintemp.css'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatSnackBarModule,
+    NgOptimizedImage,
+  ],
 })
 export class LoginComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
-
-  credentials = {
-    email: '',
-    password: '',
-  };
+  private snackBar = inject(MatSnackBar);
 
   errorMessage: string | null = null;
+  hidePassword = true;
+
+  form = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]),
+  });
 
   onSubmit() {
+    if (this.form.invalid) return;
+
     this.errorMessage = null;
-    this.authService.login(this.credentials.email, this.credentials.password).subscribe({
+    const { email, password } = this.form.getRawValue();
+
+    this.authService.login(email!, password!).subscribe({
       next: (response) => {
         const role = response.user.role;
         if (role === 'CLIENT') {
@@ -37,7 +61,8 @@ export class LoginComponent {
       },
       error: (err) => {
         this.errorMessage = err.message;
-      },
+        this.snackBar.open(err.message, 'Fechar', { duration: 5000 });
+      }
     });
   }
 
