@@ -7,51 +7,63 @@ export class StorageService {
   private readonly REQUESTS_KEY = 'manutencao_requests';
 
   constructor() {
-    this.inicializarDados();
+    this.initializeMockData();
   }
 
-  private inicializarDados(): void {
-    const dados = localStorage.getItem(this.REQUESTS_KEY);
+  private initializeMockData(): void {
+    const data = localStorage.getItem(this.REQUESTS_KEY);
 
-    if (!dados) {
-      const mockInicial = [
+    if (!data) {
+      const mock = [
         {
           id: 1,
           openedAt: new Date('2024-03-01T10:00:00'),
           equipmentDescription: 'Dell Inspiron Notebook - Tela trincada',
+          defectDescription: 'Tela com trincas após queda.',
+          categoryId: 1,
           status: 'OPEN',
         },
         {
           id: 2,
           openedAt: new Date('2024-03-02T14:30:00'),
           equipmentDescription: 'HP LaserJet Printer - Atolamento de papel',
+          defectDescription: 'Papel prende toda vez que imprime.',
+          categoryId: 3,
           status: 'QUOTED',
         },
       ];
 
-      localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(mockInicial));
+      localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(mock));
     }
   }
 
-  getSolicitacoes(): any[] {
-    const dados = localStorage.getItem(this.REQUESTS_KEY);
-    return dados ? JSON.parse(dados) : [];
+  getRequests(): any[] {
+    const data = localStorage.getItem(this.REQUESTS_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
-  salvarSolicitacao(novaSolicitacao: any): void {
-    const solicitacoes = this.getSolicitacoes();
+  saveRequest(newRequest: any): void {
+    const requests = this.getRequests();
 
-    const nova = {
-      id: solicitacoes.length > 0 ? Math.max(...solicitacoes.map((s) => s.id)) + 1 : 1,
+    const request = {
+      id: requests.length > 0 ? Math.max(...requests.map((r) => r.id)) + 1 : 1,
       openedAt: new Date(),
-      equipmentDescription: novaSolicitacao.descricaoEquipamento,
+      equipmentDescription: newRequest.equipmentDescription,
+      defectDescription: newRequest.defectDescription,
+      categoryId: newRequest.categoryId,
       status: 'OPEN',
-      categoria: novaSolicitacao.categoria,
-      descricaoDefeito: novaSolicitacao.descricaoDefeito,
     };
 
-    solicitacoes.push(nova);
+    requests.push(request);
+    localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(requests));
+  }
 
-    localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(solicitacoes));
+  updateRequestStatus(id: number, status: string): void {
+    const requests = this.getRequests();
+    const request = requests.find((r) => r.id === id);
+    if (request) {
+      request.status = status;
+      localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(requests));
+    }
   }
 }
