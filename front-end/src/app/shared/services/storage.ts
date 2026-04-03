@@ -1,69 +1,86 @@
 import { Injectable } from '@angular/core';
+import { Solicitation, RequestStatus } from '../models/solicitation.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class StorageService {
-  private readonly REQUESTS_KEY = 'manutencao_requests';
+  private readonly KEY = 'manutencao_requests';
 
   constructor() {
-    this.initializeMockData();
+    this.seedMockData();
   }
 
-  private initializeMockData(): void {
-    const data = localStorage.getItem(this.REQUESTS_KEY);
+  private seedMockData(): void {
+    if (localStorage.getItem(this.KEY)) return;
 
-    if (!data) {
-      const mock = [
-        {
-          id: 1,
-          openedAt: new Date('2024-03-01T10:00:00'),
-          equipmentDescription: 'Dell Inspiron Notebook - Tela trincada',
-          defectDescription: 'Tela com trincas após queda.',
-          categoryId: 1,
-          status: 'OPEN',
-        },
-        {
-          id: 2,
-          openedAt: new Date('2024-03-02T14:30:00'),
-          equipmentDescription: 'HP LaserJet Printer - Atolamento de papel',
-          defectDescription: 'Papel prende toda vez que imprime.',
-          categoryId: 3,
-          status: 'QUOTED',
-        },
-      ];
+    const mock: Solicitation[] = [
+      {
+        id: 1, clientId: 3, clientName: 'João Cliente',
+        openedAt: '2024-03-01T10:00:00',
+        equipmentDescription: 'Dell Inspiron Notebook - Tela trincada',
+        defectDescription: 'Tela com trincas após queda no chão.',
+        status: RequestStatus.OPEN,
+      },
+      {
+        id: 2, clientId: 3, clientName: 'João Cliente',
+        openedAt: '2024-03-02T14:30:00',
+        equipmentDescription: 'HP LaserJet Printer - Atolamento de papel',
+        defectDescription: 'Papel prende toda vez que tenta imprimir.',
+        status: RequestStatus.QUOTED,
+      },
+      {
+        id: 3, clientId: 4, clientName: 'José Cliente',
+        openedAt: '2024-03-03T09:00:00',
+        equipmentDescription: 'Desktop Gamer - Não liga após queda de energia',
+        defectDescription: 'Computador não liga mais após queda de energia.',
+        status: RequestStatus.APPROVED,
+      },
+      {
+        id: 4, clientId: 4, clientName: 'José Cliente',
+        openedAt: '2024-03-04T11:00:00',
+        equipmentDescription: 'Monitor LG - Tela piscando',
+        defectDescription: 'Tela pisca constantemente ao ligar.',
+        status: RequestStatus.FIXED,
+      },
+      {
+        id: 5, clientId: 3, clientName: 'João Cliente',
+        openedAt: '2024-03-05T16:00:00',
+        equipmentDescription: 'Teclado Mecânico - Teclas travando',
+        defectDescription: 'Diversas teclas travando ao digitar.',
+        status: RequestStatus.REJECTED,
+      },
+    ];
 
-      localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(mock));
-    }
+    localStorage.setItem(this.KEY, JSON.stringify(mock));
   }
 
-  getRequests(): any[] {
-    const data = localStorage.getItem(this.REQUESTS_KEY);
-    return data ? JSON.parse(data) : [];
+  getRequests(): Solicitation[] {
+    return JSON.parse(localStorage.getItem(this.KEY) || '[]');
   }
 
-  saveRequest(newRequest: any): void {
+  getRequestsByClientId(clientId: number): Solicitation[] {
+    return this.getRequests().filter(r => r.clientId === clientId);
+  }
+
+  getOpenRequests(): Solicitation[] {
+    return this.getRequests().filter(r => r.status === RequestStatus.OPEN);
+  }
+
+  saveRequest(data: Omit<Solicitation, 'id'>): Solicitation {
     const requests = this.getRequests();
-
-    const request = {
-      id: requests.length > 0 ? Math.max(...requests.map((r) => r.id)) + 1 : 1,
-      openedAt: new Date(),
-      equipmentDescription: newRequest.equipmentDescription,
-      defectDescription: newRequest.defectDescription,
-      categoryId: newRequest.categoryId,
-      status: 'OPEN',
+    const newRequest: Solicitation = {
+      ...data,
+      id: requests.length > 0 ? Math.max(...requests.map(r => r.id)) + 1 : 1,
     };
-
-    requests.push(request);
-    localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(requests));
+    requests.push(newRequest);
+    localStorage.setItem(this.KEY, JSON.stringify(requests));
+    return newRequest;
   }
 
-  updateRequestStatus(id: number, status: string): void {
+  updateRequestStatus(id: number, status: RequestStatus): void {
     const requests = this.getRequests();
-    const request = requests.find((r) => r.id === id);
-    if (request) {
-      request.status = status;
-      localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(requests));
-    }
+    const request = requests.find(r => r.id === id);
+    if (!request) throw new Error('Solicitação não encontrada.');
+    request.status = status;
+    localStorage.setItem(this.KEY, JSON.stringify(requests));
   }
 }

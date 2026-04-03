@@ -26,18 +26,18 @@ export class CategoryService {
     }
   }
 
-  getCategorias(): Category[] {
+  getAll(): Category[] {
     const stored = localStorage.getItem(this.KEY);
     return stored ? JSON.parse(stored) : [];
   }
 
   getCategoriaById(id: number): Category | undefined {
-    return this.getCategorias().find((c) => c.id === id);
+    return this.getAll().find((c) => c.id === id);
   }
 
-  cadastrarCategoria(name: string): Category {
+  registerCategory(name: string): Category {
     this.validateEmployeeRole();
-    const categories = this.getCategorias();
+    const categories = this.getAll();
     const trimmedName = name?.trim();
 
     if (!trimmedName) {
@@ -60,7 +60,7 @@ export class CategoryService {
       throw new Error('Category name cannot be empty.');
     }
 
-    const categories = this.getCategorias();
+    const categories = this.getAll();
     const idx = categories.findIndex((c) => c.id === updated.id);
     if (idx === -1) {
       throw new Error('Category not found.');
@@ -81,7 +81,7 @@ export class CategoryService {
 
   removerCategoria(id: number): void {
     this.validateEmployeeRole();
-    const categories = this.getCategorias();
+    const categories = this.getAll();
     const idx = categories.findIndex((c) => c.id === id);
     if (idx === -1) {
       throw new Error('Category does not exist.');
