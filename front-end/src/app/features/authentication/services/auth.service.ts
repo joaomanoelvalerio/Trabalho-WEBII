@@ -2,71 +2,97 @@ import { Injectable } from '@angular/core';
 import { User } from '../../../shared/models/user.model';
 import { of, throwError } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly USERS_KEY = 'app_users';
 
   constructor() {
-    if (!localStorage.getItem(this.USERS_KEY)) {
-      localStorage.setItem(this.USERS_KEY, JSON.stringify([]));
-    }
+    this.seedInitialData();
+  }
+
+  private seedInitialData(): void {
+    if (localStorage.getItem(this.USERS_KEY)) return;
+
+    const seed: User[] = [
+      {
+        id: 1, name: 'Maria Silva', email: 'maria@empresa.com',
+        password: '1234', role: 'EMPLOYEE', cpf: '', phone: '',
+        birthDate: '1990-05-10',
+        address: { zipCode: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' },
+      },
+      {
+        id: 2, name: 'Mário Santos', email: 'mario@empresa.com',
+        password: '1234', role: 'EMPLOYEE', cpf: '', phone: '',
+        birthDate: '1988-03-22',
+        address: { zipCode: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' },
+      },
+      {
+        id: 3, name: 'João Cliente', email: 'joao@email.com',
+        password: '1234', role: 'CLIENT', cpf: '111.111.111-11',
+        phone: '(41) 99999-0001',
+        address: { zipCode: '80010-000', street: 'Rua XV de Novembro', number: '100', complement: '', neighborhood: 'Centro', city: 'Curitiba', state: 'PR' },
+      },
+      {
+        id: 4, name: 'José Cliente', email: 'jose@email.com',
+        password: '1234', role: 'CLIENT', cpf: '222.222.222-22',
+        phone: '(41) 99999-0002',
+        address: { zipCode: '80020-000', street: 'Av. Sete de Setembro', number: '200', complement: '', neighborhood: 'Batel', city: 'Curitiba', state: 'PR' },
+      },
+    ];
+
+    localStorage.setItem(this.USERS_KEY, JSON.stringify(seed));
   }
 
   private getUsers(): User[] {
-    const usersJson = localStorage.getItem(this.USERS_KEY);
-    return JSON.parse(usersJson || '[]');
+    return JSON.parse(localStorage.getItem(this.USERS_KEY) || '[]');
   }
 
   private saveUsers(users: User[]): void {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
   }
 
-register(data: Omit<User, 'id' | 'role' | 'password'>) {
+  register(data: Omit<User, 'id' | 'role' | 'password'>) {
     const users = this.getUsers();
 
     if (users.some(u => u.cpf === data.cpf)) {
       return throwError(() => new Error('CPF já cadastrado.'));
     }
-    if (users.some(u => u.email === data.email)) {
-      return throwError(() => new Error('Email já cadastrado.'));
+    if (users.some(u => u.email.toLowerCase() === data.email.toLowerCase())) {
+      return throwError(() => new Error('E-mail já cadastrado.'));
     }
-
-    const randomPassword = Math.floor(1000 + Math.random() * 9000).toString();
 
     const newUser: User = {
       id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       role: 'CLIENT',
-      password: randomPassword,
-      ...data
+      password: Math.floor(1000 + Math.random() * 9000).toString(),
+      ...data,
     };
 
     users.push(newUser);
     this.saveUsers(users);
-
-    return of({ success: true, message: 'Usuário registrado!', temporaryPassword: newUser.password });
+    return of({ success: true, temporaryPassword: newUser.password });
   }
 
   login(email: string, password: string) {
-    const users = this.getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
+    const user = this.getUsers().find(
+      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
 
-    if (user) {
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
-      return of({ success: true, user });
-    } else {
-      return throwError(() => new Error('Email ou senha inválidos.'));
+    if (!user) {
+      return throwError(() => new Error('E-mail ou senha inválidos.'));
     }
+
+    localStorage.setItem('loggedInUser', JSON.stringify(user));
+    return of({ success: true, user });
   }
 
-  logout() {
+  logout(): void {
     localStorage.removeItem('loggedInUser');
   }
 
   getLoggedInUser(): User | null {
-    const userJson = localStorage.getItem('loggedInUser');
-    return userJson ? JSON.parse(userJson) : null;
+    const raw = localStorage.getItem('loggedInUser');
+    return raw ? JSON.parse(raw) : null;
   }
 
   getAllUsers(): User[] {
@@ -74,44 +100,28 @@ register(data: Omit<User, 'id' | 'role' | 'password'>) {
   }
 
   getEmployees(): User[] {
-    return this.getUsers().filter((u) => u.role === 'EMPLOYEE');
+    return this.getUsers().filter(u => u.role === 'EMPLOYEE');
   }
 
   addEmployee(data: { name: string; email: string; password: string; birthDate: string }): User {
-    const loggedUser = this.getLoggedInUser();
-    if (!loggedUser || loggedUser.role !== 'EMPLOYEE') {
-      throw new Error('Only employees can create other employees.');
-    }
-
     const users = this.getUsers();
 
     if (!data.name?.trim() || !data.email?.trim() || !data.password?.trim() || !data.birthDate?.trim()) {
-      throw new Error('All fields are required.');
+      throw new Error('Todos os campos são obrigatórios.');
+    }
+    if (users.some(u => u.email.toLowerCase() === data.email.toLowerCase())) {
+      throw new Error('E-mail já cadastrado.');
     }
 
-    if (users.some((u) => u.email.toLowerCase() === data.email.toLowerCase())) {
-      throw new Error('Email already registered.');
-    }
-
-    const nextId = users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1;
     const newUser: User = {
-      id: nextId,
+      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       role: 'EMPLOYEE',
-      password: data.password,
-      cpf: '',
-      phone: '',
-      address: {
-        zipCode: '',
-        street: '',
-        number: '',
-        complement: '',
-        neighborhood: '',
-        city: '',
-        state: '',
-      },
-      birthDate: data.birthDate,
+      cpf: '', phone: '',
+      address: { zipCode: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' },
       name: data.name.trim(),
       email: data.email.trim(),
+      password: data.password.trim(),
+      birthDate: data.birthDate.trim(),
     };
 
     users.push(newUser);
@@ -120,62 +130,38 @@ register(data: Omit<User, 'id' | 'role' | 'password'>) {
   }
 
   updateEmployee(id: number, data: { name: string; email: string; password?: string; birthDate: string }): User {
-    const loggedUser = this.getLoggedInUser();
-    if (!loggedUser || loggedUser.role !== 'EMPLOYEE') {
-      throw new Error('Only employees can update employee data.');
-    }
-
     const users = this.getUsers();
-    const targetIndex = users.findIndex((u) => u.id === id && u.role === 'EMPLOYEE');
+    const index = users.findIndex(u => u.id === id && u.role === 'EMPLOYEE');
 
-    if (targetIndex === -1) {
-      throw new Error('Employee not found.');
-    }
-
-    const existing = users[targetIndex];
-
+    if (index === -1) throw new Error('Funcionário não encontrado.');
     if (!data.name?.trim() || !data.email?.trim() || !data.birthDate?.trim()) {
-      throw new Error('Name, email, and birth date are required.');
+      throw new Error('Nome, e-mail e data de nascimento são obrigatórios.');
+    }
+    if (users.some(u => u.id !== id && u.email.toLowerCase() === data.email.toLowerCase())) {
+      throw new Error('E-mail já cadastrado por outro usuário.');
     }
 
-    if (users.some((u) => u.id !== id && u.email.toLowerCase() === data.email.toLowerCase())) {
-      throw new Error('Email already registered by another user.');
-    }
-
-    users[targetIndex] = {
-      ...existing,
+    users[index] = {
+      ...users[index],
       name: data.name.trim(),
       email: data.email.trim(),
       birthDate: data.birthDate.trim(),
-      password: data.password?.trim() ? data.password.trim() : existing.password,
+      password: data.password?.trim() || users[index].password,
     };
 
     this.saveUsers(users);
-    return users[targetIndex];
+    return users[index];
   }
 
   removeEmployee(id: number): void {
     const loggedUser = this.getLoggedInUser();
-    if (!loggedUser || loggedUser.role !== 'EMPLOYEE') {
-      throw new Error('Only employees can remove other employees.');
-    }
-
-    if (loggedUser.id === id) {
-      throw new Error('You cannot remove your own user.');
-    }
+    if (!loggedUser) throw new Error('Usuário não autenticado.');
+    if (loggedUser.id === id) throw new Error('Você não pode remover seu próprio usuário.');
 
     const employees = this.getEmployees();
-    if (employees.length <= 1) {
-      throw new Error('You cannot remove the last employee.');
-    }
+    if (employees.length <= 1) throw new Error('Não é possível remover o único funcionário.');
 
-    const users = this.getUsers();
-    const filtered = users.filter((u) => u.id !== id);
-    if (filtered.length === users.length) {
-      throw new Error('Employee not found.');
-    }
-
-    this.saveUsers(filtered);
+    const users = this.getUsers().filter(u => u.id !== id);
+    this.saveUsers(users);
   }
 }
-
