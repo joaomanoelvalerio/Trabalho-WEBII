@@ -1,47 +1,52 @@
 <div class="p-4">
-  
-  <div class="mb-3">
-    <h4 class="fw-bold text-primary m-0">Efetuar Orçamento</h4>
+
+  <div class="mb-3 d-flex align-items-center gap-2">
+    <i class="bi bi-receipt-cutoff text-primary fs-4"></i>
+    <h5 class="fw-bold text-primary mb-0">Efetuar Orçamento</h5>
   </div>
 
-  <div class="p-3 mb-4 bg-light rounded border-start border-4 border-primary shadow-sm">
+  <div class="p-3 mb-4 bg-light rounded border-start border-4 border-primary">
     <div class="row mb-2">
-      <div class="col-sm-4 text-muted fw-bold">Cliente</div>
-      <div class="col-sm-8 text-break">{{ data.request.clientName }}</div>
+      <div class="col-4 text-muted fw-bold small">Cliente</div>
+      <div class="col-8">{{ data.request.clientName || 'Cliente #' + data.request.clientId }}</div>
     </div>
     <div class="row mb-2">
-      <div class="col-sm-4 text-muted fw-bold">Equipamento</div>
-      <div class="col-sm-8 text-break">{{ data.request.equipmentDescription }}</div>
+      <div class="col-4 text-muted fw-bold small">Equipamento</div>
+      <div class="col-8">{{ data.request.equipmentDescription }}</div>
     </div>
     <div class="row mb-2">
-      <div class="col-sm-4 text-muted fw-bold">Defeito</div>
-      <div class="col-sm-8 text-break">{{ data.request.defectDescription }}</div>
+      <div class="col-4 text-muted fw-bold small">Defeito</div>
+      <div class="col-8">{{ data.request.defectDescription }}</div>
     </div>
     <div class="row">
-      <div class="col-sm-4 text-muted fw-bold">Abertura</div>
-      <div class="col-sm-8">{{ data.request.openedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      <div class="col-4 text-muted fw-bold small">Abertura</div>
+      <div class="col-8">{{ data.request.openedAt | date:'dd/MM/yyyy HH:mm' }}</div>
     </div>
   </div>
 
   <div class="mb-4">
-    <label for="quoteValue" class="form-label fw-semibold text-secondary">Valor do Orçamento</label>
-    <div class="input-group shadow-sm">
-      <span class="input-group-text bg-white text-muted fw-bold">R$</span>
+    <label class="form-label fw-bold">
+      Valor do Orçamento <span class="text-danger">*</span>
+    </label>
+    <div class="input-group">
+      <span class="input-group-text bg-white fw-bold text-muted">R$</span>
       <input type="text"
-             id="quoteValue"
              class="form-control"
              placeholder="0,00"
              [value]="displayValue"
-             (input)="onValueChange($event)">
+             (input)="onValueChange($event)" />
     </div>
   </div>
 
   <div class="d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-light border shadow-sm px-4" (click)="onCancel()">
+    <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()">
       Cancelar
     </button>
-    <button type="button" class="btn btn-primary shadow-sm px-4" [disabled]="!quoteValue || quoteValue <= 0" (click)="onConfirm()">
-      Confirmar Orçamento
+    <button type="button"
+            class="btn btn-primary px-4"
+            [disabled]="quoteValue <= 0"
+            (click)="onConfirm()">
+      <i class="bi bi-check-lg me-1"></i> Confirmar Orçamento
     </button>
   </div>
 

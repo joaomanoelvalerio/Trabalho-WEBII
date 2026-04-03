@@ -1,38 +1,78 @@
-<div class="container mt-4">
+<div class="container mt-4 pb-5">
+
   <div class="row mb-4 align-items-center">
     <div class="col">
       <h2 class="fw-bold text-primary">Solicitações Abertas</h2>
-      <p class="text-muted">Aguardando orçamento técnico.</p>
+      <p class="text-muted">Solicitações que aguardam orçamento do funcionário.</p>
     </div>
     <div class="col-auto">
       <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3 py-2">
-        {{ requests.length }} pendentes
+        <i class="bi bi-clipboard-data me-1"></i> {{ requests.length }} pendentes
       </span>
     </div>
   </div>
 
   <div class="card shadow-sm border-0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="ps-4">Data</th>
-            <th>Cliente ID</th>
-            <th>Equipamento</th>
-            <th class="text-center">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let req of requests">
-            <td class="ps-4">{{ req.openedAt | date:'dd/MM HH:mm' }}</td>
-            <td>#{{ req.clientId }}</td>
-            <td>{{ getShortDescription(req.equipmentDescription) }}</td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-dark" (click)="onSubmitQuote(req)">Efetuar Orçamento</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Data / Hora</th>
+              <th>Cliente</th>
+              <th>Equipamento</th>
+              <th>Defeito</th>
+              <th class="text-center">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr *ngFor="let req of requests">
+              <td class="ps-4 text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td>
+                <i class="bi bi-person me-1 text-muted"></i>
+                <strong>{{ getClientName(req) }}</strong>
+              </td>
+              <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''">
+                {{ getShortDescription(req.equipmentDescription) }}
+              </td>
+              <td [title]="isTruncated(req.defectDescription) ? req.defectDescription : ''">
+                {{ getShortDescription(req.defectDescription) }}
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary shadow-sm"
+                        (click)="onSubmitQuote(req)">
+                  <i class="bi bi-cash-coin me-1"></i> Efetuar Orçamento
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="requests.length === 0">
+              <td colspan="5" class="text-center text-muted py-5">
+                <i class="bi bi-check-circle fs-3 d-block mb-2 text-success"></i>
+                Nenhuma solicitação aberta no momento.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
+  <div class="mt-4 p-3 bg-light border rounded shadow-sm d-flex gap-2 align-items-start">
+    <i class="bi bi-info-circle text-primary fs-5 mt-1"></i>
+    <div>
+      <small class="text-muted d-block">
+        Todas as solicitações listadas estão no estado <strong>Aberta</strong>.
+      </small>
+      <small class="text-muted d-block">
+        Clique em <strong>Efetuar Orçamento</strong> para informar o valor ao cliente.
+      </small>
+    </div>
+  </div>
+
 </div>
