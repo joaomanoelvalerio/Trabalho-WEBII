@@ -1,84 +1,35 @@
-<div class="container-fluid login-page-bg">
-  <div class="row min-vh-100 align-items-center justify-content-center">
-    <div class="col-12" style="max-width: 900px;">
-      
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-card appearance="outlined" class="login-card shadow-lg border-0">
-          <mat-card-content class="p-0">
-            <div class="row g-0">
-              
-              <div class="col-md-5 brand-section d-flex flex-column justify-content-center align-items-center p-5">
-                <div class="brand-logo-wrapper mb-4">
-                  <img
-                    ngSrc="/images/logoWeb.svg"
-                    alt="Logo"
-                    height="72"
-                    width="72"
-                    priority />
-                </div>
-                <h1 class="display-6 fw-bold text-white">Bem-vindo</h1>
-                <p class="text-white-50 text-center">Gerencie seus projetos com eficiência e rapidez.</p>
-              </div>
+<div class="login-container">
+    <h1>Login</h1>
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div id="texto">
+            <div class='camposLogin'>
+                <label for="inputEmail">Email:</label>
+                <input
+                    type="email"
+                    name="email"
+                    [(ngModel)]="credentials.email"
+                    id="inputEmail"
+                    required>
 
-              <div class="col-md-7 bg-white p-lg-5 p-4">
-                <div class="d-flex flex-column">
-                  <h2 class="h4 fw-bold mb-1">Login</h2>
-                  <p class="text-muted small mb-4">Insira suas credenciais abaixo</p>
-
-                  <div class="d-flex flex-column gap-2">
-                    <mat-form-field appearance="outline" class="w-100 custom-field">
-                      <mat-label>E-mail</mat-label>
-                      <input matInput type="email" formControlName="email" placeholder="seu@email.com" />
-                      <mat-icon matSuffix color="primary">alternate_email</mat-icon>
-                      
-                      <mat-error *ngIf="form.get('email')?.hasError('required')">O e-mail é obrigatório</mat-error>
-                      <mat-error *ngIf="form.get('email')?.hasError('email')">E-mail inválido</mat-error>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="w-100 custom-field">
-                      <mat-label>Senha</mat-label>
-                      <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
-                      <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-                        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-                      </button>
-
-                      <mat-error *ngIf="form.get('password')?.hasError('required')">A senha é obrigatória</mat-error>
-                      <mat-error *ngIf="form.get('password')?.hasError('minlength')">Mínimo 4 caracteres</mat-error>
-                    </mat-form-field>
-
-                    @if (errorMessage) {
-                      <div class="alert alert-soft-danger d-flex align-items-center mb-3">
-                        <mat-icon class="me-2 fs-5">error</mat-icon>
-                        <span>{{ errorMessage }}</span>
-                      </div>
-                    }
-
-                    <div class="text-end">
-                      <a mat-button color="primary" class="btn-sm fw-normal">Esqueceu a senha?</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+                <label for="inputPassword">Senha:</label>
+                <input
+                    type="password"
+                    name="password"
+                    [(ngModel)]="credentials.password"
+                    id="inputPassword"
+                    required>
             </div>
-          </mat-card-content>
+        </div>
 
-          <mat-card-actions class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
-            <button type="button" mat-button color="accent" (click)="navigateToRegister()" class="fw-bold">
-              CRIAR CONTA
-            </button>
-            <button 
-              mat-flat-button 
-              color="primary" 
-              type="submit" 
-              [disabled]="form.invalid"
-              class="btn-login shadow-sm">
-              ACESSAR SISTEMA
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </form>
+        <div *ngIf="errorMessage" class="error-alert">
+            {{ errorMessage }}
+        </div>
 
-    </div>
-  </div>
+        <div class="Botoes">
+            <button type="submit" id="Botao" [disabled]="loginForm.invalid">Entrar</button>
+            <button (click)="navigateToRegister()" type="button" id="BotaoSecundario">
+                Cadastrar
+            </button>
+        </div>
+    </form>
 </div>

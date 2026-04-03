@@ -1,128 +1,61 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
+import { Router } from '@angular/router';
 import { StorageService } from '../../../shared/services/storage';
 
-export type RequestStatus =
-  | 'OPEN'
-  | 'QUOTED'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'FIXED'
-  | 'PAID'
-  | 'FINALIZED'
-  | 'REDIRECTED';
-
-export interface ServiceRequest {
-  id: number;
-  openedAt: Date;
-  equipmentDescription: string;
-  status: RequestStatus;
-}
+import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model'; 
 
 export interface StatusMeta {
   label: string;
-  cssClass: string;
-  icon: string;
+  badgeClass: string;
 }
 
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  OPEN: { label: 'Aberta', cssClass: 'chip-open', icon: 'radio_button_unchecked' },
-  QUOTED: { label: 'Orçada', cssClass: 'chip-quoted', icon: 'receipt_long' },
-  APPROVED: { label: 'Aprovada', cssClass: 'chip-approved', icon: 'check_circle' },
-  REJECTED: { label: 'Rejeitada', cssClass: 'chip-rejected', icon: 'cancel' },
-  FIXED: { label: 'Consertada', cssClass: 'chip-fixed', icon: 'build_circle' },
-  PAID: { label: 'Paga', cssClass: 'chip-paid', icon: 'payments' },
-  FINALIZED: { label: 'Finalizada', cssClass: 'chip-finalized', icon: 'task_alt' },
-  REDIRECTED: { label: 'Redirecionada', cssClass: 'chip-redirected', icon: 'swap_horiz' },
+  [RequestStatus.OPEN]:        { label: 'Aberta',         badgeClass: 'bg-secondary' },
+  [RequestStatus.QUOTED]:      { label: 'Orçada',         badgeClass: 'bg-warning text-dark' },
+  [RequestStatus.APPROVED]:    { label: 'Aprovada',       badgeClass: 'bg-success' },
+  [RequestStatus.REJECTED]:    { label: 'Rejeitada',      badgeClass: 'bg-danger' },
+  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',   badgeClass: 'bg-primary' },
+  [RequestStatus.FIXED]:       { label: 'Consertada',     badgeClass: 'bg-info text-dark' },
+  [RequestStatus.PAID]:        { label: 'Paga',           badgeClass: 'bg-success bg-opacity-75' },
+  [RequestStatus.FINALIZED]:   { label: 'Finalizada',     badgeClass: 'bg-dark' },
+  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada',  badgeClass: 'bg-purple text-white' },
 };
 
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
-  'QUOTED',
-  'REJECTED',
-  'FIXED',
-  'APPROVED',
+  RequestStatus.QUOTED, RequestStatus.REJECTED, RequestStatus.FIXED, RequestStatus.APPROVED,
 ]);
 
 @Component({
   selector: 'app-client-home',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatCardModule,
-  ],
+  imports: [CommonModule],
   templateUrl: './client-home.html',
   styleUrls: ['./client-home.css'],
 })
 export class ClientHomeComponent implements OnInit {
-  private router = inject(Router);
-  private storageService = inject(StorageService);
+  private readonly router = inject(Router);
+  private readonly storageService = inject(StorageService);
 
-  readonly displayedColumns: string[] = ['openedAt', 'equipmentDescription', 'status', 'actions'];
-
-  requests: any[] = [];
-  // requests: ServiceRequest[] = [
-  //   {
-  //     id: 1,
-  //     openedAt: new Date('2024-03-01T10:00:00'),
-  //     equipmentDescription: 'Dell Inspiron Notebook – Cracked Screen',
-  //     status: 'OPEN',
-  //   },
-  //   {
-  //     id: 2,
-  //     openedAt: new Date('2024-03-02T14:30:00'),
-  //     equipmentDescription: 'HP LaserJet Printer – Paper Jam',
-  //     status: 'QUOTED',
-  //   },
-  //   {
-  //     id: 3,
-  //     openedAt: new Date('2024-03-05T09:15:00'),
-  //     equipmentDescription: 'Gaming Desktop – Full Cleaning & Thermal Paste',
-  //     status: 'REJECTED',
-  //   },
-  //   {
-  //     id: 4,
-  //     openedAt: new Date('2024-03-07T16:00:00'),
-  //     equipmentDescription: 'LG Monitor – No Power After Outage',
-  //     status: 'FIXED',
-  //   },
-  //   {
-  //     id: 5,
-  //     openedAt: new Date('2024-03-08T11:00:00'),
-  //     equipmentDescription: 'Lenovo ThinkPad – Keyboard Replacement',
-  //     status: 'APPROVED',
-  //   },
-  // ];
+  requests: Solicitation[] = [];
 
   ngOnInit(): void {
-    this.requests = this.storageService.getSolicitacoes();
-
-    this.requests.forEach((req) => (req.openedAt = new Date(req.openedAt)));
-    this.requests.sort((a, b) => a.openedAt.getTime() - b.openedAt.getTime());
+    this.requests = this.storageService.getRequests();
+    
+    this.requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
   }
 
   getStatusMeta(status: RequestStatus): StatusMeta {
-    return STATUS_META[status];
+    return STATUS_META[status] || { label: 'Desconhecido', badgeClass: 'bg-secondary' };
   }
 
   getShortDescription(description: string): string {
     if (!description) return '';
     return description.length <= SHORT_DESC_LIMIT
       ? description
-      : description.substring(0, SHORT_DESC_LIMIT) + '...';
+      : description.substring(0, SHORT_DESC_LIMIT - 3) + '...';
   }
 
   isTruncated(description: string): boolean {
@@ -137,19 +70,19 @@ export class ClientHomeComponent implements OnInit {
     this.router.navigate(['/client/new-request']);
   }
 
-  onViewRequest(req: ServiceRequest): void {
-    console.log('view request', req.id);
+  onViewRequest(req: Solicitation): void {
+    console.log('view', req.id);
   }
 
-  onApproveRejectQuote(req: ServiceRequest): void {
-    console.log('approve/reject quote', req.id);
+  onApproveRejectQuote(req: Solicitation): void {
+    console.log('quote', req.id);
   }
 
-  onRescueService(req: ServiceRequest): void {
-    console.log('rescue request', req.id);
+  onRescueService(req: Solicitation): void {
+    console.log('rescue', req.id);
   }
 
-  onPayService(req: ServiceRequest): void {
-    console.log('pay request', req.id);
+  onPayService(req: Solicitation): void {
+    console.log('pay', req.id);
   }
 }

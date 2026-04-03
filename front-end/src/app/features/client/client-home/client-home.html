@@ -3,13 +3,11 @@
   <div class="row mb-4 align-items-center">
     <div class="col">
       <h2 class="fw-bold text-primary">Minhas Solicitações</h2>
-      <p class="text-muted">
-        Acompanhe o histórico de manutenção dos seus equipamentos.
-      </p>
+      <p class="text-muted">Acompanhe o histórico de manutenção dos seus equipamentos.</p>
     </div>
     <div class="col-auto">
       <button class="btn btn-primary shadow-sm" (click)="onNewRequest()">
-        + Nova Solicitação
+        <i class="bi bi-plus-lg me-1"></i> Nova Solicitação
       </button>
     </div>
   </div>
@@ -29,47 +27,46 @@
           <tbody>
 
             <tr *ngFor="let req of requests">
-              <td class="ps-4">{{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ getShortDescription(req.equipmentDescription) }}</td>
+              <td class="ps-4 text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''">
+                <strong>{{ getShortDescription(req.equipmentDescription) }}</strong>
+              </td>
               <td>
-                <span class="badge rounded-pill" [ngClass]="{
-                  'bg-secondary':         req.status === 'OPEN',
-                  'bg-warning text-dark': req.status === 'QUOTED',
-                  'bg-success':           req.status === 'APPROVED',
-                  'bg-danger':            req.status === 'REJECTED',
-                  'bg-info':              req.status === 'FIXED',
-                  'bg-primary':           req.status === 'PAID',
-                  'bg-dark':              req.status === 'FINALIZED'
-                }">{{ getStatusMeta(req.status).label }}</span>
+                <span class="badge rounded-pill {{ getStatusMeta(req.status).badgeClass }}">
+                  {{ getStatusMeta(req.status).label }}
+                </span>
               </td>
               <td class="text-center">
 
                 <button *ngIf="req.status === 'QUOTED'"
-                  class="btn btn-sm btn-outline-warning shadow-sm"
-                  (click)="onApproveRejectQuote(req)">
-                  Aprovar / Rejeitar
+                        class="btn btn-sm btn-outline-warning shadow-sm"
+                        (click)="onApproveRejectQuote(req)">
+                  <i class="bi bi-receipt me-1"></i> Aprovar / Rejeitar
                 </button>
 
                 <button *ngIf="req.status === 'REJECTED'"
-                  class="btn btn-sm btn-outline-danger shadow-sm"
-                  (click)="onRescueService(req)">
-                  Resgatar Serviço
+                        class="btn btn-sm btn-outline-danger shadow-sm"
+                        (click)="onRescueService(req)">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Resgatar Serviço
                 </button>
 
                 <button *ngIf="req.status === 'FIXED'"
-                  class="btn btn-sm btn-success shadow-sm"
-                  (click)="onPayService(req)">
-                  Pagar Serviço
+                        class="btn btn-sm btn-success shadow-sm"
+                        (click)="onPayService(req)">
+                  <i class="bi bi-credit-card me-1"></i> Pagar Serviço
                 </button>
 
-                <span *ngIf="req.status === 'APPROVED'" class="text-muted fst-italic">
-                  Em andamento
+                <span *ngIf="req.status === 'APPROVED'" class="text-muted fst-italic small">
+                  <i class="bi bi-hourglass-split me-1"></i> Em andamento
                 </span>
 
                 <button *ngIf="showViewButton(req.status)"
-                  class="btn btn-sm btn-outline-secondary shadow-sm"
-                  (click)="onViewRequest(req)">
-                  Visualizar
+                        class="btn btn-sm btn-outline-secondary shadow-sm"
+                        (click)="onViewRequest(req)">
+                  <i class="bi bi-eye me-1"></i> Visualizar
                 </button>
 
               </td>
@@ -77,6 +74,7 @@
 
             <tr *ngIf="requests.length === 0">
               <td colspan="4" class="text-center text-muted py-4">
+                <i class="bi bi-inbox fs-4 d-block mb-2"></i>
                 Nenhuma solicitação encontrada.
               </td>
             </tr>
@@ -87,17 +85,16 @@
     </div>
   </div>
 
-  <div class="mt-4 p-4 bg-light border rounded shadow-sm">
-    <h6 class="fw-bold">
-      <i class="bi bi-info-circle me-2"></i>
-      Informação
-    </h6>
-    <small class="text-muted d-block">
-      Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações.
-    </small>
-    <small class="text-muted d-block">
-      Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor.
-    </small>
+  <div class="mt-4 p-3 bg-light border rounded shadow-sm d-flex gap-2 align-items-start">
+    <i class="bi bi-info-circle text-primary fs-5 mt-1"></i>
+    <div>
+      <small class="text-muted d-block">
+        Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações.
+      </small>
+      <small class="text-muted d-block">
+        Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor.
+      </small>
+    </div>
   </div>
 
 </div>
