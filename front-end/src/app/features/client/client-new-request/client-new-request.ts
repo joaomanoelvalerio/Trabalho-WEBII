@@ -1,45 +1,61 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { StorageService } from '../../../shared/services/storage';
-import { CategoryService } from '../../../shared/services/category.service';
-import { Category } from '../../../shared/models/category.model';
-import { Router } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-import { RequestStatus } from '../../../shared/models/solicitation.model'; 
+import { Router } from '@angular/router';
+import { StorageService } from '../../../shared/services/storage';
+import { AuthService } from '../../authentication/services/auth.service';
+import { Category } from '../../../shared/models/category.model';
+import { RequestStatus } from '../../../shared/models/solicitation.model';
+import { CategoryService } from '../../../shared/services/category.service';
 
 @Component({
   selector: 'app-client-new-request',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './client-new-request.html',
   styleUrl: './client-new-request.css',
 })
 export class ClientNewRequest implements OnInit {
-  private router = inject(Router);
-  private storageService = inject(StorageService);
-  categories: { id: number; nome: string }[] = [
-    { id: 1, nome: 'Notebook' },
-    { id: 2, nome: 'Desktop' },
-    { id: 3, nome: 'Impressora' },
-    { id: 4, nome: 'Teclado' },
-    { id: 5, nome: 'Mouse' },
-  ];
+  private readonly router = inject(Router);
+  private readonly storageService = inject(StorageService);
+  private readonly authService = inject(AuthService);
+  private readonly categoryService = inject(CategoryService);
+
+  categories: Category[] = [];
 
   newRequest = {
-    descricaoEquipamento: '',
-    categoria: null,
-    descricaoDefeito: '',
+    equipmentDescription: '',
+    category: null as Category | null,
+    defectDescription: '',
   };
 
-  enviarSolicitacao(): void {
-    console.log(this.newRequest);
-    this.storageService.salvarSolicitacao(this.newRequest);
+  ngOnInit(): void {
+    this.categories = this.categoryService.getAll();
+  }
+
+  countWords(text: string): number {
+    if (!text?.trim()) return 0;
+    return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+  }
+
+  onSubmit(): void {
+    const user = this.authService.getLoggedInUser();
+    if (!user) return;
+
+    this.storageService.saveRequest({
+      clientId: user.id,
+      clientName: user.name,
+      openedAt: new Date().toISOString(),
+      equipmentDescription: this.newRequest.equipmentDescription.trim(),
+      defectDescription: this.newRequest.defectDescription.trim(),
+      status: RequestStatus.OPEN,
+    });
 
     alert('Solicitação enviada com sucesso!');
     this.router.navigate(['/client']);
   }
 
-  voltar(): void {
+  onCancel(): void {
     this.router.navigate(['/client']);
   }
 }

@@ -1,76 +1,84 @@
-<div class="container mt-5">
-  <div class="mb-4">
-    <h2 class="fw-bold form-title">Nova Solicitação</h2>
-    <p class="text-muted">Preencha as informações do equipamento e descreva o defeito detalhadamente.</p>
+<div class="container mt-4 pb-5">
+
+  <div class="row mb-3">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Nova Solicitação</h2>
+      <p class="text-muted mb-0">Preencha as informações do equipamento e descreva o defeito.</p>
+    </div>
   </div>
 
   <div class="card shadow-sm border-0">
-    <div class="card-body p-4 p-md-5">
-      
-      <form class="d-flex flex-column gap-3">
-        
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Descrição do Equipamento</mat-label>
-          <input 
-            matInput 
-            [(ngModel)]="newRequest.descricaoEquipamento" 
-            name="equipamento" 
-            placeholder="Ex: Notebook Dell Inspiron 15" 
-            required>
-        </mat-form-field>
+    <div class="card-body p-4">
+      <form #requestForm="ngForm" (ngSubmit)="onSubmit()">
 
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Categoria</mat-label>
-          <mat-select [(ngModel)]="newRequest.categoria" name="categoria" required>
-            @for (category of categories; track category.id) {
-              <mat-option [value]="category.id">
-                {{ category.name }}
-              </mat-option>
-            }
+        <div class="row g-3">
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold">
+              Categoria <span class="text-danger">*</span>
+            </label>
+            <select class="form-select"
+                    name="category"
+                    [(ngModel)]="newRequest.category"
+                    required>
+              <option [ngValue]="null" disabled>Selecione...</option>
+              <option *ngFor="let cat of categories" [ngValue]="cat">{{ cat.name }}</option>
+            </select>
           </div>
 
-          <div class="mb-2">
-            <label for="defectDescription" class="form-label">Descrição do Defeito*</label>
-            <textarea 
-              class="form-control" 
-              id="defectDescription" 
-              name="defectDescription"
-              rows="5" 
-              [(ngModel)]="newRequest.defectDescription" 
-              #defDesc="ngModel"
-              required></textarea>
-            
-            @if (countWords(newRequest.defectDescription) < 3 && defDesc.touched) {
-              <div class="text-danger small mt-1">Explique com mais detalhes (Mín. 3 palavras).</div>
-            }
+          <div class="col-md-8">
+            <label class="form-label fw-bold">
+              Descrição do Equipamento <span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   class="form-control"
+                   name="equipmentDescription"
+                   [(ngModel)]="newRequest.equipmentDescription"
+                   placeholder="Ex: Notebook Dell Inspiron 15"
+                   required
+                   #equipDesc="ngModel" />
+            <div *ngIf="equipDesc.touched && countWords(newRequest.equipmentDescription) < 3"
+                 class="text-danger small mt-1">
+              Descreva com pelo menos 3 palavras.
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-bold">
+              Descrição do Defeito <span class="text-danger">*</span>
+            </label>
+            <textarea class="form-control"
+                      name="defectDescription"
+                      [(ngModel)]="newRequest.defectDescription"
+                      rows="3"
+                      placeholder="Descreva o problema com o maior detalhe possível..."
+                      required
+                      #defDesc="ngModel"></textarea>
+            <div *ngIf="defDesc.touched && countWords(newRequest.defectDescription) < 3"
+                 class="text-danger small mt-1">
+              Explique com mais detalhes (mínimo 3 palavras).
+            </div>
           </div>
 
         </div>
 
-        <div class="col-lg-4 bg-light p-4 d-flex flex-column justify-content-center border-start">
-          
-          <div class="text-center mb-4">
-            <h5 class="fw-bold text-dark mb-1">Ações</h5>
-            <span class="text-muted small">Revise os dados antes de enviar.</span>
-          </div>
-          
-          <button 
-            type="button" 
-            class="btn btn-outline-secondary px-4 shadow-sm" 
-            (click)="return()">
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button"
+                  class="btn btn-outline-secondary px-4"
+                  (click)="onCancel()">
             Cancelar
           </button>
-          
-          <button 
-            type="button" 
-            class="btn btn-primary px-4 shadow-sm" 
-            (click)="sendRequest()">
-            Enviar Solicitação
+          <button type="submit"
+                  class="btn btn-primary px-4"
+                  [disabled]="requestForm.invalid ||
+                              countWords(newRequest.equipmentDescription) < 3 ||
+                              countWords(newRequest.defectDescription) < 3">
+            <i class="bi bi-send me-1"></i> Enviar Solicitação
           </button>
-          
         </div>
 
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
+
 </div>
