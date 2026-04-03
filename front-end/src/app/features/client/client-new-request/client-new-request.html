@@ -4,41 +4,28 @@
     <p class="text-muted">Preencha as informações do equipamento e descreva o defeito detalhadamente.</p>
   </div>
 
-  <div class="card shadow-sm border-0 overflow-hidden">
-    <form #requestForm="ngForm" (ngSubmit)="submitRequest()">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4 p-md-5">
       
-      <div class="row g-0">
+      <form class="d-flex flex-column gap-3">
         
-        <div class="col-lg-8 p-4 pt-4 pb-4">
-          
-          <div class="mb-3">
-            <label for="category" class="form-label">Categoria*</label>
-            <select 
-              class="form-select" 
-              id="category" 
-              name="category"
-              [(ngModel)]="newRequest.category" 
-              required>
-              <option [ngValue]="null" disabled selected>Selecione uma categoria...</option>
-              @for (cat of categories; track cat.id) {
-                <option [ngValue]="cat">{{ cat.name }}</option>
-              }
-            </select>
-          </div>
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Descrição do Equipamento</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="newRequest.descricaoEquipamento" 
+            name="equipamento" 
+            placeholder="Ex: Notebook Dell Inspiron 15" 
+            required>
+        </mat-form-field>
 
-          <div class="mb-3">
-            <label for="equipmentDescription" class="form-label">Descrição do Equipamento*</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="equipmentDescription" 
-              name="equipmentDescription"
-              [(ngModel)]="newRequest.equipmentDescription" 
-              #equipDesc="ngModel"
-              required>
-            
-            @if (countWords(newRequest.equipmentDescription) < 3 && equipDesc.touched) {
-              <div class="text-danger small mt-1">Descreva com pelo menos 3 palavras.</div>
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Categoria</mat-label>
+          <mat-select [(ngModel)]="newRequest.categoria" name="categoria" required>
+            @for (category of categories; track category.id) {
+              <mat-option [value]="category.id">
+                {{ category.name }}
+              </mat-option>
             }
           </div>
 
@@ -68,16 +55,17 @@
           </div>
           
           <button 
-            type="submit" 
-            class="btn btn-primary w-100 mb-3 py-2 fw-semibold btn-submit">
-            Enviar Solicitação
+            type="button" 
+            class="btn btn-outline-secondary px-4 shadow-sm" 
+            (click)="return()">
+            Cancelar
           </button>
           
           <button 
             type="button" 
-            class="btn btn-outline-secondary w-100 py-2 fw-semibold" 
-            (click)="goBack()">
-            Cancelar
+            class="btn btn-primary px-4 shadow-sm" 
+            (click)="sendRequest()">
+            Enviar Solicitação
           </button>
           
         </div>

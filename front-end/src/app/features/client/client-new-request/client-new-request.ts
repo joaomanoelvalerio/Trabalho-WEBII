@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { StorageService } from '../../../shared/services/storage';
+import { CategoryService } from '../../../shared/services/category.service';
+import { Category } from '../../../shared/models/category.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -12,55 +14,32 @@ import { RequestStatus } from '../../../shared/models/solicitation.model';
   templateUrl: './client-new-request.html',
   styleUrl: './client-new-request.css',
 })
-export class ClientNewRequest {
+export class ClientNewRequest implements OnInit {
   private router = inject(Router);
   private storageService = inject(StorageService);
-  
-  categories: { id: number; name: string }[] = [
-    { id: 1, name: 'Notebook' },
-    { id: 2, name: 'Desktop' },
-    { id: 3, name: 'Impressora' },
-    { id: 4, name: 'Teclado' },
-    { id: 5, name: 'Mouse' },
+  categories: { id: number; nome: string }[] = [
+    { id: 1, nome: 'Notebook' },
+    { id: 2, nome: 'Desktop' },
+    { id: 3, nome: 'Impressora' },
+    { id: 4, nome: 'Teclado' },
+    { id: 5, nome: 'Mouse' },
   ];
 
   newRequest = {
-    equipmentDescription: '',
-    category: null,
-    defectDescription: '',
+    descricaoEquipamento: '',
+    categoria: null,
+    descricaoDefeito: '',
   };
 
-  countWords(text: string): number {
-    if (!text) return 0;
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-  }
-
-  submitRequest(): void {
-    if (this.countWords(this.newRequest.equipmentDescription) < 3 || 
-        !this.newRequest.category || 
-        this.countWords(this.newRequest.defectDescription) < 3) {
-      return;
-    }
-
-    const finalSolicitation = {
-      id: Math.floor(Math.random() * 10000),
-      openedAt: new Date().toISOString(),   
-      equipmentDescription: this.newRequest.equipmentDescription,
-      status: RequestStatus.OPEN,          
-      clientId: 1,                       
-      
-      category: this.newRequest.category,
-      defectDescription: this.newRequest.defectDescription
-    };
-
-    console.log(finalSolicitation);
-    this.storageService.saveRequest(finalSolicitation);
+  enviarSolicitacao(): void {
+    console.log(this.newRequest);
+    this.storageService.salvarSolicitacao(this.newRequest);
 
     alert('Solicitação enviada com sucesso!');
     this.router.navigate(['/client']);
   }
 
-  goBack(): void {
+  voltar(): void {
     this.router.navigate(['/client']);
   }
 }
