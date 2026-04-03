@@ -29,7 +29,7 @@
           <mat-select [(ngModel)]="newRequest.categoria" name="categoria" required>
             @for (category of categories; track category.id) {
               <mat-option [value]="category.id">
-                {{ category.nome }}
+                {{ category.name }}
               </mat-option>
             }
           </mat-select>
@@ -50,14 +50,14 @@
           <button 
             type="button" 
             class="btn btn-outline-secondary px-4 shadow-sm" 
-            (click)="voltar()">
+            (click)="return()">
             Cancelar
           </button>
           
           <button 
             type="button" 
             class="btn btn-primary px-4 shadow-sm" 
-            (click)="enviarSolicitacao()">
+            (click)="sendRequest()">
             Enviar Solicitação
           </button>
         </div>

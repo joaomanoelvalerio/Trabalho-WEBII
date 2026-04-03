@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { StorageService } from '../../../shared/services/storage';
+import { CategoryService } from '../../../shared/services/category.service';
+import { Category } from '../../../shared/models/category.model';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,24 +15,24 @@ import { MatSelectModule } from '@angular/material/select';
   templateUrl: './client-new-request.html',
   styleUrl: './client-new-request.css',
 })
-export class ClientNewRequest {
+export class ClientNewRequest implements OnInit {
   private router = inject(Router);
   private storageService = inject(StorageService);
-  categories: { id: number; nome: string }[] = [
-    { id: 1, nome: 'Notebook' },
-    { id: 2, nome: 'Desktop' },
-    { id: 3, nome: 'Impressora' },
-    { id: 4, nome: 'Teclado' },
-    { id: 5, nome: 'Mouse' },
-  ];
+  private categoryService = inject(CategoryService);
+
+  categories: Category[] = [];
 
   newRequest = {
     descricaoEquipamento: '',
-    categoria: null,
+    categoria: null as number | null,
     descricaoDefeito: '',
   };
 
-  enviarSolicitacao(): void {
+  ngOnInit(): void {
+    this.categories = this.categoryService.getCategorias();
+  }
+
+  sendRequest(): void {
     console.log(this.newRequest);
     this.storageService.salvarSolicitacao(this.newRequest);
 
@@ -39,7 +41,7 @@ export class ClientNewRequest {
     this.router.navigate(['/client']);
   }
 
-  voltar(): void {
+  return(): void {
     this.router.navigate(['/client']);
   }
 }

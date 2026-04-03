@@ -9,4 +9,5 @@ export interface User {
   role: 'CLIENT' | 'EMPLOYEE' | 'ADMIN';
   address: Address;
   password: string;
+  birthDate?: string;
 }
