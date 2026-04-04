@@ -8,21 +8,23 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { MaintenanceDialogComponent } from '../maintenance-dialog/maintenance-dialog';
 import { FinalizeDialogComponent } from '../finalize-dialog/finalize-dialog';
+import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
+import { SolicitationDetailDialogComponent } from '../solicitation-detail-dialog/solicitation-detail-dialog';
 
 type FilterMode = 'TODAY' | 'PERIOD' | 'ALL';
 
 interface StatusStyle { label: string; rowClass: string; badgeClass: string; }
 
 const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
-  [RequestStatus.OPEN]:        { label: 'Aberta',        rowClass: 'row-open',       badgeClass: 'badge-open'       },
-  [RequestStatus.QUOTED]:      { label: 'Orçada',        rowClass: 'row-quoted',     badgeClass: 'badge-quoted'     },
-  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     rowClass: 'row-rejected',   badgeClass: 'badge-rejected'   },
-  [RequestStatus.APPROVED]:    { label: 'Aprovada',      rowClass: 'row-approved',   badgeClass: 'badge-approved'   },
-  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', rowClass: 'row-redirected', badgeClass: 'badge-redirected' },
-  [RequestStatus.FIXED]:       { label: 'Arrumada',      rowClass: 'row-fixed',      badgeClass: 'badge-fixed'      },
-  [RequestStatus.PAID]:        { label: 'Paga',          rowClass: 'row-paid',       badgeClass: 'badge-paid'       },
-  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    rowClass: 'row-finalized',  badgeClass: 'badge-finalized'  },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  rowClass: 'row-progress',   badgeClass: 'badge-progress'   },
+  [RequestStatus.OPEN]:        { label: 'Aberta',        rowClass: 'table-secondary', badgeClass: 'badge-open'       },
+  [RequestStatus.QUOTED]:      { label: 'Orçada',        rowClass: 'row-quoted',      badgeClass: 'badge-quoted'     },
+  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     rowClass: 'table-danger',    badgeClass: 'badge-rejected'   },
+  [RequestStatus.APPROVED]:    { label: 'Aprovada',      rowClass: 'row-approved',    badgeClass: 'badge-approved'   },
+  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', rowClass: 'row-redirected',  badgeClass: 'badge-redirected' },
+  [RequestStatus.FIXED]:       { label: 'Arrumada',      rowClass: 'table-primary',   badgeClass: 'badge-fixed'      },
+  [RequestStatus.PAID]:        { label: 'Paga',          rowClass: 'row-paid',        badgeClass: 'badge-paid'       },
+  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    rowClass: 'table-success',   badgeClass: 'badge-finalized'  },
+  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  rowClass: 'row-progress',    badgeClass: 'badge-progress'   },
 };
 
 @Component({
@@ -100,6 +102,43 @@ export class SolicitationsListComponent implements OnInit {
     return req.status === RequestStatus.PAID;
   }
 
+  // RF012 — Efetuar Orçamento (também disponível na lista de visualização)
+  onDoQuote(request: Solicitation): void {
+    const allUsers = this.authService.getAllUsers();
+    const client = allUsers.find(u => u.id === request.clientId);
+
+    const dialogRef = this.dialog.open(QuoteDialogComponent, {
+      width: '560px',
+      data: { request, client },
+    });
+
+    dialogRef.afterClosed().subscribe((quoteValue: number | null) => {
+      if (quoteValue && quoteValue > 0) {
+        const user = this.authService.getLoggedInUser();
+        const now = new Date().toISOString();
+        const history = [...(request.history || []), {
+          date: now,
+          fromStatus: request.status,
+          toStatus: RequestStatus.QUOTED,
+          employeeId: user?.id,
+          employeeName: user?.name,
+          note: `Orçamento de R$ ${quoteValue.toFixed(2).replace('.', ',')}`,
+        }];
+        this.storageService.updateRequest(request.id, {
+          status: RequestStatus.QUOTED,
+          quoteValue,
+          quotedByEmployeeId: user?.id,
+          quotedByEmployeeName: user?.name,
+          quotedAt: now,
+          history,
+        });
+        const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { duration: 4000 });
+        this.applyFilter();
+      }
+    });
+  }
+
   onDoMaintenance(req: Solicitation): void {
     const employees = this.authService.getEmployees().filter(e => e.id !== this.currentEmployeeId);
     const dialogRef = this.dialog.open(MaintenanceDialogComponent, {
@@ -171,6 +210,13 @@ export class SolicitationsListComponent implements OnInit {
       });
       this.snackBar.open('Solicitação finalizada!', 'Fechar', { duration: 3000 });
       this.applyFilter();
+    });
+  }
+
+  onViewDetails(req: Solicitation): void {
+    this.dialog.open(SolicitationDetailDialogComponent, {
+      width: '580px',
+      data: { request: req },
     });
   }
 }

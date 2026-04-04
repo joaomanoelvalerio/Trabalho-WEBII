@@ -1,0 +1,15 @@
+.row-quoted    td { background-color: rgba(121, 85, 72, 0.08); }
+.row-approved  td { background-color: rgba(255, 193, 7, 0.12); }
+.row-redirected td { background-color: rgba(111, 66, 193, 0.10); }
+.row-paid      td { background-color: rgba(253, 126, 20, 0.10); }
+.row-progress  td { background-color: rgba(13, 110, 253, 0.07); }
+
+.badge-open       { background-color: #adb5bd !important; color: #fff; }
+.badge-quoted     { background-color: #795548 !important; color: #fff; }
+.badge-rejected   { background-color: #dc3545 !important; color: #fff; }
+.badge-approved   { background-color: #ffc107 !important; color: #333; }
+.badge-redirected { background-color: #6f42c1 !important; color: #fff; }
+.badge-fixed      { background-color: #0d6efd !important; color: #fff; }
+.badge-paid       { background-color: #fd7e14 !important; color: #fff; }
+.badge-finalized  { background-color: #198754 !important; color: #fff; }
+.badge-progress   { background-color: #0dcaf0 !important; color: #000; }

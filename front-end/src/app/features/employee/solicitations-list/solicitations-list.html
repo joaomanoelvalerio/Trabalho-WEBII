@@ -37,6 +37,7 @@
             </button>
           </div>
         </div>
+
         <div class="col-12 col-md" *ngIf="filterMode === 'PERIOD'">
           <div class="row g-2">
             <div class="col-6">
@@ -46,5 +47,100 @@
             </div>
             <div class="col-6">
               <label class="form-label fw-bold small text-muted">Data final</label>
-            <input type="date" class="form-control form-control-sm"
-           [(ngModel)]="periodEnd" (change)="applyFilter()" />
+              <input type="date" class="form-control form-control-sm"
+                     [(ngModel)]="periodEnd" (change)="applyFilter()" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legenda de cores -->
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <span class="badge rounded-pill px-3 py-1" style="background:#adb5bd;color:#fff;">Aberta</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#795548;color:#fff;">Orçada</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#dc3545;color:#fff;">Rejeitada</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#ffc107;color:#333;">Aprovada</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#6f42c1;color:#fff;">Redirecionada</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#0d6efd;color:#fff;">Arrumada</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#fd7e14;color:#fff;">Paga</span>
+    <span class="badge rounded-pill px-3 py-1" style="background:#198754;color:#fff;">Finalizada</span>
+  </div>
+
+  <!-- Tabela de solicitações -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Data / Hora</th>
+              <th>Cliente</th>
+              <th>Equipamento</th>
+              <th>Estado</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requests" [ngClass]="getStyle(req.status).rowClass">
+              <td class="ps-4 text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td>
+                <i class="bi bi-person me-1 text-muted"></i>
+                <strong>{{ req.clientName || ('Cliente #' + req.clientId) }}</strong>
+              </td>
+              <td [title]="req.equipmentDescription">
+                {{ getShortDesc(req.equipmentDescription) }}
+              </td>
+              <td>
+                <span class="badge rounded-pill" [ngClass]="getStyle(req.status).badgeClass">
+                  {{ getStyle(req.status).label }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                  <!-- RF012: Efetuar Orçamento (ABERTA) -->
+                  <button *ngIf="req.status === 'OPEN'"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="onDoQuote(req)">
+                    <i class="bi bi-cash-coin me-1"></i> Efetuar Orçamento
+                  </button>
+
+                  <!-- RF014/RF015: Efetuar Manutenção (APROVADA ou REDIRECIONADA para mim) -->
+                  <button *ngIf="showMaintenanceButton(req)"
+                          class="btn btn-sm btn-outline-success"
+                          (click)="onDoMaintenance(req)">
+                    <i class="bi bi-tools me-1"></i> Efetuar Manutenção
+                  </button>
+
+                  <!-- RF016: Finalizar Solicitação (PAGA) -->
+                  <button *ngIf="showFinalizeButton(req)"
+                          class="btn btn-sm btn-outline-dark"
+                          (click)="onFinalize(req)">
+                    <i class="bi bi-check2-circle me-1"></i> Finalizar
+                  </button>
+
+                  <!-- Visualizar para estados sem ação -->
+                  <button *ngIf="req.status !== 'OPEN' && !showMaintenanceButton(req) && !showFinalizeButton(req)"
+                          class="btn btn-sm btn-outline-secondary"
+                          (click)="onViewDetails(req)">
+                    <i class="bi bi-eye me-1"></i> Visualizar
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="requests.length === 0">
+              <td colspan="5" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                Nenhuma solicitação encontrada para o filtro selecionado.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
