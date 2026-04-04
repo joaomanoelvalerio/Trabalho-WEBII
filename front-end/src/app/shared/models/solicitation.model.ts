@@ -10,12 +10,6 @@ export enum RequestStatus {
   REDIRECTED = 'REDIRECTED',
 }
 
-export interface RequestHistory {
-  date: string;
-  description: string;
-  userName: string;
-}
-
 export interface HistoryEntry {
   date: string;
   fromStatus: RequestStatus | null;

@@ -123,6 +123,14 @@ export class ClientHomeComponent implements OnInit {
       } else if (result.action === 'REJECT') {
         updatedReq.status = RequestStatus.REJECTED;
         updatedReq.rejectionReason = result.reason;
+<<<<<<< HEAD
+=======
+        updatedReq.history.push({
+          date: now,
+          description: `Orçamento rejeitado pleo cliente. Motivo: ${result.reason}`,
+          userName: user?.name || 'Cliente',
+        });
+>>>>>>> d9235ff (fix(storage): align mock data an correct model typings for quote flow)
 
         const historyEntry = {
           date: now,
