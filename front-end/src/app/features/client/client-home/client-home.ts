@@ -147,16 +147,19 @@ export class ClientHomeComponent implements OnInit {
   onRescueService(req: Solicitation): void {
     if (!confirm('Deseja resgatar este serviço? Ele voltará ao estado Aprovada.')) return;
     const now = new Date().toISOString();
-    const history = [
-      ...(req.history || []),
-      {
-        date: now,
-        fromStatus: RequestStatus.REJECTED,
-        toStatus: RequestStatus.APPROVED,
-        note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
-      },
-    ];
-    this.storageService.updateRequest(req.id, { status: RequestStatus.APPROVED, history });
+    const historyEntry = {
+      date: now,
+      fromStatus: RequestStatus.REJECTED,
+      toStatus: RequestStatus.APPROVED,
+      note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
+    } as any;
+
+    const history = [...(req.history || []), historyEntry];
+
+    this.storageService.updateRequest(req.id, {
+      status: RequestStatus.APPROVED,
+      history,
+    });
     this.loadRequests();
   }
 
