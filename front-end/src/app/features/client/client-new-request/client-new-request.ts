@@ -35,21 +35,31 @@ export class ClientNewRequest implements OnInit {
 
   countWords(text: string): number {
     if (!text?.trim()) return 0;
-    return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length > 0).length;
   }
   onSubmit(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
 
+    const dataAtual = new Date().toISOString();
+
     this.storageService.saveRequest({
       clientId: user.id,
       clientName: user.name,
-      openedAt: new Date().toISOString(),
+      openedAt: dataAtual,
       equipmentDescription: this.newRequest.equipmentDescription.trim(),
       defectDescription: this.newRequest.defectDescription.trim(),
       status: RequestStatus.OPEN,
-      // Adicione a linha abaixo para satisfazer a interface Solicitation
-      history: [] 
+      history: [
+        {
+          date: dataAtual,
+          description: 'Solicitação aberta pelo cliente.',
+          userName: user.name,
+        },
+      ],
     });
 
     alert('Solicitação enviada com sucesso!');

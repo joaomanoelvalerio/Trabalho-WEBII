@@ -1,13 +1,19 @@
 export enum RequestStatus {
-  OPEN        = 'OPEN',
-  QUOTED      = 'QUOTED',
-  APPROVED    = 'APPROVED',
-  REJECTED    = 'REJECTED',
+  OPEN = 'OPEN',
+  QUOTED = 'QUOTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
   IN_PROGRESS = 'IN_PROGRESS',
-  FIXED       = 'FIXED',
-  PAID        = 'PAID',
-  FINALIZED   = 'FINALIZED',
-  REDIRECTED  = 'REDIRECTED',
+  FIXED = 'FIXED',
+  PAID = 'PAID',
+  FINALIZED = 'FINALIZED',
+  REDIRECTED = 'REDIRECTED',
+}
+
+export interface RequestHistory {
+  date: string;
+  description: string;
+  userName: string;
 }
 
 export interface HistoryEntry {
