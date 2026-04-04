@@ -1,40 +1,53 @@
-<h2 mat-dialog-title class="fw-bold text-primary">Avaliar Orçamento</h2>
+<h2 mat-dialog-title class="fw-bold text-primary">
+  <i class="bi bi-receipt me-2"></i>Avaliar Orçamento
+</h2>
 
 <mat-dialog-content>
   <div class="mb-4">
-    <p><strong>Equipamento:</strong> {{ data.request.equipmentDescription }}</p>
-    <p><strong>Defeito relatado:</strong> {{ data.request.descricaoDefeito || 'Não informado' }}</p>
+    <div class="row mb-2">
+      <div class="col-4 fw-bold text-muted small">Equipamento:</div>
+      <div class="col-8">{{ data.request.equipmentDescription }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-4 fw-bold text-muted small">Defeito relatado:</div>
+      <div class="col-8">{{ data.request.defectDescription || '—' }}</div>
+    </div>
+    <div class="row" *ngIf="data.request.quotedByEmployeeName">
+      <div class="col-4 fw-bold text-muted small">Orçado por:</div>
+      <div class="col-8">{{ data.request.quotedByEmployeeName }}</div>
+    </div>
   </div>
 
+  <!-- Valor em destaque -->
   <div class="p-3 mb-3 bg-light border border-2 border-primary rounded text-center shadow-sm">
-    <h6 class="text-muted mb-1 text-uppercase">Valor do Orçamento</h6>
+    <h6 class="text-muted mb-1 text-uppercase small">Valor do Orçamento</h6>
     <h2 class="fw-bold text-primary mb-0">
-      {{ data.request.orcamentoValor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
     </h2>
   </div>
 
   @if (isRejecting) {
     <div class="mt-3">
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Motivo da Rejeição</mat-label>
-        <textarea matInput [(ngModel)]="motivoRejeicao" rows="3" 
-                  placeholder="Explique por que está rejeitando o orçamento..." required></textarea>
-      </mat-form-field>
+      <label class="form-label fw-bold">Motivo da Rejeição <span class="text-danger">*</span></label>
+      <textarea class="form-control" [(ngModel)]="motivoRejeicao" rows="3"
+                placeholder="Explique por que está rejeitando o orçamento..." required></textarea>
     </div>
   }
 </mat-dialog-content>
 
-<mat-dialog-actions align="end" class="pb-3 pe-3">
-  
+<mat-dialog-actions align="end" class="pb-3 pe-3 gap-2">
   @if (!isRejecting) {
-    <button mat-button mat-dialog-close>Voltar</button>
-    <button mat-flat-button color="warn" (click)="onReject()">Rejeitar Serviço</button>
-    <button mat-flat-button color="primary" (click)="onApprove()">Aprovar Serviço</button>
+    <button mat-button mat-dialog-close class="btn btn-light">Voltar</button>
+    <button mat-button class="btn btn-danger text-white" (click)="onReject()">
+      <i class="bi bi-x-circle me-1"></i> Rejeitar Serviço
+    </button>
+    <button mat-button class="btn btn-success text-white fw-bold" (click)="onApprove()">
+      <i class="bi bi-check-circle me-1"></i> Aprovar Serviço
+    </button>
   } @else {
-    <button mat-button (click)="onCancelReject()">Cancelar</button>
-    <button mat-flat-button color="warn" [disabled]="!motivoRejeicao.trim()" (click)="onConfirmReject()">
+    <button mat-button class="btn btn-light" (click)="onCancelReject()">Cancelar</button>
+    <button mat-button class="btn btn-danger text-white" [disabled]="!motivoRejeicao.trim()" (click)="onConfirmReject()">
       Confirmar Rejeição
     </button>
   }
-
 </mat-dialog-actions>
