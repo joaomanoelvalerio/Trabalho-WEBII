@@ -1,5 +1,8 @@
 <div class="container mt-4 pb-5">
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4c7d81c (refactor(client-home): mgrate list rendering to angular 17 control flow)
   <div class="row mb-4 align-items-center">
     <div class="col">
       <h2 class="fw-bold text-primary">Minhas Solicitações</h2>
@@ -11,7 +14,10 @@
       </button>
     </div>
   </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4c7d81c (refactor(client-home): mgrate list rendering to angular 17 control flow)
   <div class="card shadow-sm border-0">
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -24,6 +30,7 @@
               <th class="text-center">Ações</th>
             </tr>
           </thead>
+<<<<<<< HEAD
           <tbody>
             <tr *ngFor="let req of requests">
               <td class="ps-4 text-muted">
@@ -77,11 +84,73 @@
                 Nenhuma solicitação encontrada.
               </td>
             </tr>
+=======
+
+          <tbody>
+            @for (req of requests; track req.id) {
+              <tr>
+                <td class="ps-4 text-muted">
+                  <i class="bi bi-calendar3 me-1"></i> {{ req.openedAt | date: 'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''">
+                  <strong>{{ getShortDescription(req.equipmentDescription) }}</strong>
+                </td>
+                <td>
+                  <span class="badge rounded-pill {{ getStatusMeta(req.status).badgeClass }}">
+                    {{ getStatusMeta(req.status).label }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  @if (req.status === 'QUOTED') {
+                    <button
+                      class="btn btn-sm btn-outline-warning shadow-sm"
+                      (click)="onApproveRejectQuote(req)"
+                    >
+                      <i class="bi bi-receipt me-1"></i> Aprovar / Rejeitar
+                    </button>
+                  }
+                  @if (req.status === 'REJECTED') {
+                    <button
+                      class="btn btn-sm btn-outline-danger shadow-sm"
+                      (click)="onRescueService(req)"
+                    >
+                      <i class="bi bi-arrow-counterclockwise me-1"></i> Resgatar Serviço
+                    </button>
+                  }
+                  @if (req.status === 'FIXED') {
+                    <button class="btn btn-sm btn-success shadow-sm" (click)="onPayService(req)">
+                      <i class="bi bi-credit-card me-1"></i> Pagar Serviço
+                    </button>
+                  }
+                  @if (req.status === 'APPROVED') {
+                    <span class="text-muted fst-italic small">
+                      <i class="bi bi-hourglass-split me-1"></i> Em andamento
+                    </span>
+                  }
+                  @if (showViewButton(req.status)) {
+                    <button
+                      class="btn btn-sm btn-outline-secondary shadow-sm"
+                      (click)="onViewRequest(req)"
+                    >
+                      <i class="bi bi-eye me-1"></i> Visualizar
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  <i class="bi bi-inbox fs-4 d-block mb-2"></i> Nenhuma solicitação encontrada.
+                </td>
+              </tr>
+            }
+>>>>>>> 4c7d81c (refactor(client-home): mgrate list rendering to angular 17 control flow)
           </tbody>
         </table>
       </div>
     </div>
   </div>
+<<<<<<< HEAD
 
   <!-- Modal: Aprovar / Rejeitar Orçamento (RF005/RF006/RF007) -->
   <div *ngIf="showQuoteModal && selectedRequest"
@@ -184,3 +253,17 @@
   </div>
 
 </div>
+=======
+  <div class="mt-4 p-3 bg-light border rounded shadow-sm d-flex gap-2 align-items-start">
+    <i class="bi bi-info-circle text-primary fs-5 mt-1"></i>
+    <div>
+      <small class="text-muted d-block">
+        Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações.
+      </small>
+      <small class="text-muted d-block">
+        Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor.
+      </small>
+    </div>
+  </div>
+</div>
+>>>>>>> 4c7d81c (refactor(client-home): mgrate list rendering to angular 17 control flow)
