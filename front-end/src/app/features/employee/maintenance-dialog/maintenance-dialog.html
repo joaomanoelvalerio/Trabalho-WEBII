@@ -1,0 +1,94 @@
+<div class="p-4">
+  <div class="mb-3 d-flex align-items-center gap-2">
+    <i class="bi bi-tools text-primary fs-4"></i>
+    <h5 class="fw-bold text-primary mb-0">Efetuar Manutenção</h5>
+  </div>
+
+  <!-- Dados da solicitação -->
+  <div class="p-3 mb-4 bg-light rounded border-start border-4 border-primary">
+    <div class="row mb-2">
+      <div class="col-4 text-muted fw-bold small">Cliente</div>
+      <div class="col-8">{{ data.request.clientName || 'Cliente #' + data.request.clientId }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-4 text-muted fw-bold small">Equipamento</div>
+      <div class="col-8">{{ data.request.equipmentDescription }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-4 text-muted fw-bold small">Defeito</div>
+      <div class="col-8">{{ data.request.defectDescription }}</div>
+    </div>
+    <div class="row" *ngIf="data.request.quoteValue">
+      <div class="col-4 text-muted fw-bold small">Orçamento</div>
+      <div class="col-8 fw-bold text-success">
+        {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Escolha inicial -->
+  <div *ngIf="mode === 'CHOOSE'" class="d-flex flex-column gap-3">
+    <p class="text-muted mb-1">O que deseja fazer com esta solicitação?</p>
+    <button class="btn btn-primary" (click)="mode = 'MAINTAIN'">
+      <i class="bi bi-wrench me-2"></i> Efetuar a Manutenção
+    </button>
+    <button class="btn btn-outline-warning" (click)="mode = 'REDIRECT'"
+            [disabled]="data.employees.length === 0">
+      <i class="bi bi-arrow-right-circle me-2"></i> Redirecionar para outro Funcionário
+    </button>
+    <button class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+  </div>
+
+  <!-- Formulário de Manutenção (RF014) -->
+  <div *ngIf="mode === 'MAINTAIN'">
+    <div class="mb-3">
+      <label class="form-label fw-bold">
+        Descrição da Manutenção <span class="text-danger">*</span>
+      </label>
+      <textarea class="form-control" rows="3" placeholder="Descreva o que foi feito..."
+                [(ngModel)]="maintenanceDescription"></textarea>
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-bold">Orientações para o Cliente</label>
+      <textarea class="form-control" rows="2" placeholder="Cuidados, recomendações..."
+                [(ngModel)]="clientOrientations"></textarea>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" (click)="mode = 'CHOOSE'">Voltar</button>
+      <button class="btn btn-primary" [disabled]="!maintenanceDescription.trim()"
+              (click)="onConfirmMaintain()">
+        <i class="bi bi-check-lg me-1"></i> Confirmar Manutenção
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulário de Redirecionamento (RF015) -->
+  <div *ngIf="mode === 'REDIRECT'">
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        Redirecionar para <span class="text-danger">*</span>
+      </label>
+      <select class="form-select" [(ngModel)]="targetEmployeeId">
+        <option [ngValue]="null">— Selecione um funcionário —</option>
+        <option *ngFor="let emp of data.employees" [ngValue]="emp.id">{{ emp.name }}</option>
+      </select>
+      <div class="form-text text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        Você não pode redirecionar para si mesmo.
+      </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" (click)="mode = 'CHOOSE'">Voltar</button>
+      <button class="btn btn-warning" [disabled]="!targetEmployeeId"
+              (click)="onConfirmRedirect()">
+        <i class="bi bi-arrow-right-circle me-1"></i> Confirmar Redirecionamento
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="p-4">
+  <div class="mb-3 d-flex align-items-center gap-2">
+    <i class="bi bi-check2-circle text-success fs-4"></i>
+    <h5 class="fw-bold text-success mb-0">Finalizar Solicitação</h5>
+  </div>

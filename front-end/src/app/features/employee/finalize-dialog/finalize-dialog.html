@@ -1,0 +1,30 @@
+
+
+  <div class="p-3 mb-4 bg-light rounded border-start border-4 border-success">
+    <div class="row mb-2">
+      <div class="col-4 text-muted fw-bold small">Cliente</div>
+      <div class="col-8">{{ data.request.clientName || 'Cliente #' + data.request.clientId }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-4 text-muted fw-bold small">Equipamento</div>
+      <div class="col-8">{{ data.request.equipmentDescription }}</div>
+    </div>
+    <div class="row" *ngIf="data.request.quoteValue">
+      <div class="col-4 text-muted fw-bold small">Valor Pago</div>
+      <div class="col-8 fw-bold text-success">
+        {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </div>
+    </div>
+  </div>
+
+  <p class="text-muted">
+    Confirma a <strong>finalização</strong> desta solicitação?
+    O estado passará para <strong>FINALIZADA</strong> e a data/hora serão registradas.
+  </p>
+
+  <div class="d-flex justify-content-end gap-2 mt-3">
+    <button class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+    <button class="btn btn-success" (click)="onConfirm()">
+      <i class="bi bi-check-lg me-1"></i> Finalizar Solicitação
+    </button>
+  </div>

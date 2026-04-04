@@ -1,0 +1,50 @@
+<div class="container-fluid mt-4 pb-5">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Visualização de Solicitações</h2>
+      <p class="text-muted mb-0">Filtre e gerencie todas as solicitações do sistema.</p>
+    </div>
+    <div class="col-auto">
+      <span class="badge bg-secondary rounded-pill px-3 py-2">{{ requests.length }} solicitações</span>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-auto">
+          <label class="form-label fw-bold small text-muted">Filtrar por</label>
+          <div class="btn-group d-flex" role="group">
+            <button type="button" class="btn btn-sm"
+                    [class.btn-primary]="filterMode === 'TODAY'"
+                    [class.btn-outline-primary]="filterMode !== 'TODAY'"
+                    (click)="setFilter('TODAY')">
+              <i class="bi bi-calendar-day me-1"></i> Hoje
+            </button>
+            <button type="button" class="btn btn-sm"
+                    [class.btn-primary]="filterMode === 'PERIOD'"
+                    [class.btn-outline-primary]="filterMode !== 'PERIOD'"
+                    (click)="setFilter('PERIOD')">
+              <i class="bi bi-calendar-range me-1"></i> Período
+            </button>
+            <button type="button" class="btn btn-sm"
+                    [class.btn-primary]="filterMode === 'ALL'"
+                    [class.btn-outline-primary]="filterMode !== 'ALL'"
+                    (click)="setFilter('ALL')">
+              <i class="bi bi-list-ul me-1"></i> Todas
+            </button>
+          </div>
+        </div>
+        <div class="col-12 col-md" *ngIf="filterMode === 'PERIOD'">
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label fw-bold small text-muted">Data inicial</label>
+              <input type="date" class="form-control form-control-sm"
+                     [(ngModel)]="periodStart" (change)="applyFilter()" />
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small text-muted">Data final</label>
+            <input type="date" class="form-control form-control-sm"
+           [(ngModel)]="periodEnd" (change)="applyFilter()" />
