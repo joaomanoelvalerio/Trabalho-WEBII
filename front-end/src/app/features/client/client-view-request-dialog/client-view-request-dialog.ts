@@ -12,12 +12,12 @@ import { Solicitation, RequestStatus } from '../../../shared/models/solicitation
   templateUrl: './client-view-request-dialog.html',
 })
 export class ClientViewRequestDialogComponent {
-  isRejecting: boolean = false;
-  rejectionReason: string = '';
+  isRejecting = false;
+  rejectionReason = '';
 
   constructor(
     public dialogRef: MatDialogRef<ClientViewRequestDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { request: Solicitation },
+    @Inject(MAT_DIALOG_DATA) public data: { request: Solicitation; viewOnly?: boolean },
   ) {}
 
   onClose(): void {
@@ -25,39 +25,24 @@ export class ClientViewRequestDialogComponent {
   }
 
   onAction(actionType: string): void {
-    if (actionType === 'REJECT_INTENT') {
-      this.isRejecting = true;
+    if (actionType === 'RESCUE') {
+      this.dialogRef.close({ action: 'RESCUE' });
       return;
     }
-    if (actionType === 'CANCEL_REJECT') {
-      this.isRejecting = false;
-      this.rejectionReason = '';
-      return;
-    }
-    if (actionType === 'CONFIRM_REJECT') {
-      if (this.rejectionReason.trim()) {
-        this.dialogRef.close({
-          action: 'REJECT',
-          reason: this.rejectionReason,
-        });
-      }
-      return;
-    }
-
     this.dialogRef.close({ action: actionType });
   }
 
   getStatusLabel(status: RequestStatus): string {
     const statusMap: Record<RequestStatus, string> = {
-      [RequestStatus.OPEN]: 'Aberta',
-      [RequestStatus.QUOTED]: 'Orçada',
-      [RequestStatus.APPROVED]: 'Aprovada',
-      [RequestStatus.REJECTED]: 'Rejeitada',
+      [RequestStatus.OPEN]:        'Aberta',
+      [RequestStatus.QUOTED]:      'Orçada',
+      [RequestStatus.APPROVED]:    'Aprovada',
+      [RequestStatus.REJECTED]:    'Rejeitada',
       [RequestStatus.IN_PROGRESS]: 'Em Andamento',
-      [RequestStatus.FIXED]: 'Consertada',
-      [RequestStatus.PAID]: 'Paga',
-      [RequestStatus.FINALIZED]: 'Finalizada',
-      [RequestStatus.REDIRECTED]: 'Redirecionada',
+      [RequestStatus.FIXED]:       'Arrumada',
+      [RequestStatus.PAID]:        'Paga',
+      [RequestStatus.FINALIZED]:   'Finalizada',
+      [RequestStatus.REDIRECTED]:  'Redirecionada',
     };
     return statusMap[status] || 'Desconhecido';
   }
