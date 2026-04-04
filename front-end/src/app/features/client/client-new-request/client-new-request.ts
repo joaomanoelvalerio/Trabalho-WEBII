@@ -37,7 +37,6 @@ export class ClientNewRequest implements OnInit {
     if (!text?.trim()) return 0;
     return text.trim().split(/\s+/).filter(w => w.length > 0).length;
   }
-
   onSubmit(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
@@ -49,12 +48,13 @@ export class ClientNewRequest implements OnInit {
       equipmentDescription: this.newRequest.equipmentDescription.trim(),
       defectDescription: this.newRequest.defectDescription.trim(),
       status: RequestStatus.OPEN,
+      // Adicione a linha abaixo para satisfazer a interface Solicitation
+      history: [] 
     });
 
     alert('Solicitação enviada com sucesso!');
     this.router.navigate(['/client']);
   }
-
   onCancel(): void {
     this.router.navigate(['/client']);
   }

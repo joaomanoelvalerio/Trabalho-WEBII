@@ -1,1 +1,186 @@
-<div class="container mt-4 pb-5"> <div class="row mb-4 align-items-center"> <div class="col"> <h2 class="fw-bold text-primary">Minhas Solicitações</h2> <p class="text-muted">Acompanhe o histórico de manutenção dos seus equipamentos.</p> </div> <div class="col-auto"> <button class="btn btn-primary shadow-sm" (click)="onNewRequest()"> <i class="bi bi-plus-lg me-1"></i> Nova Solicitação </button> </div> </div> <div class="card shadow-sm border-0"> <div class="card-body p-0"> <div class="table-responsive"> <table class="table table-hover align-middle mb-0"> <thead class="table-light"> <tr> <th class="ps-4">Data / Hora</th> <th>Equipamento</th> <th>Estado</th> <th class="text-center">Ações</th> </tr> </thead> <tbody> <tr *ngFor="let req of requests"> <td class="ps-4 text-muted"> <i class="bi bi-calendar3 me-1"></i> {{ req.openedAt | date:'dd/MM/yyyy HH:mm' }} </td> <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''"> <strong>{{ getShortDescription(req.equipmentDescription) }}</strong> </td> <td> <span class="badge rounded-pill {{ getStatusMeta(req.status).badgeClass }}"> {{ getStatusMeta(req.status).label }} </span> </td> <td class="text-center"> <button *ngIf="req.status === 'QUOTED'" class="btn btn-sm btn-outline-warning shadow-sm" (click)="onApproveRejectQuote(req)"> <i class="bi bi-receipt me-1"></i> Aprovar / Rejeitar </button> <button *ngIf="req.status === 'REJECTED'" class="btn btn-sm btn-outline-danger shadow-sm" (click)="onRescueService(req)"> <i class="bi bi-arrow-counterclockwise me-1"></i> Resgatar Serviço </button> <button *ngIf="req.status === 'FIXED'" class="btn btn-sm btn-success shadow-sm" (click)="onPayService(req)"> <i class="bi bi-credit-card me-1"></i> Pagar Serviço </button> <span *ngIf="req.status === 'APPROVED'" class="text-muted fst-italic small"> <i class="bi bi-hourglass-split me-1"></i> Em andamento </span> <button *ngIf="showViewButton(req.status)" class="btn btn-sm btn-outline-secondary shadow-sm" (click)="onViewRequest(req)"> <i class="bi bi-eye me-1"></i> Visualizar </button> </td> </tr> <tr *ngIf="requests.length === 0"> <td colspan="4" class="text-center text-muted py-4"> <i class="bi bi-inbox fs-4 d-block mb-2"></i> Nenhuma solicitação encontrada. </td> </tr> </tbody> </table> </div> </div> </div> <div class="mt-4 p-3 bg-light border rounded shadow-sm d-flex gap-2 align-items-start"> <i class="bi bi-info-circle text-primary fs-5 mt-1"></i> <div> <small class="text-muted d-block"> Clique em <strong>Visualizar</strong> para ver o histórico completo de atualizações. </small> <small class="text-muted d-block"> Solicitações com estado <strong>Orçada</strong> aguardam sua aprovação de valor. </small> </div> </div> </div>
+<div class="container mt-4 pb-5">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Minhas Solicitações</h2>
+      <p class="text-muted">Acompanhe o histórico de manutenção dos seus equipamentos.</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary shadow-sm" (click)="onNewRequest()">
+        <i class="bi bi-plus-lg me-1"></i> Nova Solicitação
+      </button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Data / Hora</th>
+              <th>Equipamento</th>
+              <th>Estado</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requests">
+              <td class="ps-4 text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ req.openedAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td [title]="isTruncated(req.equipmentDescription) ? req.equipmentDescription : ''">
+                <strong>{{ getShortDescription(req.equipmentDescription) }}</strong>
+              </td>
+              <td>
+                <span class="badge rounded-pill {{ getStatusMeta(req.status).badgeClass }}">
+                  {{ getStatusMeta(req.status).label }}
+                </span>
+              </td>
+              <td class="text-center">
+
+                <button *ngIf="req.status === 'QUOTED'"
+                        class="btn btn-sm btn-outline-warning shadow-sm"
+                        (click)="onApproveRejectQuote(req)">
+                  <i class="bi bi-receipt me-1"></i> Aprovar / Rejeitar
+                </button>
+
+                <button *ngIf="req.status === 'REJECTED'"
+                        class="btn btn-sm btn-outline-danger shadow-sm"
+                        (click)="onRescueService(req)">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Resgatar Serviço
+                </button>
+
+                <button *ngIf="req.status === 'FIXED'"
+                        class="btn btn-sm btn-success shadow-sm"
+                        (click)="onPayService(req)">
+                  <i class="bi bi-credit-card me-1"></i> Pagar Serviço
+                </button>
+
+                <span *ngIf="req.status === 'APPROVED'" class="text-muted fst-italic small">
+                  <i class="bi bi-hourglass-split me-1"></i> Em andamento
+                </span>
+
+                <button *ngIf="showViewButton(req.status)"
+                        class="btn btn-sm btn-outline-secondary shadow-sm"
+                        (click)="onViewRequest(req)">
+                  <i class="bi bi-eye me-1"></i> Visualizar
+                </button>
+
+              </td>
+            </tr>
+
+            <tr *ngIf="requests.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">
+                <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                Nenhuma solicitação encontrada.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Aprovar / Rejeitar Orçamento (RF005/RF006/RF007) -->
+  <div *ngIf="showQuoteModal && selectedRequest"
+       class="modal-backdrop-custom" (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-receipt-cutoff text-warning fs-4"></i>
+        <h5 class="fw-bold mb-0">Orçamento do Serviço</h5>
+      </div>
+
+      <div class="p-3 mb-3 bg-light rounded border-start border-4 border-warning">
+        <div class="row mb-2">
+          <div class="col-5 text-muted fw-bold small">Equipamento</div>
+          <div class="col-7">{{ selectedRequest.equipmentDescription }}</div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-5 text-muted fw-bold small">Defeito</div>
+          <div class="col-7">{{ selectedRequest.defectDescription }}</div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-5 text-muted fw-bold small">Orçamentado por</div>
+          <div class="col-7">{{ selectedRequest.quotedByEmployeeName }}</div>
+        </div>
+        <div class="row">
+          <div class="col-5 text-muted fw-bold small">Valor</div>
+          <div class="col-7">
+            <span class="fs-4 fw-bold text-success">
+              R$ {{ selectedRequest.quoteValue?.toLocaleString('pt-BR', {minimumFractionDigits:2}) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold small">Motivo da rejeição (obrigatório para rejeitar)</label>
+        <textarea class="form-control" rows="2" [(ngModel)]="rejectionReason"
+                  placeholder="Informe o motivo caso queira rejeitar..."></textarea>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <button class="btn btn-outline-secondary" (click)="closeModal()">Cancelar</button>
+        <button class="btn btn-danger" [disabled]="!rejectionReason.trim()" (click)="onReject()">
+          <i class="bi bi-x-circle me-1"></i> Rejeitar
+        </button>
+        <button class="btn btn-success" (click)="onApprove()">
+          <i class="bi bi-check-circle me-1"></i> Aprovar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Visualizar Solicitação (RF008) -->
+  <div *ngIf="!showQuoteModal && selectedRequest"
+       class="modal-backdrop-custom" (click)="closeModal()">
+    <div class="modal-box modal-box-lg" (click)="$event.stopPropagation()">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-eye text-primary fs-4"></i>
+        <h5 class="fw-bold mb-0">Detalhes da Solicitação #{{ selectedRequest.id }}</h5>
+      </div>
+
+      <div class="p-3 mb-3 bg-light rounded">
+        <div class="row mb-2">
+          <div class="col-5 text-muted fw-bold small">Equipamento</div>
+          <div class="col-7">{{ selectedRequest.equipmentDescription }}</div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-5 text-muted fw-bold small">Defeito</div>
+          <div class="col-7">{{ selectedRequest.defectDescription }}</div>
+        </div>
+        <div class="row mb-2" *ngIf="selectedRequest.maintenanceDescription">
+          <div class="col-5 text-muted fw-bold small">Manutenção realizada</div>
+          <div class="col-7">{{ selectedRequest.maintenanceDescription }}</div>
+        </div>
+        <div class="row" *ngIf="selectedRequest.clientOrientations">
+          <div class="col-5 text-muted fw-bold small">Orientações</div>
+          <div class="col-7">{{ selectedRequest.clientOrientations }}</div>
+        </div>
+      </div>
+
+      <h6 class="fw-bold text-muted mb-2"><i class="bi bi-clock-history me-1"></i> Histórico</h6>
+      <div class="timeline">
+        <div *ngFor="let h of selectedRequest.history" class="timeline-item mb-2">
+          <div class="d-flex gap-2 align-items-start">
+            <i class="bi bi-circle-fill text-primary mt-1" style="font-size:0.5rem"></i>
+            <div>
+              <div class="small fw-bold">{{ h.date | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div class="small text-muted">
+                {{ h.note || h.toStatus }}
+                <span *ngIf="h.employeeName"> — <em>{{ h.employeeName }}</em></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-outline-secondary" (click)="closeModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
