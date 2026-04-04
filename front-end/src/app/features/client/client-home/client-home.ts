@@ -97,56 +97,50 @@ export class ClientHomeComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result || !result.action) return;
 
-      const user = this.authService.getLoggedInUser();
       const updatedReq = { ...req };
       const now = new Date().toISOString();
+      let note = '';
 
       switch (result.action) {
         case 'APPROVE':
           updatedReq.status = RequestStatus.APPROVED;
-          updatedReq.history.push({
-            date: now,
-            description: `Orçamento aprovado pelo cliente. Valor: R$ ${req.price || 0}`,
-            userName: user?.name || 'Cliente',
-          });
-          alert(`Serviço Aprovado no valor R$ ${req.price || 0}`);
+          note = `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`;
           break;
 
         case 'REJECT':
           updatedReq.status = RequestStatus.REJECTED;
           updatedReq.rejectionReason = result.reason;
-          updatedReq.history.push({
-            date: now,
-            description: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
-            userName: user?.name || 'Cliente',
-          });
-          alert('Serviço Rejeitado');
+          note = `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`;
           break;
 
         case 'RESCUE':
           updatedReq.status = RequestStatus.APPROVED;
-          updatedReq.history.push({
-            date: now,
-            description: 'Serviço resgatado. O orçamento foi aprovado pelo cliente.',
-            userName: user?.name || 'Cliente',
-          });
-          alert('Serviço resgatado com sucesso!');
+          note = 'Serviço resgatado. O orçamento foi aprovado pelo cliente.';
           break;
 
         case 'PAY':
           updatedReq.status = RequestStatus.PAID;
-          updatedReq.history.push({
-            date: now,
-            description: `Pagamento realizado pelo cliente. Valor: R$ ${req.price || 0}`,
-            userName: user?.name || 'Cliente',
-          });
-          alert('Pagamento confirmado com sucesso!');
+          updatedReq.paidAt = now;
+          note = `Pagamento realizado pelo cliente. Valor: R$ ${req.quoteValue || 0}`;
           break;
       }
 
-      this.storageService.updateRequest(updatedReq);
+      const historyEntry = {
+        date: now,
+        fromStatus: req.status,
+        toStatus: updatedReq.status,
+        note: note,
+      } as any;
 
-      this.ngOnInit();
+      updatedReq.history = [...(req.history || []), historyEntry];
+
+      this.storageService.updateRequest(updatedReq.id, updatedReq);
+
+      if (result.action === 'APPROVE' || result.action === 'RESCUE') alert('Serviço aprovado!');
+      if (result.action === 'REJECT') alert('Serviço rejeitado');
+      if (result.action === 'PAY') alert('Pagamento confirmado!');
+
+      this.loadRequests();
     });
   }
 
