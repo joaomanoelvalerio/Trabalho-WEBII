@@ -79,11 +79,7 @@ export class ClientHomeComponent implements OnInit {
 
     this.requests = this.storageService
       .getRequestsByClientId(user.id)
-      .sort(
-        (a, b) =>
-          new Date(a.openedAt).getTime() -
-          new Date(b.openedAt).getTime()
-      );
+      .sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
   }
 
   getStatusMeta(status: RequestStatus): StatusMeta {
