@@ -54,9 +54,13 @@ export class Employee implements OnInit {
   }
 
   onSubmitQuote(request: Solicitation): void {
+    // RF012: pass full client data to dialog
+    const allUsers = this.authService.getAllUsers();
+    const client = allUsers.find(u => u.id === request.clientId);
+
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
-      width: '500px',
-      data: { request },
+      width: '560px',
+      data: { request, client },
     });
 
     dialogRef.afterClosed().subscribe((quoteValue: number | null) => {
