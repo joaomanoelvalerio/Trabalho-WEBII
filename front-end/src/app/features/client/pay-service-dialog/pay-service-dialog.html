@@ -1,0 +1,62 @@
+<h2 mat-dialog-title class="fw-bold text-primary m-0 border-bottom pb-3">
+  <i class="bi bi-credit-card me-2"></i>Pagar Serviço
+</h2>
+
+<mat-dialog-content class="pt-3">
+  <!-- Dados da solicitação -->
+  <div class="mb-4">
+    <h6 class="text-muted fw-bold mb-3">Dados da Solicitação</h6>
+    <div class="row mb-2">
+      <div class="col-sm-4 fw-bold text-muted small">Equipamento:</div>
+      <div class="col-sm-8">{{ data.request.equipmentDescription }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-sm-4 fw-bold text-muted small">Categoria:</div>
+      <div class="col-sm-8">{{ data.request.categoryName || '—' }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-sm-4 fw-bold text-muted small">Defeito:</div>
+      <div class="col-sm-8">{{ data.request.defectDescription }}</div>
+    </div>
+
+    @if (data.request.maintenanceDescription) {
+      <div class="row mb-2">
+        <div class="col-sm-4 fw-bold text-muted small">Manutenção realizada:</div>
+        <div class="col-sm-8">{{ data.request.maintenanceDescription }}</div>
+      </div>
+    }
+
+    @if (data.request.clientOrientations) {
+      <div class="row mb-2">
+        <div class="col-sm-4 fw-bold text-muted small">Orientações:</div>
+        <div class="col-sm-8">{{ data.request.clientOrientations }}</div>
+      </div>
+    }
+
+    @if (data.request.maintainedByEmployeeName) {
+      <div class="row mb-2">
+        <div class="col-sm-4 fw-bold text-muted small">Técnico:</div>
+        <div class="col-sm-8">{{ data.request.maintainedByEmployeeName }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Valor em destaque (RF010) -->
+  <div class="p-4 text-center rounded border border-2 border-success mb-3" style="background: rgba(25,135,84,0.06)">
+    <p class="text-muted mb-1 small text-uppercase fw-bold">Valor a pagar</p>
+    <h2 class="fw-bold text-success mb-0">
+      {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+    </h2>
+  </div>
+
+  <p class="text-muted small text-center">
+    Ao confirmar, o pagamento será registrado com a data e hora atuais.
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="border-top pt-3 gap-2">
+  <button mat-button class="btn btn-light" (click)="onCancel()">Cancelar</button>
+  <button mat-button class="btn btn-success text-white fw-bold px-4" (click)="onConfirm()">
+    <i class="bi bi-check-circle me-1"></i> Confirmar Pagamento
+  </button>
+</mat-dialog-actions>
