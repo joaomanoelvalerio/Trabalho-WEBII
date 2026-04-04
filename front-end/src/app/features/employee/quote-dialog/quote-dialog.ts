@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Solicitation } from '../../../shared/models/solicitation.model';
+import { User } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-quote-dialog',
@@ -10,7 +11,7 @@ import { Solicitation } from '../../../shared/models/solicitation.model';
   templateUrl: './quote-dialog.html',
 })
 export class QuoteDialogComponent {
-  readonly data: { request: Solicitation } = inject(MAT_DIALOG_DATA);
+  readonly data: { request: Solicitation; client?: User } = inject(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<QuoteDialogComponent>);
 
   displayValue = '';
@@ -30,11 +31,6 @@ export class QuoteDialogComponent {
     });
   }
 
-  onCancel(): void {
-    this.dialogRef.close(null);
-  }
-
-  onConfirm(): void {
-    this.dialogRef.close(this.quoteValue);
-  }
+  onCancel(): void { this.dialogRef.close(null); }
+  onConfirm(): void { this.dialogRef.close(this.quoteValue); }
 }
