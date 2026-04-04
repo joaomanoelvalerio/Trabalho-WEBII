@@ -69,8 +69,54 @@
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end" class="border-top pt-2 mt-2">
-  <button mat-button class="btn btn-sm btn-outline-secondary shadow-sm" (click)="onClose()">
-    Fechar
-  </button>
+<mat-dialog-actions align="end" class="border-top pt-3 mt-2 d-flex gap-2">
+  @if (!isRejecting) {
+    <button mat-button class="btn btn-light" (click)="onClose()">Fechar</button>
+
+    @if (data.request.status === 'QUOTED') {
+      <button mat-button class="btn btn-danger text-white" (click)="onAction('REJECT_INTENT')">
+        Rejeitar Orçamento
+      </button>
+      <button mat-button class="btn btn-success text-white fw-bold" (click)="onAction('APPROVE')">
+        Aprovar Orçamento
+      </button>
+    }
+
+    @if (data.request.status === 'FIXED') {
+      <button mat-button class="btn btn-primary text-white fw-bold" (click)="onAction('PAY')">
+        Pagar Serviço
+      </button>
+    }
+
+    @if (data.request.status === 'REJECTED') {
+      <button mat-button class="btn btn-warning text-dark fw-bold" (click)="onAction('RESCUE')">
+        Resgatar Serviço
+      </button>
+    }
+  }
+
+  @if (isRejecting) {
+    <div class="w-100 d-flex flex-column align-items-end">
+      <textarea
+        class="form-control mb-2"
+        rows="2"
+        placeholder="Digite o motivo da rejeição..."
+        [(ngModel)]="rejectionReason"
+      >
+      </textarea>
+      <div>
+        <button mat-button class="btn btn-light me-2" (click)="onAction('CANCEL_REJECT')">
+          Cancelar
+        </button>
+        <button
+          mat-button
+          class="btn btn-danger text-white"
+          [disabled]="!rejectionReason.trim()"
+          (click)="onAction('CONFIRM_REJECT')"
+        >
+          Confirmar Rejeição
+        </button>
+      </div>
+    </div>
+  }
 </mat-dialog-actions>

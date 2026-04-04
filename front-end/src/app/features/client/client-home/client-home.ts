@@ -89,9 +89,64 @@ export class ClientHomeComponent implements OnInit {
   }
 
   onViewRequest(req: Solicitation): void {
-    this.dialog.open(ClientViewRequestDialogComponent, {
+    const dialogRef = this.dialog.open(ClientViewRequestDialogComponent, {
       width: '600px',
       data: { request: req },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result || !result.action) return;
+
+      const user = this.authService.getLoggedInUser();
+      const updatedReq = { ...req };
+      const now = new Date().toISOString();
+
+      switch (result.action) {
+        case 'APPROVE':
+          updatedReq.status = RequestStatus.APPROVED;
+          updatedReq.history.push({
+            date: now,
+            description: `Orçamento aprovado pelo cliente. Valor: R$ ${req.price || 0}`,
+            userName: user?.name || 'Cliente',
+          });
+          alert(`Serviço Aprovado no valor R$ ${req.price || 0}`);
+          break;
+
+        case 'REJECT':
+          updatedReq.status = RequestStatus.REJECTED;
+          updatedReq.rejectionReason = result.reason;
+          updatedReq.history.push({
+            date: now,
+            description: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
+            userName: user?.name || 'Cliente',
+          });
+          alert('Serviço Rejeitado');
+          break;
+
+        case 'RESCUE':
+          updatedReq.status = RequestStatus.APPROVED;
+          updatedReq.history.push({
+            date: now,
+            description: 'Serviço resgatado. O orçamento foi aprovado pelo cliente.',
+            userName: user?.name || 'Cliente',
+          });
+          alert('Serviço resgatado com sucesso!');
+          break;
+
+        case 'PAY':
+          updatedReq.status = RequestStatus.PAID;
+          updatedReq.history.push({
+            date: now,
+            description: `Pagamento realizado pelo cliente. Valor: R$ ${req.price || 0}`,
+            userName: user?.name || 'Cliente',
+          });
+          alert('Pagamento confirmado com sucesso!');
+          break;
+      }
+
+      this.storageService.updateRequest(updatedReq);
+
+      this.ngOnInit();
     });
   }
 
