@@ -56,8 +56,9 @@ export class ClientNewRequest implements OnInit {
       history: [
         {
           date: dataAtual,
-          description: 'Solicitação aberta pelo cliente.',
-          userName: user.name,
+          fromStatus: null,
+          toStatus: RequestStatus.OPEN,
+          note: 'Solicitação aberta pelo cliente.',
         },
       ],
     });
