@@ -7,6 +7,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ClientQuoteDialogComponent } from '../client-quote-dialog/client-quote-dialog';
+import { ClientViewRequestDialogComponent } from '../client-view-request-dialog/client-view-request-dialog';
 
 interface StatusMeta {
   label: string;
@@ -88,8 +89,10 @@ export class ClientHomeComponent implements OnInit {
   }
 
   onViewRequest(req: Solicitation): void {
-    this.selectedRequest = req;
-    this.showQuoteModal = false;
+    this.dialog.open(ClientViewRequestDialogComponent, {
+      width: '600px',
+      data: { request: req },
+    });
   }
 
   onApproveRejectQuote(req: Solicitation): void {
@@ -123,14 +126,6 @@ export class ClientHomeComponent implements OnInit {
       } else if (result.action === 'REJECT') {
         updatedReq.status = RequestStatus.REJECTED;
         updatedReq.rejectionReason = result.reason;
-<<<<<<< HEAD
-=======
-        updatedReq.history.push({
-          date: now,
-          description: `Orçamento rejeitado pleo cliente. Motivo: ${result.reason}`,
-          userName: user?.name || 'Cliente',
-        });
->>>>>>> d9235ff (fix(storage): align mock data an correct model typings for quote flow)
 
         const historyEntry = {
           date: now,
