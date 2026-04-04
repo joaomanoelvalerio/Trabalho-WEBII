@@ -8,6 +8,7 @@ import { RequestStatus, Solicitation } from '../../../shared/models/solicitation
 import { MatDialog } from '@angular/material/dialog';
 import { ClientQuoteDialogComponent } from '../client-quote-dialog/client-quote-dialog';
 import { ClientViewRequestDialogComponent } from '../client-view-request-dialog/client-view-request-dialog';
+import { PayServiceDialogComponent } from '../pay-service-dialog/pay-service-dialog';
 
 interface StatusMeta {
   label: string;
@@ -17,22 +18,22 @@ interface StatusMeta {
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  [RequestStatus.OPEN]: { label: 'Aberta', badgeClass: 'bg-secondary' },
-  [RequestStatus.QUOTED]: { label: 'Orçada', badgeClass: 'bg-warning text-dark' },
-  [RequestStatus.APPROVED]: { label: 'Aprovada', badgeClass: 'bg-success' },
-  [RequestStatus.REJECTED]: { label: 'Rejeitada', badgeClass: 'bg-danger' },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento', badgeClass: 'bg-primary' },
-  [RequestStatus.FIXED]: { label: 'Arrumada', badgeClass: 'bg-info text-dark' },
-  [RequestStatus.PAID]: { label: 'Paga', badgeClass: 'bg-success bg-opacity-75' },
-  [RequestStatus.FINALIZED]: { label: 'Finalizada', badgeClass: 'bg-dark' },
-  [RequestStatus.REDIRECTED]: { label: 'Redirecionada', badgeClass: 'bg-secondary' },
+  [RequestStatus.OPEN]:        { label: 'Aberta',        badgeClass: 'bg-secondary' },
+  [RequestStatus.QUOTED]:      { label: 'Orçada',        badgeClass: 'bg-warning text-dark' },
+  [RequestStatus.APPROVED]:    { label: 'Aprovada',      badgeClass: 'bg-success' },
+  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     badgeClass: 'bg-danger' },
+  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  badgeClass: 'bg-primary' },
+  [RequestStatus.FIXED]:       { label: 'Arrumada',      badgeClass: 'bg-info text-dark' },
+  [RequestStatus.PAID]:        { label: 'Paga',          badgeClass: 'bg-success bg-opacity-75' },
+  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    badgeClass: 'bg-dark' },
+  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', badgeClass: 'bg-secondary' },
 };
 
+// States where a dedicated action button replaces "Visualizar"
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
   RequestStatus.QUOTED,
   RequestStatus.REJECTED,
   RequestStatus.FIXED,
-  RequestStatus.APPROVED,
 ]);
 
 @Component({
@@ -49,9 +50,6 @@ export class ClientHomeComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   requests: Solicitation[] = [];
-  showQuoteModal = false;
-  selectedRequest: Solicitation | null = null;
-  rejectionReason = '';
 
   ngOnInit(): void {
     this.loadRequests();
@@ -88,62 +86,15 @@ export class ClientHomeComponent implements OnInit {
     this.router.navigate(['/client/new-request']);
   }
 
+  // RF008 — Visualizar Solicitação (somente leitura + histórico)
   onViewRequest(req: Solicitation): void {
-    const dialogRef = this.dialog.open(ClientViewRequestDialogComponent, {
+    this.dialog.open(ClientViewRequestDialogComponent, {
       width: '600px',
-      data: { request: req },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result || !result.action) return;
-
-      const updatedReq = { ...req };
-      const now = new Date().toISOString();
-      let note = '';
-
-      switch (result.action) {
-        case 'APPROVE':
-          updatedReq.status = RequestStatus.APPROVED;
-          note = `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`;
-          break;
-
-        case 'REJECT':
-          updatedReq.status = RequestStatus.REJECTED;
-          updatedReq.rejectionReason = result.reason;
-          note = `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`;
-          break;
-
-        case 'RESCUE':
-          updatedReq.status = RequestStatus.APPROVED;
-          note = 'Serviço resgatado. O orçamento foi aprovado pelo cliente.';
-          break;
-
-        case 'PAY':
-          updatedReq.status = RequestStatus.PAID;
-          updatedReq.paidAt = now;
-          note = `Pagamento realizado pelo cliente. Valor: R$ ${req.quoteValue || 0}`;
-          break;
-      }
-
-      const historyEntry = {
-        date: now,
-        fromStatus: req.status,
-        toStatus: updatedReq.status,
-        note: note,
-      } as any;
-
-      updatedReq.history = [...(req.history || []), historyEntry];
-
-      this.storageService.updateRequest(updatedReq.id, updatedReq);
-
-      if (result.action === 'APPROVE' || result.action === 'RESCUE') alert('Serviço aprovado!');
-      if (result.action === 'REJECT') alert('Serviço rejeitado');
-      if (result.action === 'PAY') alert('Pagamento confirmado!');
-
-      this.loadRequests();
+      data: { request: req, viewOnly: true },
     });
   }
 
+  // RF005 — Aprovar/Rejeitar Orçamento (estado ORÇADA)
   onApproveRejectQuote(req: Solicitation): void {
     const dialogRef = this.dialog.open(ClientQuoteDialogComponent, {
       width: '500px',
@@ -153,83 +104,91 @@ export class ClientHomeComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
 
-      const user = this.authService.getLoggedInUser();
       const updatedReq = { ...req };
       const now = new Date().toISOString();
 
       if (result.action === 'APPROVE') {
+        // RF006
         updatedReq.status = RequestStatus.APPROVED;
-
-        // Adaptamos para o formato de histórico do colega
         const historyEntry = {
           date: now,
           fromStatus: req.status,
           toStatus: RequestStatus.APPROVED,
           note: `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`,
         } as any;
-
         updatedReq.history = [...(req.history || []), historyEntry];
-
         this.storageService.updateRequest(updatedReq.id, updatedReq);
-        alert(`Serviço Aprovado no valor R$ ${req.quoteValue || 0}`);
+        alert(`Serviço Aprovado no Valor R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+
       } else if (result.action === 'REJECT') {
+        // RF007
         updatedReq.status = RequestStatus.REJECTED;
         updatedReq.rejectionReason = result.reason;
-
         const historyEntry = {
           date: now,
           fromStatus: req.status,
           toStatus: RequestStatus.REJECTED,
           note: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
         } as any;
-
         updatedReq.history = [...(req.history || []), historyEntry];
-
         this.storageService.updateRequest(updatedReq.id, updatedReq);
         alert('Serviço Rejeitado');
       }
 
-      this.ngOnInit();
+      this.loadRequests();
     });
   }
 
+  // RF009 — Resgatar Serviço (estado REJEITADA → APROVADA)
   onRescueService(req: Solicitation): void {
-    if (!confirm('Deseja resgatar este serviço? Ele voltará ao estado Aprovada.')) return;
-    const now = new Date().toISOString();
-    const historyEntry = {
-      date: now,
-      fromStatus: RequestStatus.REJECTED,
-      toStatus: RequestStatus.APPROVED,
-      note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
-    } as any;
-
-    const history = [...(req.history || []), historyEntry];
-
-    this.storageService.updateRequest(req.id, {
-      status: RequestStatus.APPROVED,
-      history,
+    const dialogRef = this.dialog.open(ClientViewRequestDialogComponent, {
+      width: '600px',
+      data: { request: req, viewOnly: false },
     });
-    this.loadRequests();
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result || result.action !== 'RESCUE') return;
+      const now = new Date().toISOString();
+      const history = [...(req.history || []), {
+        date: now,
+        fromStatus: RequestStatus.REJECTED,
+        toStatus: RequestStatus.APPROVED,
+        note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
+      }];
+      this.storageService.updateRequest(req.id, {
+        status: RequestStatus.APPROVED,
+        history,
+      });
+      this.loadRequests();
+    });
   }
 
+  // RF010 — Pagar Serviço (tela dedicada)
   onPayService(req: Solicitation): void {
-    if (
-      !confirm(
-        `Confirma o pagamento de R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}?`,
-      )
-    )
-      return;
-    const now = new Date().toISOString();
-    const history = [
-      ...(req.history || []),
-      {
-        date: now,
-        fromStatus: RequestStatus.FIXED,
-        toStatus: RequestStatus.PAID,
-        note: 'Pagamento efetuado pelo cliente',
-      },
-    ];
-    this.storageService.updateRequest(req.id, { status: RequestStatus.PAID, paidAt: now, history });
-    this.loadRequests();
+    const dialogRef = this.dialog.open(PayServiceDialogComponent, {
+      width: '520px',
+      data: { request: req },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      const now = new Date().toISOString();
+      const history = [
+        ...(req.history || []),
+        {
+          date: now,
+          fromStatus: RequestStatus.FIXED,
+          toStatus: RequestStatus.PAID,
+          note: `Pagamento efetuado pelo cliente. Valor: R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        },
+      ];
+      this.storageService.updateRequest(req.id, {
+        status: RequestStatus.PAID,
+        paidAt: now,
+        history,
+      });
+      alert('Pagamento confirmado!');
+      this.loadRequests();
+    });
   }
 }
