@@ -38,6 +38,19 @@ export class AuthService {
         phone: '(41) 99999-0002',
         address: { zipCode: '80020-000', street: 'Av. Sete de Setembro', number: '200', complement: '', neighborhood: 'Batel', city: 'Curitiba', state: 'PR' },
       },
+
+      {
+        id: 5, name: 'Joana Cliente', email: 'joana@email.com',
+        password: '1234', role: 'CLIENT', cpf: '333.333.333-33',
+        phone: '(41) 99999-0003',
+        address: { zipCode: '80030-000', street: 'Rua Marechal Deodoro', number: '300', complement: '', neighborhood: 'Centro', city: 'Curitiba', state: 'PR' },
+      },
+      {
+        id: 6, name: 'Joaquina Cliente', email: 'joaquina@email.com',
+        password: '1234', role: 'CLIENT', cpf: '444.444.444-44',
+        phone: '(41) 99999-0004',
+        address: { zipCode: '80040-000', street: 'Rua das Flores', number: '400', complement: 'Apto 12', neighborhood: 'Mercês', city: 'Curitiba', state: 'PR' },
+      },
     ];
 
     localStorage.setItem(this.USERS_KEY, JSON.stringify(seed));
