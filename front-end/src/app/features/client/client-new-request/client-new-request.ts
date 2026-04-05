@@ -35,11 +35,9 @@ export class ClientNewRequest implements OnInit {
 
   countWords(text: string): number {
     if (!text?.trim()) return 0;
-    return text
-      .trim()
-      .split(/\s+/)
-      .filter((w) => w.length > 0).length;
+    return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
   }
+
   onSubmit(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
@@ -51,6 +49,8 @@ export class ClientNewRequest implements OnInit {
       clientName: user.name,
       openedAt: dataAtual,
       equipmentDescription: this.newRequest.equipmentDescription.trim(),
+      categoryId: this.newRequest.category?.id,
+      categoryName: this.newRequest.category?.name,
       defectDescription: this.newRequest.defectDescription.trim(),
       status: RequestStatus.OPEN,
       history: [
@@ -66,6 +66,7 @@ export class ClientNewRequest implements OnInit {
     alert('Solicitação enviada com sucesso!');
     this.router.navigate(['/client']);
   }
+
   onCancel(): void {
     this.router.navigate(['/client']);
   }
