@@ -27,6 +27,13 @@ export class ClientQuoteDialogComponent {
     public dialogRef: MatDialogRef<ClientQuoteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { request: any },
   ) {}
+
+  /** Formata o valor sem depender do pipe currency + locale pt-BR */
+  formatCurrency(value?: number): string {
+    if (value == null) return 'R$ —';
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
   onApprove(): void {
     this.dialogRef.close({ action: 'APPROVE' });
   }

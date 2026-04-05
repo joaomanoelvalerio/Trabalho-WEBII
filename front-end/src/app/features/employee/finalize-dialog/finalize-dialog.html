@@ -1,5 +1,8 @@
+<h2 mat-dialog-title class="fw-bold text-success m-0 border-bottom pb-3">
+  <i class="bi bi-check2-circle me-2"></i>Finalizar Solicitação
+</h2>
 
-
+<mat-dialog-content class="pt-3">
   <div class="p-3 mb-4 bg-light rounded border-start border-4 border-success">
     <div class="row mb-2">
       <div class="col-4 text-muted fw-bold small">Cliente</div>
@@ -12,7 +15,7 @@
     <div class="row" *ngIf="data.request.quoteValue">
       <div class="col-4 text-muted fw-bold small">Valor Pago</div>
       <div class="col-8 fw-bold text-success">
-        {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        {{ formatCurrency(data.request.quoteValue) }}
       </div>
     </div>
   </div>
@@ -21,10 +24,12 @@
     Confirma a <strong>finalização</strong> desta solicitação?
     O estado passará para <strong>FINALIZADA</strong> e a data/hora serão registradas.
   </p>
+</mat-dialog-content>
 
-  <div class="d-flex justify-content-end gap-2 mt-3">
-    <button class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
-    <button class="btn btn-success" (click)="onConfirm()">
-      <i class="bi bi-check-lg me-1"></i> Finalizar Solicitação
-    </button>
-  </div>
+<mat-dialog-actions align="end" class="border-top pt-3 gap-2">
+  <!-- mat-button removido para evitar conflito com Bootstrap -->
+  <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+  <button type="button" class="btn btn-success text-white" (click)="onConfirm()">
+    <i class="bi bi-check-lg me-1"></i> Finalizar Solicitação
+  </button>
+</mat-dialog-actions>

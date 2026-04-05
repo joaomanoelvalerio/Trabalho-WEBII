@@ -27,6 +27,9 @@ const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  rowClass: 'row-progress',    badgeClass: 'badge-progress'   },
 };
 
+/** Configuração padrão do snackbar — canto superior direito, longe da tabela */
+const SNACK = { duration: 3000, horizontalPosition: 'end' as const, verticalPosition: 'top' as const };
+
 @Component({
   selector: 'app-solicitations-list',
   standalone: true,
@@ -102,7 +105,6 @@ export class SolicitationsListComponent implements OnInit {
     return req.status === RequestStatus.PAID;
   }
 
-  // RF012 — Efetuar Orçamento (também disponível na lista de visualização)
   onDoQuote(request: Solicitation): void {
     const allUsers = this.authService.getAllUsers();
     const client = allUsers.find(u => u.id === request.clientId);
@@ -133,7 +135,7 @@ export class SolicitationsListComponent implements OnInit {
           history,
         });
         const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { duration: 4000 });
+        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
         this.applyFilter();
       }
     });
@@ -165,7 +167,7 @@ export class SolicitationsListComponent implements OnInit {
           maintainedAt: now,
           history,
         });
-        this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', { duration: 3000 });
+        this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
 
       } else if (result.action === 'REDIRECT') {
         const target = this.authService.getAllUsers().find(u => u.id === result.targetEmployeeId);
@@ -180,7 +182,7 @@ export class SolicitationsListComponent implements OnInit {
           redirectedToEmployeeName: target?.name,
           history,
         });
-        this.snackBar.open('Solicitação redirecionada!', 'Fechar', { duration: 3000 });
+        this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
       }
 
       this.applyFilter();
@@ -208,7 +210,7 @@ export class SolicitationsListComponent implements OnInit {
         finalizedAt: now,
         history,
       });
-      this.snackBar.open('Solicitação finalizada!', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
       this.applyFilter();
     });
   }

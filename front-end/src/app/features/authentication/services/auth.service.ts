@@ -15,13 +15,13 @@ export class AuthService {
 
     const seed: User[] = [
       {
-        id: 1, name: 'Maria Silva', email: 'maria@empresa.com',
+        id: 1, name: 'Maria Silva', email: 'maria@manutencao.com',
         password: '1234', role: 'EMPLOYEE', cpf: '', phone: '',
         birthDate: '1990-05-10',
         address: { zipCode: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' },
       },
       {
-        id: 2, name: 'Mário Santos', email: 'mario@empresa.com',
+        id: 2, name: 'Mário Santos', email: 'mario@manutencao.com',
         password: '1234', role: 'EMPLOYEE', cpf: '', phone: '',
         birthDate: '1988-03-22',
         address: { zipCode: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' },

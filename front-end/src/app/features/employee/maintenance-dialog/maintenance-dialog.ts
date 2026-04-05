@@ -5,7 +5,6 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { Solicitation } from '../../../shared/models/solicitation.model';
 import { User } from '../../../shared/models/user.model';
 
-
 @Component({
   selector: 'app-maintenance-dialog',
   standalone: true,
@@ -18,12 +17,15 @@ export class MaintenanceDialogComponent {
 
   mode: 'CHOOSE' | 'MAINTAIN' | 'REDIRECT' = 'CHOOSE';
 
-  // Maintain fields
   maintenanceDescription = '';
   clientOrientations = '';
-
-  // Redirect fields
   targetEmployeeId: number | null = null;
+
+  /** Formata o valor sem depender do pipe currency + locale pt-BR */
+  formatCurrency(value?: number): string {
+    if (value == null) return 'R$ —';
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
 
   onCancel(): void { this.dialogRef.close(null); }
 

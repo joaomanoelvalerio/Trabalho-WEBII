@@ -18,11 +18,11 @@
     </div>
   </div>
 
-  <!-- Valor em destaque -->
+  <!-- Valor em destaque — SEM pipe currency, formatado manualmente -->
   <div class="p-3 mb-3 bg-light border border-2 border-primary rounded text-center shadow-sm">
     <h6 class="text-muted mb-1 text-uppercase small">Valor do Orçamento</h6>
     <h2 class="fw-bold text-primary mb-0">
-      {{ data.request.quoteValue | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      {{ formatCurrency(data.request.quoteValue) }}
     </h2>
   </div>
 
@@ -37,16 +37,19 @@
 
 <mat-dialog-actions align="end" class="pb-3 pe-3 gap-2">
   @if (!isRejecting) {
-    <button mat-button mat-dialog-close class="btn btn-light">Voltar</button>
-    <button mat-button class="btn btn-danger text-white" (click)="onReject()">
+    <!-- mat-button removido para evitar conflito com Bootstrap -->
+    <button type="button" class="btn btn-light" (click)="dialogRef.close(null)">Voltar</button>
+    <button type="button" class="btn btn-danger text-white" (click)="onReject()">
       <i class="bi bi-x-circle me-1"></i> Rejeitar Serviço
     </button>
-    <button mat-button class="btn btn-success text-white fw-bold" (click)="onApprove()">
+    <button type="button" class="btn btn-success text-white fw-bold" (click)="onApprove()">
       <i class="bi bi-check-circle me-1"></i> Aprovar Serviço
     </button>
   } @else {
-    <button mat-button class="btn btn-light" (click)="onCancelReject()">Cancelar</button>
-    <button mat-button class="btn btn-danger text-white" [disabled]="!motivoRejeicao.trim()" (click)="onConfirmReject()">
+    <button type="button" class="btn btn-light" (click)="onCancelReject()">Cancelar</button>
+    <button type="button" class="btn btn-danger text-white"
+            [disabled]="!motivoRejeicao.trim()"
+            (click)="onConfirmReject()">
       Confirmar Rejeição
     </button>
   }
