@@ -18,15 +18,15 @@ interface StatusMeta {
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  [RequestStatus.OPEN]:        { label: 'Aberta',        badgeClass: 'bg-secondary' },
-  [RequestStatus.QUOTED]:      { label: 'Orçada',        badgeClass: 'bg-warning text-dark' },
-  [RequestStatus.APPROVED]:    { label: 'Aprovada',      badgeClass: 'bg-success' },
-  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     badgeClass: 'bg-danger' },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  badgeClass: 'bg-primary' },
-  [RequestStatus.FIXED]:       { label: 'Arrumada',      badgeClass: 'bg-info text-dark' },
-  [RequestStatus.PAID]:        { label: 'Paga',          badgeClass: 'bg-success bg-opacity-75' },
-  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    badgeClass: 'bg-dark' },
-  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', badgeClass: 'bg-secondary' },
+  [RequestStatus.OPEN]: { label: 'Aberta', badgeClass: 'bg-secondary' },
+  [RequestStatus.QUOTED]: { label: 'Orçada', badgeClass: 'bg-warning text-dark' },
+  [RequestStatus.APPROVED]: { label: 'Aprovada', badgeClass: 'bg-success' },
+  [RequestStatus.REJECTED]: { label: 'Rejeitada', badgeClass: 'bg-danger' },
+  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento', badgeClass: 'bg-primary' },
+  [RequestStatus.FIXED]: { label: 'Arrumada', badgeClass: 'bg-info text-dark' },
+  [RequestStatus.PAID]: { label: 'Paga', badgeClass: 'bg-success bg-opacity-75' },
+  [RequestStatus.FINALIZED]: { label: 'Finalizada', badgeClass: 'bg-dark' },
+  [RequestStatus.REDIRECTED]: { label: 'Redirecionada', badgeClass: 'bg-secondary' },
 };
 
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
@@ -107,25 +107,34 @@ export class ClientHomeComponent implements OnInit {
 
       if (result.action === 'APPROVE') {
         updatedReq.status = RequestStatus.APPROVED;
-        updatedReq.history = [...(req.history || []), {
-          date: now,
-          fromStatus: req.status,
-          toStatus: RequestStatus.APPROVED,
-          note: `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`,
-        } as any];
+        updatedReq.history = [
+          ...(req.history || []),
+          {
+            date: now,
+            fromStatus: req.status,
+            toStatus: RequestStatus.APPROVED,
+            note: `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`,
+          } as any,
+        ];
         this.storageService.updateRequest(updatedReq.id, updatedReq);
-        alert(`Serviço Aprovado no Valor R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-
+        window.location.reload();
+        alert(
+          `Serviço Aprovado no Valor R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        );
       } else if (result.action === 'REJECT') {
         updatedReq.status = RequestStatus.REJECTED;
         updatedReq.rejectionReason = result.reason;
-        updatedReq.history = [...(req.history || []), {
-          date: now,
-          fromStatus: req.status,
-          toStatus: RequestStatus.REJECTED,
-          note: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
-        } as any];
+        updatedReq.history = [
+          ...(req.history || []),
+          {
+            date: now,
+            fromStatus: req.status,
+            toStatus: RequestStatus.REJECTED,
+            note: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
+          } as any,
+        ];
         this.storageService.updateRequest(updatedReq.id, updatedReq);
+        window.location.reload();
         alert('Serviço Rejeitado');
       }
 
@@ -134,7 +143,9 @@ export class ClientHomeComponent implements OnInit {
   }
 
   onRescueService(req: Solicitation): void {
-    const confirmed = confirm('Deseja resgatar este serviço? A solicitação voltará para o estado APROVADA.');
+    const confirmed = confirm(
+      'Deseja resgatar este serviço? A solicitação voltará para o estado APROVADA.',
+    );
     if (!confirmed) return;
 
     const now = new Date().toISOString();
@@ -151,6 +162,7 @@ export class ClientHomeComponent implements OnInit {
       ],
     });
     this.loadRequests();
+    window.location.reload();
   }
 
   onPayService(req: Solicitation): void {
@@ -177,6 +189,7 @@ export class ClientHomeComponent implements OnInit {
       });
       alert('Pagamento confirmado!');
       this.loadRequests();
+      window.location.reload();
     });
   }
 }

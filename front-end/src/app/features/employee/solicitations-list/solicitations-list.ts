@@ -13,22 +13,54 @@ import { SolicitationDetailDialogComponent } from '../solicitation-detail-dialog
 
 type FilterMode = 'TODAY' | 'PERIOD' | 'ALL';
 
-interface StatusStyle { label: string; rowClass: string; badgeClass: string; }
+interface StatusStyle {
+  label: string;
+  rowClass: string;
+  badgeClass: string;
+}
 
 const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
-  [RequestStatus.OPEN]:        { label: 'Aberta',        rowClass: 'table-secondary', badgeClass: 'badge-open'       },
-  [RequestStatus.QUOTED]:      { label: 'Orçada',        rowClass: 'row-quoted',      badgeClass: 'badge-quoted'     },
-  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     rowClass: 'table-danger',    badgeClass: 'badge-rejected'   },
-  [RequestStatus.APPROVED]:    { label: 'Aprovada',      rowClass: 'row-approved',    badgeClass: 'badge-approved'   },
-  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', rowClass: 'row-redirected',  badgeClass: 'badge-redirected' },
-  [RequestStatus.FIXED]:       { label: 'Arrumada',      rowClass: 'table-primary',   badgeClass: 'badge-fixed'      },
-  [RequestStatus.PAID]:        { label: 'Paga',          rowClass: 'row-paid',        badgeClass: 'badge-paid'       },
-  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    rowClass: 'table-success',   badgeClass: 'badge-finalized'  },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  rowClass: 'row-progress',    badgeClass: 'badge-progress'   },
+  [RequestStatus.OPEN]: { label: 'Aberta', rowClass: 'table-secondary', badgeClass: 'badge-open' },
+  [RequestStatus.QUOTED]: { label: 'Orçada', rowClass: 'row-quoted', badgeClass: 'badge-quoted' },
+  [RequestStatus.REJECTED]: {
+    label: 'Rejeitada',
+    rowClass: 'table-danger',
+    badgeClass: 'badge-rejected',
+  },
+  [RequestStatus.APPROVED]: {
+    label: 'Aprovada',
+    rowClass: 'row-approved',
+    badgeClass: 'badge-approved',
+  },
+  [RequestStatus.REDIRECTED]: {
+    label: 'Redirecionada',
+    rowClass: 'row-redirected',
+    badgeClass: 'badge-redirected',
+  },
+  [RequestStatus.FIXED]: {
+    label: 'Arrumada',
+    rowClass: 'table-primary',
+    badgeClass: 'badge-fixed',
+  },
+  [RequestStatus.PAID]: { label: 'Paga', rowClass: 'row-paid', badgeClass: 'badge-paid' },
+  [RequestStatus.FINALIZED]: {
+    label: 'Finalizada',
+    rowClass: 'table-success',
+    badgeClass: 'badge-finalized',
+  },
+  [RequestStatus.IN_PROGRESS]: {
+    label: 'Em Andamento',
+    rowClass: 'row-progress',
+    badgeClass: 'badge-progress',
+  },
 };
 
 /** Configuração padrão do snackbar — canto superior direito, longe da tabela */
-const SNACK = { duration: 3000, horizontalPosition: 'end' as const, verticalPosition: 'top' as const };
+const SNACK = {
+  duration: 3000,
+  horizontalPosition: 'end' as const,
+  verticalPosition: 'top' as const,
+};
 
 @Component({
   selector: 'app-solicitations-list',
@@ -57,7 +89,7 @@ export class SolicitationsListComponent implements OnInit {
 
   applyFilter(): void {
     const empId = this.currentEmployeeId;
-    let filtered = this.storageService.getRequests().filter(r => {
+    let filtered = this.storageService.getRequests().filter((r) => {
       if (r.status === RequestStatus.REDIRECTED) {
         return r.redirectedToEmployeeId === empId;
       }
@@ -66,18 +98,18 @@ export class SolicitationsListComponent implements OnInit {
 
     if (this.filterMode === 'TODAY') {
       const today = new Date().toDateString();
-      filtered = filtered.filter(r => new Date(r.openedAt).toDateString() === today);
+      filtered = filtered.filter((r) => new Date(r.openedAt).toDateString() === today);
     } else if (this.filterMode === 'PERIOD' && this.periodStart && this.periodEnd) {
       const start = new Date(this.periodStart + 'T00:00:00');
-      const end   = new Date(this.periodEnd   + 'T23:59:59');
-      filtered = filtered.filter(r => {
+      const end = new Date(this.periodEnd + 'T23:59:59');
+      filtered = filtered.filter((r) => {
         const d = new Date(r.openedAt);
         return d >= start && d <= end;
       });
     }
 
     this.requests = filtered.sort(
-      (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()
+      (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime(),
     );
   }
 
@@ -97,7 +129,11 @@ export class SolicitationsListComponent implements OnInit {
 
   showMaintenanceButton(req: Solicitation): boolean {
     if (req.status === RequestStatus.APPROVED) return true;
-    if (req.status === RequestStatus.REDIRECTED && req.redirectedToEmployeeId === this.currentEmployeeId) return true;
+    if (
+      req.status === RequestStatus.REDIRECTED &&
+      req.redirectedToEmployeeId === this.currentEmployeeId
+    )
+      return true;
     return false;
   }
 
@@ -107,7 +143,7 @@ export class SolicitationsListComponent implements OnInit {
 
   onDoQuote(request: Solicitation): void {
     const allUsers = this.authService.getAllUsers();
-    const client = allUsers.find(u => u.id === request.clientId);
+    const client = allUsers.find((u) => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
       width: '560px',
@@ -118,14 +154,17 @@ export class SolicitationsListComponent implements OnInit {
       if (quoteValue && quoteValue > 0) {
         const user = this.authService.getLoggedInUser();
         const now = new Date().toISOString();
-        const history = [...(request.history || []), {
-          date: now,
-          fromStatus: request.status,
-          toStatus: RequestStatus.QUOTED,
-          employeeId: user?.id,
-          employeeName: user?.name,
-          note: `Orçamento de R$ ${quoteValue.toFixed(2).replace('.', ',')}`,
-        }];
+        const history = [
+          ...(request.history || []),
+          {
+            date: now,
+            fromStatus: request.status,
+            toStatus: RequestStatus.QUOTED,
+            employeeId: user?.id,
+            employeeName: user?.name,
+            note: `Orçamento de R$ ${quoteValue.toFixed(2).replace('.', ',')}`,
+          },
+        ];
         this.storageService.updateRequest(request.id, {
           status: RequestStatus.QUOTED,
           quoteValue,
@@ -134,15 +173,24 @@ export class SolicitationsListComponent implements OnInit {
           quotedAt: now,
           history,
         });
-        const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
+        const formatted = quoteValue.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        });
+        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', {
+          ...SNACK,
+          duration: 4000,
+        });
         this.applyFilter();
+        window.location.reload();
       }
     });
   }
 
   onDoMaintenance(req: Solicitation): void {
-    const employees = this.authService.getEmployees().filter(e => e.id !== this.currentEmployeeId);
+    const employees = this.authService
+      .getEmployees()
+      .filter((e) => e.id !== this.currentEmployeeId);
     const dialogRef = this.dialog.open(MaintenanceDialogComponent, {
       width: '600px',
       data: { request: req, employees },
@@ -154,10 +202,17 @@ export class SolicitationsListComponent implements OnInit {
       const now = new Date().toISOString();
 
       if (result.action === 'MAINTAIN') {
-        const history = [...(req.history || []), {
-          date: now, fromStatus: req.status, toStatus: RequestStatus.FIXED,
-          employeeId: user?.id, employeeName: user?.name, note: 'Manutenção efetuada',
-        }];
+        const history = [
+          ...(req.history || []),
+          {
+            date: now,
+            fromStatus: req.status,
+            toStatus: RequestStatus.FIXED,
+            employeeId: user?.id,
+            employeeName: user?.name,
+            note: 'Manutenção efetuada',
+          },
+        ];
         this.storageService.updateRequest(req.id, {
           status: RequestStatus.FIXED,
           maintenanceDescription: result.maintenanceDescription,
@@ -168,20 +223,26 @@ export class SolicitationsListComponent implements OnInit {
           history,
         });
         this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
-
       } else if (result.action === 'REDIRECT') {
-        const target = this.authService.getAllUsers().find(u => u.id === result.targetEmployeeId);
-        const history = [...(req.history || []), {
-          date: now, fromStatus: req.status, toStatus: RequestStatus.REDIRECTED,
-          employeeId: user?.id, employeeName: user?.name,
-          note: `Redirecionado para ${target?.name ?? '#' + result.targetEmployeeId}`,
-        }];
+        const target = this.authService.getAllUsers().find((u) => u.id === result.targetEmployeeId);
+        const history = [
+          ...(req.history || []),
+          {
+            date: now,
+            fromStatus: req.status,
+            toStatus: RequestStatus.REDIRECTED,
+            employeeId: user?.id,
+            employeeName: user?.name,
+            note: `Redirecionado para ${target?.name ?? '#' + result.targetEmployeeId}`,
+          },
+        ];
         this.storageService.updateRequest(req.id, {
           status: RequestStatus.REDIRECTED,
           redirectedToEmployeeId: result.targetEmployeeId,
           redirectedToEmployeeName: target?.name,
           history,
         });
+        window.location.reload();
         this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
       }
 
@@ -199,10 +260,17 @@ export class SolicitationsListComponent implements OnInit {
       if (!confirmed) return;
       const user = this.authService.getLoggedInUser();
       const now = new Date().toISOString();
-      const history = [...(req.history || []), {
-        date: now, fromStatus: req.status, toStatus: RequestStatus.FINALIZED,
-        employeeId: user?.id, employeeName: user?.name, note: 'Solicitação finalizada',
-      }];
+      const history = [
+        ...(req.history || []),
+        {
+          date: now,
+          fromStatus: req.status,
+          toStatus: RequestStatus.FINALIZED,
+          employeeId: user?.id,
+          employeeName: user?.name,
+          note: 'Solicitação finalizada',
+        },
+      ];
       this.storageService.updateRequest(req.id, {
         status: RequestStatus.FINALIZED,
         finalizedByEmployeeId: user?.id,
@@ -210,6 +278,7 @@ export class SolicitationsListComponent implements OnInit {
         finalizedAt: now,
         history,
       });
+      window.location.reload();
       this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
       this.applyFilter();
     });
