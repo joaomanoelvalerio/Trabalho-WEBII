@@ -1,0 +1,42 @@
+<div class="container mt-4">
+  <h2 class="text-primary fw-bold mb-4">Relatórios Financeiros</h2>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title text-secondary">Receitas por Período (Dia)</h5>
+          <p class="small text-muted">Gera um PDF das receitas agrupadas por data.</p>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="small fw-bold">Início</label>
+              <input type="date" class="form-control" [(ngModel)]="startDate">
+            </div>
+            <div class="col-6">
+              <label class="small fw-bold">Fim</label>
+              <input type="date" class="form-control" [(ngModel)]="endDate">
+            </div>
+          </div>
+          <button class="btn btn-outline-primary w-100" (click)="exportPeriod()">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF por Período
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card RF020 -->
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title text-secondary">Receitas por Categoria</h5>
+          <p class="small text-muted">Gera um PDF com o acumulado histórico por tipo de equipamento.</p>
+          <div class="mt-auto">
+            <button class="btn btn-outline-success w-100" (click)="exportCategory()">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF por Categoria
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
