@@ -1,9 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container">
+  <div class="container-fluid">
     <a class="navbar-brand" routerLink="/">Manutenção de Equipamentos</a>
 
     @if (authService.getLoggedInUser(); as user) {
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center flex-wrap gap-2">
         <span class="text-white me-2">Olá, {{ user.name }}</span>
 
         @if (user.role === 'CLIENT') {
@@ -13,11 +13,20 @@
         }
 
         @if (user.role === 'EMPLOYEE' || user.role === 'ADMIN') {
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee/reports">
-            Relatórios
-                  </a>
           <a class="btn btn-sm btn-light me-1" routerLink="/employee">
             Solicitações Abertas
+          </a>
+          <a class="btn btn-sm btn-light me-1" routerLink="/employee/solicitations">
+            Todas Solicitações
+          </a>
+          <a class="btn btn-sm btn-light me-1" routerLink="/employee/categories">
+            Categorias
+          </a>
+          <a class="btn btn-sm btn-light me-1" routerLink="/employee/employees">
+            Funcionários
+          </a>
+          <a class="btn btn-sm btn-light me-1" routerLink="/employee/reports">
+            Relatórios
           </a>
         }
 
