@@ -1,0 +1,175 @@
+<div class="container mt-4 pb-5">
+
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold text-primary">Gerenciar Funcionários</h2>
+      <p class="text-muted mb-0">Cadastre, edite e remova funcionários do sistema.</p>
+    </div>
+    <div class="col-auto d-flex gap-2 align-items-center">
+      <span class="badge bg-secondary rounded-pill px-3 py-2">{{ employees.length }} funcionário(s)</span>
+      <button class="btn btn-primary btn-sm" (click)="toggleAddForm()">
+        <i class="bi" [class.bi-plus-lg]="!showAddForm" [class.bi-x-lg]="showAddForm"></i>
+        {{ showAddForm ? 'Cancelar' : 'Novo Funcionário' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulário de novo funcionário -->
+  @if (showAddForm) {
+    <div class="card shadow-sm border-0 mb-4 border-start border-4 border-primary">
+      <div class="card-header bg-white fw-bold text-primary border-bottom">
+        <i class="bi bi-person-plus me-2"></i>Cadastrar Novo Funcionário
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small text-muted">Nome *</label>
+            <input type="text" class="form-control" [(ngModel)]="newForm.name" placeholder="Nome completo" maxlength="100" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small text-muted">E-mail *</label>
+            <input type="email" class="form-control" [(ngModel)]="newForm.email" placeholder="email@empresa.com" maxlength="100" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small text-muted">Senha *</label>
+            <input type="password" class="form-control" [(ngModel)]="newForm.password" placeholder="Senha de acesso" maxlength="100" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small text-muted">Data de Nascimento *</label>
+            <input type="date" class="form-control" [(ngModel)]="newForm.birthDate" />
+          </div>
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button class="btn btn-outline-secondary" (click)="toggleAddForm()">Cancelar</button>
+            <button
+              class="btn btn-primary"
+              (click)="addEmployee()"
+              [disabled]="!newForm.name.trim() || !newForm.email.trim() || !newForm.password.trim() || !newForm.birthDate"
+            >
+              <i class="bi bi-check-lg me-1"></i>Cadastrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Listagem -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white fw-bold text-primary border-bottom">
+      <i class="bi bi-people me-2"></i>Funcionários Cadastrados
+    </div>
+    <div class="card-body p-0">
+
+      @if (employees.length === 0) {
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-people fs-1 d-block mb-2"></i>
+          Nenhum funcionário cadastrado.
+        </div>
+      }
+
+      <ul class="list-group list-group-flush">
+        @for (emp of employees; track emp.id) {
+          <li class="list-group-item px-4 py-3">
+
+            <!-- Modo edição -->
+            @if (editingId === emp.id) {
+              <div class="row g-3">
+                <div class="col-12">
+                  <span class="fw-semibold text-primary"><i class="bi bi-pencil me-1"></i>Editando: {{ emp.name }}</span>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted">Nome *</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="editForm.name" maxlength="100" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted">E-mail *</label>
+                  <input type="email" class="form-control form-control-sm" [(ngModel)]="editForm.email" maxlength="100" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted">Data de Nascimento *</label>
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="editForm.birthDate" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-check mt-1 mb-1">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.changePassword" id="chkPwd_{{emp.id}}" />
+                    <label class="form-check-label small fw-semibold text-muted" for="chkPwd_{{emp.id}}">Alterar senha</label>
+                  </div>
+                  @if (editForm.changePassword) {
+                    <input type="password" class="form-control form-control-sm" [(ngModel)]="editForm.password" placeholder="Nova senha" maxlength="100" />
+                  }
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                  <button class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                  </button>
+                  <button
+                    class="btn btn-success btn-sm"
+                    (click)="saveEdit(emp)"
+                    [disabled]="!editForm.name.trim() || !editForm.email.trim() || !editForm.birthDate"
+                  >
+                    <i class="bi bi-check-lg me-1"></i>Salvar
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Confirmação de remoção -->
+            @else if (confirmDeleteId === emp.id) {
+              <div class="row g-2 align-items-center">
+                <div class="col">
+                  <span class="text-danger fw-semibold">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Remover funcionário <strong>{{ emp.name }}</strong>? Esta ação não pode ser desfeita.
+                  </span>
+                </div>
+                <div class="col-auto d-flex gap-2">
+                  <button class="btn btn-danger btn-sm" (click)="confirmDelete(emp.id)">
+                    <i class="bi bi-trash me-1"></i>Confirmar
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="cancelDelete()">Cancelar</button>
+                </div>
+              </div>
+            }
+
+            <!-- Modo normal -->
+            @else {
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold"
+                       style="width:40px;height:40px;font-size:1rem;flex-shrink:0">
+                    {{ emp.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="fw-semibold">
+                      {{ emp.name }}
+                      @if (emp.id === currentUserId) {
+                        <span class="badge bg-success ms-2 text-white" style="font-size:0.7rem">Você</span>
+                      }
+                    </div>
+                    <div class="text-muted small">{{ emp.email }}</div>
+                    <div class="text-muted small">Nascimento: {{ formatDate(emp.birthDate) }}</div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-primary btn-sm" (click)="startEdit(emp)" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="askDelete(emp.id)"
+                    [disabled]="!canDelete(emp)"
+                    [title]="emp.id === currentUserId ? 'Você não pode remover a si mesmo' : employees.length <= 1 ? 'Não é possível remover o único funcionário' : 'Remover'"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+</div>
