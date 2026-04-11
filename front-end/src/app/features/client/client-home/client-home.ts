@@ -6,6 +6,7 @@ import { StorageService } from '../../../shared/services/storage';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientQuoteDialogComponent } from '../client-quote-dialog/client-quote-dialog';
 import { ClientViewRequestDialogComponent } from '../client-view-request-dialog/client-view-request-dialog';
 import { PayServiceDialogComponent } from '../pay-service-dialog/pay-service-dialog';
@@ -18,15 +19,15 @@ interface StatusMeta {
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  [RequestStatus.OPEN]: { label: 'Aberta', badgeClass: 'bg-secondary' },
-  [RequestStatus.QUOTED]: { label: 'Orçada', badgeClass: 'bg-warning text-dark' },
-  [RequestStatus.APPROVED]: { label: 'Aprovada', badgeClass: 'bg-success' },
-  [RequestStatus.REJECTED]: { label: 'Rejeitada', badgeClass: 'bg-danger' },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento', badgeClass: 'bg-primary' },
-  [RequestStatus.FIXED]: { label: 'Arrumada', badgeClass: 'bg-info text-dark' },
-  [RequestStatus.PAID]: { label: 'Paga', badgeClass: 'bg-success bg-opacity-75' },
-  [RequestStatus.FINALIZED]: { label: 'Finalizada', badgeClass: 'bg-dark' },
-  [RequestStatus.REDIRECTED]: { label: 'Redirecionada', badgeClass: 'bg-secondary' },
+  [RequestStatus.OPEN]:        { label: 'Aberta',        badgeClass: 'bg-secondary' },
+  [RequestStatus.QUOTED]:      { label: 'Orçada',        badgeClass: 'bg-warning text-dark' },
+  [RequestStatus.APPROVED]:    { label: 'Aprovada',      badgeClass: 'bg-success' },
+  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     badgeClass: 'bg-danger' },
+  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  badgeClass: 'bg-primary' },
+  [RequestStatus.FIXED]:       { label: 'Arrumada',      badgeClass: 'bg-info text-dark' },
+  [RequestStatus.PAID]:        { label: 'Paga',          badgeClass: 'bg-success bg-opacity-75' },
+  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    badgeClass: 'bg-dark' },
+  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', badgeClass: 'bg-secondary' },
 };
 
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
@@ -36,18 +37,25 @@ const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
   RequestStatus.APPROVED,
 ]);
 
+const SNACK = {
+  duration: 3500,
+  horizontalPosition: 'end' as const,
+  verticalPosition: 'top' as const,
+};
+
 @Component({
   selector: 'app-client-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './client-home.html',
   styleUrls: ['./client-home.css'],
 })
 export class ClientHomeComponent implements OnInit {
-  private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
+  private readonly dialog      = inject(MatDialog);
+  private readonly router      = inject(Router);
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
+  private readonly snackBar    = inject(MatSnackBar);
 
   requests: Solicitation[] = [];
 
@@ -117,10 +125,10 @@ export class ClientHomeComponent implements OnInit {
           } as any,
         ];
         this.storageService.updateRequest(updatedReq.id, updatedReq);
-        window.location.reload();
-        alert(
-          `Serviço Aprovado no Valor R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        );
+        this.loadRequests();
+        const valor = req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', SNACK);
+
       } else if (result.action === 'REJECT') {
         updatedReq.status = RequestStatus.REJECTED;
         updatedReq.rejectionReason = result.reason;
@@ -134,35 +142,41 @@ export class ClientHomeComponent implements OnInit {
           } as any,
         ];
         this.storageService.updateRequest(updatedReq.id, updatedReq);
-        window.location.reload();
-        alert('Serviço Rejeitado');
+        this.loadRequests();
+        this.snackBar.open('Serviço rejeitado.', 'Fechar', SNACK);
       }
-
-      this.loadRequests();
     });
   }
 
   onRescueService(req: Solicitation): void {
-    const confirmed = confirm(
-      'Deseja resgatar este serviço? A solicitação voltará para o estado APROVADA.',
-    );
-    if (!confirmed) return;
-
-    const now = new Date().toISOString();
-    this.storageService.updateRequest(req.id, {
-      status: RequestStatus.APPROVED,
-      history: [
-        ...(req.history || []),
-        {
-          date: now,
-          fromStatus: RequestStatus.REJECTED,
-          toStatus: RequestStatus.APPROVED,
-          note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
-        },
-      ],
+    const dialogRef = this.dialog.open(ClientViewRequestDialogComponent, {
+      width: '480px',
+      data: {
+        request: req,
+        viewOnly: false,
+        confirmLabel: 'Resgatar Serviço',
+        confirmMessage: 'Deseja resgatar este serviço? A solicitação voltará para o estado APROVADA.',
+      },
     });
-    this.loadRequests();
-    window.location.reload();
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+      const now = new Date().toISOString();
+      this.storageService.updateRequest(req.id, {
+        status: RequestStatus.APPROVED,
+        history: [
+          ...(req.history || []),
+          {
+            date: now,
+            fromStatus: RequestStatus.REJECTED,
+            toStatus: RequestStatus.APPROVED,
+            note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
+          },
+        ],
+      });
+      this.loadRequests();
+      this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', SNACK);
+    });
   }
 
   onPayService(req: Solicitation): void {
@@ -187,9 +201,8 @@ export class ClientHomeComponent implements OnInit {
           },
         ],
       });
-      alert('Pagamento confirmado!');
       this.loadRequests();
-      window.location.reload();
+      this.snackBar.open('Pagamento confirmado!', 'Fechar', SNACK);
     });
   }
 }
