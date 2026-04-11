@@ -7,19 +7,21 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { Category } from '../../../shared/models/category.model';
 import { RequestStatus } from '../../../shared/models/solicitation.model';
 import { CategoryService } from '../../../shared/services/category.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-client-new-request',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './client-new-request.html',
   styleUrl: './client-new-request.css',
 })
 export class ClientNewRequest implements OnInit {
-  private readonly router = inject(Router);
-  private readonly storageService = inject(StorageService);
-  private readonly authService = inject(AuthService);
+  private readonly router          = inject(Router);
+  private readonly storageService  = inject(StorageService);
+  private readonly authService     = inject(AuthService);
   private readonly categoryService = inject(CategoryService);
+  private readonly snackBar        = inject(MatSnackBar);
 
   categories: Category[] = [];
 
@@ -63,7 +65,11 @@ export class ClientNewRequest implements OnInit {
       ],
     });
 
-    alert('Solicitação enviada com sucesso!');
+    this.snackBar.open('Solicitação enviada com sucesso!', 'Fechar', {
+      duration: 3500,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+    });
     this.router.navigate(['/client']);
   }
 
