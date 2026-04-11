@@ -24,26 +24,27 @@ export interface Solicitation {
   openedAt: string;
   equipmentDescription: string;
   categoryId?: number;
-  categoryName?: string;
   defectDescription: string;
   status: RequestStatus;
   clientId: number;
-  clientName?: string;
   quoteValue?: number;
   quotedByEmployeeId?: number;
-  quotedByEmployeeName?: string;
   quotedAt?: string;
   rejectionReason?: string;
   maintenanceDescription?: string;
   clientOrientations?: string;
   maintainedByEmployeeId?: number;
-  maintainedByEmployeeName?: string;
   maintainedAt?: string;
   redirectedToEmployeeId?: number;
-  redirectedToEmployeeName?: string;
   finalizedByEmployeeId?: number;
-  finalizedByEmployeeName?: string;
   finalizedAt?: string;
   paidAt?: string;
   history: HistoryEntry[];
+
+  clientName?: string;
+  categoryName?: string;
+  quotedByEmployeeName?: string;
+  maintainedByEmployeeName?: string;
+  redirectedToEmployeeName?: string;
+  finalizedByEmployeeName?: string;
 }
