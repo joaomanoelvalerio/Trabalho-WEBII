@@ -175,3 +175,70 @@
   .em-page   { padding: 1.25rem 1rem 3rem; }
   .em-header { flex-direction: column; align-items: flex-start; }
 }
+/* ── Animações de entrada ─────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.em-page {
+  animation: fadeInUp .22s ease both;
+}
+
+/* ── Estados de carregamento / vazio ──────────────────────────── */
+.em-empty mat-icon {
+  font-size: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  opacity: .35;
+}
+
+.em-empty p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Botão de ação — variações de estado ──────────────────────── */
+.em-action-btn.btn-quote {
+  color: #1565c0;
+  border-color: #1565c0;
+}
+
+.em-action-btn.btn-quote:hover {
+  background: #e3f2fd;
+}
+
+.em-action-btn.btn-navigate {
+  color: #4a148c;
+  border-color: #4a148c;
+}
+
+.em-action-btn.btn-navigate:hover {
+  background: #f3e5f5;
+}
+
+/* ── Badge de pendentes — pulse suave ────────────────────────── */
+@keyframes pulse-badge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, .35); }
+  50%       { box-shadow: 0 0 0 6px rgba(198, 40, 40, 0); }
+}
+
+.em-pending-badge {
+  animation: pulse-badge 2s ease infinite;
+}
+
+/* ── Responsivo — oculta colunas secundárias em telas pequenas ── */
+@media (max-width: 768px) {
+  .em-col-date {
+    display: none;
+  }
+
+  .em-col-actions {
+    min-width: unset;
+  }
+
+  .em-action-btn {
+    font-size: .75rem !important;
+    padding: .25rem .5rem !important;
+  }
+}
