@@ -182,7 +182,6 @@ export class SolicitationsListComponent implements OnInit {
           duration: 4000,
         });
         this.applyFilter();
-        window.location.reload();
       }
     });
   }
@@ -242,8 +241,8 @@ export class SolicitationsListComponent implements OnInit {
           redirectedToEmployeeName: target?.name,
           history,
         });
-        window.location.reload();
         this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
+        this.applyFilter();
       }
 
       this.applyFilter();
@@ -278,7 +277,6 @@ export class SolicitationsListComponent implements OnInit {
         finalizedAt: now,
         history,
       });
-      window.location.reload();
       this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
       this.applyFilter();
     });
