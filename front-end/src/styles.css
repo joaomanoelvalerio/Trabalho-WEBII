@@ -20,3 +20,22 @@
 .mat-mdc-snack-bar-container .mat-mdc-button {
   color: #90caf9 !important;
 }
+
+.card {
+  border: none !important;
+  border-radius: 12px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+.btn {
+  border-radius: 8px !important;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+}
+.navbar {
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem 1rem;
+}

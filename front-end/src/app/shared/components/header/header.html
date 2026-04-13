@@ -1,4 +1,18 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" routerLink="/">
+      <i class="material-icons">settings_suggest</i>
+      <span class="d-none d-sm-inline">Manutenção de Equipamentos</span>
+    </a>
+
+    @if (authService.getLoggedInUser(); as user) {
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <div class="me-3 d-none d-md-block text-white-50 small">
+          Conectado como: <strong class="text-white">{{ user.name }}</strong>
+        </div>
+
+        <div class="btn-group shadow-sm">
+          @if (user.role === 'CLIENT') {<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
     <a class="navbar-brand" routerLink="/">Manutenção de Equipamentos</a>
 
@@ -31,6 +45,24 @@
         }
 
         <button class="btn btn-sm btn-outline-light" (click)="logout()">Sair</button>
+      </div>
+    }
+  </div>
+</nav>
+            <a class="btn btn-sm btn-light" routerLink="/client">
+              <i class="bi bi-list-task me-1"></i> Minhas Solicitações
+            </a>
+          }
+
+          @if (user.role === 'EMPLOYEE' || user.role === 'ADMIN') {
+            <a class="btn btn-sm btn-light" routerLink="/employee">Painel</a>
+            <a class="btn btn-sm btn-light" routerLink="/employee/solicitations">Listagem</a>
+          }
+        </div>
+
+        <button class="btn btn-sm btn-outline-light ms-2 border-0" (click)="logout()">
+          <i class="bi bi-box-arrow-right fs-5"></i>
+        </button>
       </div>
     }
   </div>
