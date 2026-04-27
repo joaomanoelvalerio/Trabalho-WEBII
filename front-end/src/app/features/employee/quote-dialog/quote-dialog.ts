@@ -31,6 +31,10 @@ export class QuoteDialogComponent {
     });
   }
 
-  onCancel(): void { this.dialogRef.close(null); }
-  onConfirm(): void { this.dialogRef.close(this.quoteValue); }
+  onCancel(): void {
+    this.dialogRef.close(null);
+  }
+  onConfirm(): void {
+    this.dialogRef.close(this.quoteValue);
+  }
 }
