@@ -10,6 +10,10 @@ export class AuthService {
     this.seedInitialData();
   }
 
+  /**
+   * Popula o localStorage com usuários iniciais caso ainda não existam dados.
+   * Cria 2 funcionários e 4 clientes de exemplo para demonstração do sistema.
+   */
   private seedInitialData(): void {
     if (localStorage.getItem(this.USERS_KEY)) return;
 
@@ -38,7 +42,6 @@ export class AuthService {
         phone: '(41) 99999-0002',
         address: { zipCode: '80020-000', street: 'Av. Sete de Setembro', number: '200', complement: '', neighborhood: 'Batel', city: 'Curitiba', state: 'PR' },
       },
-
       {
         id: 5, name: 'Joana Cliente', email: 'joana@email.com',
         password: '1234', role: 'CLIENT', cpf: '333.333.333-33',
@@ -56,14 +59,21 @@ export class AuthService {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(seed));
   }
 
+  /** Lê e desserializa a lista completa de usuários do localStorage. */
   private getUsers(): User[] {
     return JSON.parse(localStorage.getItem(this.USERS_KEY) || '[]');
   }
 
+  /** Serializa e persiste a lista de usuários no localStorage. */
   private saveUsers(users: User[]): void {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
   }
 
+  /**
+   * Registra um novo cliente no sistema.
+   * Gera automaticamente um ID incremental e uma senha temporária aleatória de 4 dígitos.
+   * @returns Observable com { success, temporaryPassword } ou erro se CPF/e-mail já existir.
+   */
   register(data: Omit<User, 'id' | 'role' | 'password'>) {
     const users = this.getUsers();
 
@@ -86,6 +96,11 @@ export class AuthService {
     return of({ success: true, temporaryPassword: newUser.password });
   }
 
+  /**
+   * Autentica um usuário pelo e-mail e senha.
+   * Persiste o usuário logado no localStorage sob a chave 'loggedInUser'.
+   * @returns Observable com { success, user } ou erro se as credenciais forem inválidas.
+   */
   login(email: string, password: string) {
     const user = this.getUsers().find(
       u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
@@ -99,23 +114,32 @@ export class AuthService {
     return of({ success: true, user });
   }
 
+  /** Remove o usuário logado do localStorage, encerrando a sessão. */
   logout(): void {
     localStorage.removeItem('loggedInUser');
   }
 
+  /** Retorna o usuário atualmente logado ou null se não houver sessão ativa. */
   getLoggedInUser(): User | null {
     const raw = localStorage.getItem('loggedInUser');
     return raw ? JSON.parse(raw) : null;
   }
 
+  /** Retorna todos os usuários cadastrados (clientes e funcionários). */
   getAllUsers(): User[] {
     return this.getUsers();
   }
 
+  /** Retorna apenas os usuários com role EMPLOYEE. */
   getEmployees(): User[] {
     return this.getUsers().filter(u => u.role === 'EMPLOYEE');
   }
 
+  /**
+   * Cadastra um novo funcionário.
+   * Valida campos obrigatórios e unicidade de e-mail antes de persistir.
+   * @throws Error se algum campo estiver vazio ou o e-mail já estiver em uso.
+   */
   addEmployee(data: { name: string; email: string; password: string; birthDate: string }): User {
     const users = this.getUsers();
 
@@ -142,6 +166,11 @@ export class AuthService {
     return newUser;
   }
 
+  /**
+   * Atualiza os dados de um funcionário existente.
+   * A senha só é alterada se o campo password for informado.
+   * @throws Error se o funcionário não for encontrado ou o e-mail já pertencer a outro usuário.
+   */
   updateEmployee(id: number, data: { name: string; email: string; password?: string; birthDate: string }): User {
     const users = this.getUsers();
     const index = users.findIndex(u => u.id === id && u.role === 'EMPLOYEE');
@@ -166,6 +195,11 @@ export class AuthService {
     return users[index];
   }
 
+  /**
+   * Remove um funcionário do sistema.
+   * Impede que o funcionário logado se auto-remova ou que o único funcionário seja excluído.
+   * @throws Error nas situações de remoção inválida.
+   */
   removeEmployee(id: number): void {
     const loggedUser = this.getLoggedInUser();
     if (!loggedUser) throw new Error('Usuário não autenticado.');
