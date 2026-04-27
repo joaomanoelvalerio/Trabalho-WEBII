@@ -21,9 +21,10 @@ export class RegisterComponent {
 
   currentStep = 1;
 
-  user: Omit<User, 'id' | 'role' | 'password'> = {
+  user: Omit<User, 'id' | 'role'> = {
     name: '',
     email: '',
+    password: '',
     cpf: '',
     phone: '',
     address: {
@@ -37,10 +38,16 @@ export class RegisterComponent {
     },
   };
 
+  confirmPassword = '';
   isAddressLoading = false;
   errorMessage: string | null = null;
 
   nextStep() {
+    if (this.user.password !== this.confirmPassword) {
+      this.errorMessage = 'As senhas não conferem.';
+      return;
+    }
+    this.errorMessage = null;
     this.currentStep = 2;
   }
 
@@ -73,11 +80,11 @@ export class RegisterComponent {
     }
 
     if (value.length > 9) {
-      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '.$2.$3-$4');
     } else if (value.length > 6) {
-      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '.$2.$3');
     } else if (value.length > 3) {
-      value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+      value = value.replace(/(\d{3})(\d{1,3})/, '.$2');
     }
 
     input.value = value;
@@ -99,19 +106,19 @@ export class RegisterComponent {
     }
 
     if (value.length <= 2) {
-      value = value.replace(/^(\d{1,2})/, '($1');
+      value = value.replace(/^(\d{1,2})/, '(');
     } else if (value.length <= 6) {
-      value = value.replace(/^(\d{2})(\d{1,4})/, '($1) $2');
+      value = value.replace(/^(\d{2})(\d{1,4})/, '() $2');
     } else if (value.length <= 10) {
-      value = value.replace(/^(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
+      value = value.replace(/^(\d{2})(\d{4})(\d{1,4})/, '() $2-$3');
     } else {
-      value = value.replace(/^(\d{2})(\d{5})(\d{1,4})/, '($1) $2-$3');
+      value = value.replace(/^(\d{2})(\d{5})(\d{1,4})/, '() $2-$3');
     }
 
     input.value = value;
     this.user.phone = value;
   }
-  
+
   onZipCodeBlur() {
     const zipCode = this.user.address.zipCode.replace(/\D/g, '');
 
@@ -138,12 +145,16 @@ export class RegisterComponent {
   }
 
   onSubmit() {
+    if (this.user.password !== this.confirmPassword) {
+      this.errorMessage = 'As senhas não conferem.';
+      this.currentStep = 1;
+      return;
+    }
+
     this.errorMessage = null;
     this.authService.register(this.user).subscribe({
-      next: (response) => {
-        alert(
-          `Cadastro realizado com sucesso!\nSua senha temporária é: ${response.temporaryPassword}\nAnote sua senha e faça o login.`
-        );
+      next: () => {
+        alert('Cadastro realizado com sucesso! Faça o login para continuar.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
