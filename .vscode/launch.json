@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ManutencaoApplication",
+            "request": "launch",
+            "mainClass": "com.manutencao.ManutencaoApplication",
+            "envFile": "${workspaceFolder}/api/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ManutencaoApplication<manutencao-api>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.manutencao.ManutencaoApplication",
+            "projectName": "manutencao-api",
+            "args": "",
+            "envFile": "${workspaceFolder}/api/.env"
+        }
+    ]
+}
