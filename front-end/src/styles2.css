@@ -8,70 +8,6 @@
   --tads-dark-gray: #343a40;
   --tads-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --tads-transition: all 0.3s ease-in-out;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 }
 
 .tads-card-dashboard {
@@ -87,6 +23,30 @@
 .tads-card-dashboard:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .tads-btn-main {
@@ -101,11 +61,62 @@
   align-items: center;
   gap: 8px;
   transition: var(--tads-transition);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .tads-btn-main:hover {
   background-color: var(--tads-secondary);
   filter: brightness(1.1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .tads-btn-outline {
@@ -116,6 +127,37 @@
   border-radius: 8px;
   font-weight: 500;
   transition: var(--tads-transition);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .tads-badge-status {
@@ -129,6 +171,26 @@
 .status-pending {
   background-color: #fff3cd;
   color: #856404;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 .status-approved {
