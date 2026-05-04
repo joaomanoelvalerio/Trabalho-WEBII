@@ -12,6 +12,10 @@ export class CategoryService {
     this.initDefaultCategories();
   }
 
+  /**
+   * Inicializa o localStorage com categorias padrão caso ainda não existam.
+   * Executado uma única vez na construção do serviço.
+   */
   private initDefaultCategories(): void {
     const stored = localStorage.getItem(this.KEY);
     if (!stored) {
@@ -26,15 +30,22 @@ export class CategoryService {
     }
   }
 
+  /** Retorna todas as categorias cadastradas. */
   getAll(): Category[] {
     const stored = localStorage.getItem(this.KEY);
     return stored ? JSON.parse(stored) : [];
   }
 
+  /** Busca uma categoria pelo ID. Retorna undefined se não encontrada. */
   getCategoriaById(id: number): Category | undefined {
     return this.getAll().find((c) => c.id === id);
   }
 
+  /**
+   * Cadastra uma nova categoria.
+   * Requer que o usuário logado seja um funcionário (EMPLOYEE).
+   * @throws Error se o nome estiver vazio ou já existir outra categoria com o mesmo nome.
+   */
   registerCategory(name: string): Category {
     this.validateEmployeeRole();
     const categories = this.getAll();
@@ -54,6 +65,11 @@ export class CategoryService {
     return newCategory;
   }
 
+  /**
+   * Atualiza o nome de uma categoria existente.
+   * Requer que o usuário logado seja um funcionário (EMPLOYEE).
+   * @throws Error se o nome estiver vazio, a categoria não for encontrada ou o nome já estiver em uso.
+   */
   atualizarCategoria(updated: Category): Category {
     this.validateEmployeeRole();
     if (!updated || !updated.name?.trim()) {
@@ -79,6 +95,11 @@ export class CategoryService {
     return categories[idx];
   }
 
+  /**
+   * Remove uma categoria pelo ID.
+   * Requer que o usuário logado seja um funcionário (EMPLOYEE).
+   * @throws Error se a categoria não existir.
+   */
   removerCategoria(id: number): void {
     this.validateEmployeeRole();
     const categories = this.getAll();
@@ -91,10 +112,15 @@ export class CategoryService {
     this.save(categories);
   }
 
+  /** Persiste a lista de categorias no localStorage. */
   private save(categories: Category[]): void {
     localStorage.setItem(this.KEY, JSON.stringify(categories));
   }
 
+  /**
+   * Verifica se o usuário logado possui a role EMPLOYEE.
+   * Lança erro caso contrário, protegendo operações de escrita.
+   */
   private validateEmployeeRole(): void {
     const user = this.authService.getLoggedInUser();
     if (!user || user.role !== 'EMPLOYEE') {
