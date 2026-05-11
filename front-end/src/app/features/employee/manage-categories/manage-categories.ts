@@ -16,19 +16,29 @@ export class ManageCategoriesComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   categories: Category[] = [];
+
+  /** Nome digitado no campo de nova categoria. */
   newCategoryName = '';
+
+  /** ID da categoria em edição inline, ou null se nenhuma. */
   editingId: number | null = null;
+
+  /** Valor temporário do nome durante a edição inline. */
   editingName = '';
+
+  /** ID da categoria aguardando confirmação de exclusão, ou null se nenhuma. */
   confirmDeleteId: number | null = null;
 
   ngOnInit(): void {
     this.load();
   }
 
+  /** Recarrega a lista de categorias a partir do serviço. */
   load(): void {
     this.categories = this.categoryService.getAll();
   }
 
+  /** Cadastra uma nova categoria com o nome digitado e recarrega a lista. */
   addCategory(): void {
     const name = this.newCategoryName.trim();
     if (!name) return;
@@ -42,17 +52,23 @@ export class ManageCategoriesComponent implements OnInit {
     }
   }
 
+  /**
+   * Ativa o modo de edição inline para a categoria informada.
+   * Fecha qualquer confirmação de exclusão pendente.
+   */
   startEdit(cat: Category): void {
     this.editingId = cat.id;
     this.editingName = cat.name;
     this.confirmDeleteId = null;
   }
 
+  /** Cancela a edição inline sem persistir alterações. */
   cancelEdit(): void {
     this.editingId = null;
     this.editingName = '';
   }
 
+  /** Persiste o novo nome da categoria e encerra o modo de edição. */
   saveEdit(cat: Category): void {
     const name = this.editingName.trim();
     if (!name) return;
@@ -66,15 +82,21 @@ export class ManageCategoriesComponent implements OnInit {
     }
   }
 
+  /**
+   * Ativa o modo de confirmação de exclusão para a categoria informada.
+   * Fecha qualquer edição inline pendente.
+   */
   askDelete(id: number): void {
     this.confirmDeleteId = id;
     this.editingId = null;
   }
 
+  /** Cancela a confirmação de exclusão sem remover a categoria. */
   cancelDelete(): void {
     this.confirmDeleteId = null;
   }
 
+  /** Confirma e executa a remoção da categoria após aprovação do usuário. */
   confirmDelete(id: number): void {
     try {
       this.categoryService.removerCategoria(id);
