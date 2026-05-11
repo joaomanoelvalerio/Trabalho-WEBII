@@ -42,9 +42,11 @@
                      class="form-control"
                      name="cpf"
                      [(ngModel)]="user.cpf"
-                     (input)="formatCpf($event)"
+                     (ngModelChange)="onCpfChange($event)"
+                     pattern="^\d{3}\.\d{3}\.\d{3}-\d{2}$"
                      maxlength="14"
                      placeholder="000.000.000-00"
+                     title="Formato: 000.000.000-00"
                      required />
             </div>
             <div class="col-md-6 mb-3">
@@ -142,3 +144,52 @@
     </div>
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
