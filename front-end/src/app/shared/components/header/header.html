@@ -7,48 +7,14 @@
 
     @if (authService.getLoggedInUser(); as user) {
       <div class="d-flex align-items-center flex-wrap gap-2">
+
         <div class="me-3 d-none d-md-block text-white-50 small">
-          Conectado como: <strong class="text-white">{{ user.name }}</strong>
+          Olá, <strong class="text-white">{{ user.name }}</strong>
         </div>
 
         <div class="btn-group shadow-sm">
-          @if (user.role === 'CLIENT') {<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/">Manutenção de Equipamentos</a>
 
-    @if (authService.getLoggedInUser(); as user) {
-      <div class="d-flex align-items-center flex-wrap gap-2">
-        <span class="text-white me-2">Olá, {{ user.name }}</span>
-
-        @if (user.role === 'CLIENT') {
-          <a class="btn btn-sm btn-light me-1" routerLink="/client">
-            Minhas Solicitações
-          </a>
-        }
-
-        @if (user.role === 'EMPLOYEE' || user.role === 'ADMIN') {
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee">
-            Solicitações Abertas
-          </a>
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee/solicitations">
-            Todas Solicitações
-          </a>
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee/categories">
-            Categorias
-          </a>
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee/employees">
-            Funcionários
-          </a>
-          <a class="btn btn-sm btn-light me-1" routerLink="/employee/reports">
-            Relatórios
-          </a>
-        }
-
-        <button class="btn btn-sm btn-outline-light" (click)="logout()">Sair</button>
-      </div>
-    }
-  </div>
-</nav>
+          @if (user.role === 'CLIENT') {
             <a class="btn btn-sm btn-light" routerLink="/client">
               <i class="bi bi-list-task me-1"></i> Minhas Solicitações
             </a>
@@ -60,9 +26,10 @@
           }
         </div>
 
-        <button class="btn btn-sm btn-outline-light ms-2 border-0" (click)="logout()">
+        <button class="btn btn-sm btn-outline-light ms-2 border-0" (click)="logout()" title="Sair do sistema">
           <i class="bi bi-box-arrow-right fs-5"></i>
         </button>
+
       </div>
     }
   </div>
