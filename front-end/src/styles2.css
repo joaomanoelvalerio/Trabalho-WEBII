@@ -1,250 +1,157 @@
 :root {
-  --tads-primary: #004a8d;
-  --tads-secondary: #002f5d;
-  --tads-accent: #ffb81c;
-  --tads-success: #28a745;
-  --tads-danger: #dc3545;
-  --tads-light-gray: #f8f9fa;
-  --tads-dark-gray: #343a40;
-  --tads-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --tads-transition: all 0.3s ease-in-out;
+  --tads-primary: #6366f1;
+  --tads-secondary: #4f46e5;
+  --tads-accent: #f59e0b;
+  --tads-success: #10b981;
+  --tads-danger: #ef4444;
+  --tads-light-gray: #f3f4f6;
+  --tads-dark-gray: #1f2937;
+  --tads-border-color: #e5e7eb;
+  --tads-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --tads-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --tads-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --tads-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tads-card-dashboard {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--tads-shadow);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: var(--tads-shadow-md);
   transition: var(--tads-transition);
-  border-left: 5px solid var(--tads-primary);
-  margin-bottom: 1rem;
+  border: 1px solid var(--tads-border-color);
+  border-top: 4px solid var(--tads-primary);
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .tads-card-dashboard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  transform: translateY(-4px);
+  box-shadow: var(--tads-shadow-lg);
+  border-top-color: var(--tads-secondary);
 }
 
 .tads-btn-main {
   background-color: var(--tads-primary);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  color: #ffffff;
+  border: 1px solid transparent;
+  padding: 12px 24px;
+  border-radius: 10px;
   font-weight: 600;
+  letter-spacing: 0.3px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   transition: var(--tads-transition);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  box-shadow: var(--tads-shadow-sm);
 }
 
 .tads-btn-main:hover {
   background-color: var(--tads-secondary);
-  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.tads-btn-main:active {
+  transform: scale(0.98);
 }
 
 .tads-btn-outline {
   background: transparent;
   border: 2px solid var(--tads-primary);
   color: var(--tads-primary);
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 600;
   transition: var(--tads-transition);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.tads-btn-outline:hover {
+  background-color: var(--tads-primary);
+  color: #ffffff;
 }
 
 .tads-badge-status {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  display: inline-block;
 }
 
 .status-pending {
-  background-color: #fff3cd;
-  color: #856404;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
 }
 
 .status-approved {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #d1fae5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
 .status-rejected {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
 }
 
 .tads-input-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 .tads-input-group label {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--tads-dark-gray);
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tads-input-field {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
+  padding: 14px;
+  border: 1px solid var(--tads-border-color);
+  border-radius: 10px;
+  background-color: #fafafa;
+  color: var(--tads-dark-gray);
   outline: none;
-  transition: border-color 0.2s;
+  transition: var(--tads-transition);
 }
 
 .tads-input-field:focus {
   border-color: var(--tads-primary);
-  box-shadow: 0 0 0 3px rgba(0, 74, 141, 0.1);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 @media (max-width: 768px) {
   .tads-card-dashboard {
-    padding: 1rem;
+    padding: 1.25rem;
+    border-radius: 12px;
   }
   
-  .tads-btn-main {
+  .tads-btn-main, .tads-btn-outline {
     width: 100%;
     justify-content: center;
   }
 }
 
 @keyframes fadeInTads {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(16px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .animate-fade-in {
-  animation: fadeInTads 0.5s forwards;
+  animation: fadeInTads 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
