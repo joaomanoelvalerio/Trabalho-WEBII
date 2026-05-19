@@ -92,4 +92,9 @@ public class EmployeeProfile {
      *
      * @return true se o perfil está inativo ou demitido, false caso contrário
      */
+
+    public boolean isInactiveOrFired() {
+        return !this.active || this.resignationDate != null;
+    }
     
+}
