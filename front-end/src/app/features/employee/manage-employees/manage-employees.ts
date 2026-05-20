@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../authentication/services/auth.service';
 import { User } from '../../../shared/models/user.model';
+import { UserService } from '../../../shared/services/user.service';
 
 interface EmployeeForm {
   name: string;
@@ -21,6 +22,7 @@ interface EmployeeForm {
 export class ManageEmployeesComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly userService = inject(UserService);
 
   employees: User[] = [];
   currentUserId = 0;
@@ -44,7 +46,7 @@ export class ManageEmployeesComponent implements OnInit {
   }
 
   load(): void {
-    this.employees = this.authService.getEmployees();
+    this.employees = this.userService.getEmployees();
   }
 
   toggleAddForm(): void {
@@ -56,7 +58,7 @@ export class ManageEmployeesComponent implements OnInit {
 
   addEmployee(): void {
     try {
-      this.authService.addEmployee(this.newForm);
+      this.userService.addEmployee(this.newForm);
       this.showAddForm = false;
       this.newForm = { name: '', email: '', password: '', birthDate: '' };
       this.load();
@@ -93,7 +95,7 @@ export class ManageEmployeesComponent implements OnInit {
       if (this.editForm.changePassword && this.editForm.password?.trim()) {
         data.password = this.editForm.password.trim();
       }
-      this.authService.updateEmployee(emp.id, data);
+      this.userService.updateEmployee(emp.id, data);
       this.cancelEdit();
       this.load();
       this.snackBar.open('Funcionário atualizado!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
@@ -114,15 +116,41 @@ export class ManageEmployeesComponent implements OnInit {
 
   confirmDelete(id: number): void {
     try {
-      this.authService.removeEmployee(id);
+
+      const loggedUser = this.authService.getLoggedInUser();
+
+      if (!loggedUser) {
+        throw new Error('Usuário não autenticado.');
+      }
+
+      this.userService.removeEmployee(id, loggedUser.id);
+
       this.confirmDeleteId = null;
+
       this.load();
-      this.snackBar.open('Funcionário removido.', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+
+      this.snackBar.open(
+        'Funcionário removido.',
+        'Fechar',
+        {
+          duration: 3000,
+          horizontalPosition: 'end'
+        }
+      );
+
     } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
+
+      this.snackBar.open(
+        e.message,
+        'Fechar',
+        {
+          duration: 4000,
+          horizontalPosition: 'end'
+        }
+      );
     }
   }
-
+  
   formatDate(date?: string): string {
     if (!date) return '—';
     const [y, m, d] = date.split('-');

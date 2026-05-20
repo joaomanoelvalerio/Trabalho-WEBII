@@ -5,8 +5,9 @@ import { Router } from '@angular/router';
 import { User } from '../../../shared/models/user.model';
 import { Address } from '../../../shared/models/address.model';
 import { ViaCepService } from '../../../shared/services/via-cep.service';
-import { AuthService } from '../services/auth.service';
+import { UserService } from '../../../shared/services/user.service';
 import { first } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -18,6 +19,7 @@ import { first } from 'rxjs/operators';
 export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly viaCepService = inject(ViaCepService);
+  private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
 
   currentStep = 1;
@@ -108,7 +110,7 @@ export class RegisterComponent {
 
   onSubmit() {
     this.errorMessage = null;
-    this.authService.register(this.user).subscribe({
+    this.userService.register(this.user).subscribe({
       next: (res) => {
         alert(
           `Cadastro realizado com sucesso!\n\nSua senha temporária é: ${res.temporaryPassword}\n\nGuarde-a para fazer o login.`

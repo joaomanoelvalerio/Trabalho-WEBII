@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { QuoteDialogComponent } from './quote-dialog/quote-dialog';
-import { StorageService } from '../../shared/services/storage';
-import { RequestStatus, Solicitation } from '../../shared/models/solicitation.model';
-import { AuthService } from '../authentication/services/auth.service';
+import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
+import { StorageService } from '../../../shared/services/storage';
+import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
+import { UserService } from '../../../shared/services/user.service';
+import { AuthService } from '../../authentication/services/auth.service';
 
 const SHORT_DESC_LIMIT = 30;
 
@@ -14,15 +15,17 @@ const SHORT_DESC_LIMIT = 30;
   selector: 'app-employee',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatSnackBarModule],
-  templateUrl: './employee.html',
-  styleUrl: './employee.css',
+  templateUrl: './employee-home.html',
+  styleUrl: './employee-home.css',
+
 })
 export class Employee implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly storageService = inject(StorageService);
-  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   requests: Solicitation[] = [];
 
@@ -55,7 +58,7 @@ export class Employee implements OnInit {
 
   onSubmitQuote(request: Solicitation): void {
     // RF012: pass full client data to dialog
-    const allUsers = this.authService.getAllUsers();
+    const allUsers = this.userService.getAllUsers();
     const client = allUsers.find(u => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {

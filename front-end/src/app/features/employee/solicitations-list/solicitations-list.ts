@@ -10,6 +10,7 @@ import { MaintenanceDialogComponent } from '../maintenance-dialog/maintenance-di
 import { FinalizeDialogComponent } from '../finalize-dialog/finalize-dialog';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
 import { SolicitationDetailDialogComponent } from '../solicitation-detail-dialog/solicitation-detail-dialog';
+import { UserService } from '../../../shared/services/user.service';
 
 type FilterMode = 'TODAY' | 'PERIOD' | 'ALL';
 
@@ -51,6 +52,7 @@ export class SolicitationsListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly userService = inject(UserService);
 
   /** Modo de filtro de data ativo: hoje, período ou todas. */
   filterMode: FilterMode = 'ALL';
@@ -141,7 +143,7 @@ export class SolicitationsListComponent implements OnInit {
    * Ao confirmar, atualiza o status para QUOTED e registra no histórico.
    */
   onDoQuote(request: Solicitation): void {
-    const allUsers = this.authService.getAllUsers();
+    const allUsers = this.userService.getAllUsers();
     const client = allUsers.find((u) => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
@@ -184,7 +186,7 @@ export class SolicitationsListComponent implements OnInit {
    * O funcionário pode registrar a manutenção (→ FIXED) ou redirecionar (→ REDIRECTED).
    */
   onDoMaintenance(req: Solicitation): void {
-    const employees = this.authService.getEmployees().filter((e) => e.id !== this.currentEmployeeId);
+    const employees = this.userService.getEmployees().filter((e) => e.id !== this.currentEmployeeId);
     const dialogRef = this.dialog.open(MaintenanceDialogComponent, {
       width: '600px',
       data: { request: req, employees },
@@ -211,7 +213,7 @@ export class SolicitationsListComponent implements OnInit {
         });
         this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
       } else if (result.action === 'REDIRECT') {
-        const target = this.authService.getAllUsers().find((u) => u.id === result.targetEmployeeId);
+        const target = this.userService.getAllUsers().find((u) => u.id === result.targetEmployeeId);
         const history = [
           ...(req.history || []),
           { date: now, fromStatus: req.status, toStatus: RequestStatus.REDIRECTED, employeeId: user?.id, employeeName: user?.name, note: `Redirecionado para ${target?.name ?? '#' + result.targetEmployeeId}` },
