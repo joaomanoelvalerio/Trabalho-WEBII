@@ -10,10 +10,6 @@ export class AuthService {
     this.seedInitialData();
   }
 
-  /**
-   * Popula o localStorage com usuários iniciais caso ainda não existam dados.
-   * Cria 2 funcionários e 4 clientes de exemplo para demonstração do sistema.
-   */
   private seedInitialData(): void {
     if (localStorage.getItem(this.USERS_KEY)) return;
 
@@ -59,21 +55,14 @@ export class AuthService {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(seed));
   }
 
-  /** Lê e desserializa a lista completa de usuários do localStorage. */
   private getUsers(): User[] {
     return JSON.parse(localStorage.getItem(this.USERS_KEY) || '[]');
   }
 
-  /** Serializa e persiste a lista de usuários no localStorage. */
   private saveUsers(users: User[]): void {
     localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
   }
 
-  /**
-   * Registra um novo cliente no sistema.
-   * Gera automaticamente um ID incremental e uma senha temporária aleatória de 4 dígitos.
-   * @returns Observable com { success, temporaryPassword } ou erro se CPF/e-mail já existir.
-   */
   register(data: Omit<User, 'id' | 'role' | 'password'>) {
     const users = this.getUsers();
 
@@ -84,11 +73,12 @@ export class AuthService {
       return throwError(() => new Error('E-mail já cadastrado.'));
     }
 
+    const tempPassword = Math.floor(1000 + Math.random() * 9000).toString();
     const newUser: User = {
       id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       role: 'CLIENT',
-      password: Math.floor(1000 + Math.random() * 9000).toString(),
       ...data,
+      password: tempPassword,
     };
 
     users.push(newUser);
@@ -96,11 +86,6 @@ export class AuthService {
     return of({ success: true, temporaryPassword: newUser.password });
   }
 
-  /**
-   * Autentica um usuário pelo e-mail e senha.
-   * Persiste o usuário logado no localStorage sob a chave 'loggedInUser'.
-   * @returns Observable com { success, user } ou erro se as credenciais forem inválidas.
-   */
   login(email: string, password: string) {
     const user = this.getUsers().find(
       u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
