@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/authentication/login/login';
 import { RegisterComponent } from './features/authentication/register/register';
-import { Employee } from './features/employee/employee';
+import { Employee } from './features/employee/employee-home/employee-home';
 import { ClientHomeComponent } from './features/client/client-home/client-home';
 import { ClientNewRequest } from './features/client/client-new-request/client-new-request';
 import { SolicitationsListComponent } from './features/employee/solicitations-list/solicitations-list';

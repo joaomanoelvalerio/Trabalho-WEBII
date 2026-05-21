@@ -20,7 +20,7 @@ export const clientGuard: CanActivateFn = () => {
   return false;
 };
 
-/** Permite apenas EMPLOYEE ou ADMIN */
+  //Permite apenas EMPLOYEE ou ADMIN
 export const employeeGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
