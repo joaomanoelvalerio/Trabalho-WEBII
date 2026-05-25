@@ -1,8 +1,11 @@
 package com.manutencao.service;
 
 import com.manutencao.entity.Category;
+
 import com.manutencao.repository.CategoryRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;

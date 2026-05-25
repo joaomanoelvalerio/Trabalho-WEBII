@@ -1,9 +1,13 @@
 package com.manutencao.service;
 
 import com.manutencao.entity.Solicitation;
+
 import com.manutencao.entity.RequestStatus;
+
 import com.manutencao.repository.SolicitationRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;

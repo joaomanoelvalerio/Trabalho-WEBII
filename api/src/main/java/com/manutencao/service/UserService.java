@@ -1,11 +1,15 @@
 package com.manutencao.service;
 
 import com.manutencao.entity.User;
+
 import com.manutencao.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 import java.util.Optional;
 
 @Service
@@ -50,8 +54,11 @@ public class UserService {
         }
         
         user.setNameUser(userDetails.getNameUser());
+
         user.setEmail(userDetails.getEmail());
+
         user.setPhone(userDetails.getPhone());
+        
         user.setAddress(userDetails.getAddress());
         
         return userRepository.save(user);

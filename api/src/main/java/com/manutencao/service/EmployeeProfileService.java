@@ -1,10 +1,15 @@
 package com.manutencao.service;
 
 import com.manutencao.entity.EmployeeProfile;
+
 import com.manutencao.entity.User;
+
 import com.manutencao.repository.EmployeeProfileRepository;
+
 import com.manutencao.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,8 +62,11 @@ public class EmployeeProfileService {
                 .orElseThrow(() -> new IllegalArgumentException("Perfil não encontrado"));
         
         profile.setDepartment(profileDetails.getDepartment());
+
         profile.setSpecialties(profileDetails.getSpecialties());
+        
         profile.setActive(profileDetails.getActive());
+
         profile.setCanQuote(profileDetails.getCanQuote());
         
         if (profileDetails.getResignationDate() != null) {
