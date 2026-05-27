@@ -16,10 +16,10 @@ export class RevenueReportsComponent {
   endDate: string = '';
 
   exportPeriod() {
-    this.reportService.generateRevenueByPeriodPDF(this.startDate, this.endDate);
+    this.reportService.generateRevenueByPeriodPDF(this.startDate, this.endDate).subscribe();
   }
 
   exportCategory() {
-    this.reportService.generateRevenueByCategoryPDF();
+    this.reportService.generateRevenueByCategoryPDF().subscribe();
   }
 }

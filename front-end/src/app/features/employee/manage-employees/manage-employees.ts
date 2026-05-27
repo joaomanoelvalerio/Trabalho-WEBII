@@ -46,7 +46,10 @@ export class ManageEmployeesComponent implements OnInit {
   }
 
   load(): void {
-    this.employees = this.userService.getEmployees();
+    this.userService.getEmployees().subscribe({
+      next: (employees) => this.employees = employees,
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   toggleAddForm(): void {
@@ -57,15 +60,15 @@ export class ManageEmployeesComponent implements OnInit {
   }
 
   addEmployee(): void {
-    try {
-      this.userService.addEmployee(this.newForm);
-      this.showAddForm = false;
-      this.newForm = { name: '', email: '', password: '', birthDate: '' };
-      this.load();
-      this.snackBar.open('Funcionário cadastrado com sucesso!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
-    } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
-    }
+    this.userService.addEmployee(this.newForm).subscribe({
+      next: () => {
+        this.showAddForm = false;
+        this.newForm = { name: '', email: '', password: '', birthDate: '' };
+        this.load();
+        this.snackBar.open('Funcionário cadastrado com sucesso!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   startEdit(emp: User): void {
@@ -86,22 +89,22 @@ export class ManageEmployeesComponent implements OnInit {
   }
 
   saveEdit(emp: User): void {
-    try {
-      const data: any = {
-        name: this.editForm.name,
-        email: this.editForm.email,
-        birthDate: this.editForm.birthDate,
-      };
-      if (this.editForm.changePassword && this.editForm.password?.trim()) {
-        data.password = this.editForm.password.trim();
-      }
-      this.userService.updateEmployee(emp.id, data);
-      this.cancelEdit();
-      this.load();
-      this.snackBar.open('Funcionário atualizado!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
-    } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
+    const data: any = {
+      name: this.editForm.name,
+      email: this.editForm.email,
+      birthDate: this.editForm.birthDate,
+    };
+    if (this.editForm.changePassword && this.editForm.password?.trim()) {
+      data.password = this.editForm.password.trim();
     }
+    this.userService.updateEmployee(emp.id, data).subscribe({
+      next: () => {
+        this.cancelEdit();
+        this.load();
+        this.snackBar.open('Funcionário atualizado!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   askDelete(id: number): void {
@@ -115,40 +118,41 @@ export class ManageEmployeesComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    try {
-
-      const loggedUser = this.authService.getLoggedInUser();
-
-      if (!loggedUser) {
-        throw new Error('Usuário não autenticado.');
-      }
-
-      this.userService.removeEmployee(id, loggedUser.id);
-
-      this.confirmDeleteId = null;
-
-      this.load();
-
+    const loggedUser = this.authService.getLoggedInUser();
+    if (!loggedUser) {
       this.snackBar.open(
-        'Funcionário removido.',
-        'Fechar',
-        {
-          duration: 3000,
-          horizontalPosition: 'end'
-        }
-      );
-
-    } catch (e: any) {
-
-      this.snackBar.open(
-        e.message,
+        'Usuário não autenticado.',
         'Fechar',
         {
           duration: 4000,
           horizontalPosition: 'end'
         }
       );
+      return;
     }
+
+    this.userService.removeEmployee(id, loggedUser.id).subscribe({
+      next: () => {
+        this.confirmDeleteId = null;
+        this.load();
+        this.snackBar.open(
+          'Funcionário removido.',
+          'Fechar',
+          {
+            duration: 3000,
+            horizontalPosition: 'end'
+          }
+        );
+      },
+      error: (e: Error) => this.snackBar.open(
+        e.message,
+        'Fechar',
+        {
+          duration: 4000,
+          horizontalPosition: 'end'
+        }
+      ),
+    });
   }
   
   formatDate(date?: string): string {
