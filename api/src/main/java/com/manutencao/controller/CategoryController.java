@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
@@ -29,29 +29,31 @@ public class CategoryController {
 
     @GetMapping
     public List<Category> getAll() {
-        return categoryRepository.findAll();
+        return categoryRepository.findByActiveTrueOrderByNameAsc();
     }
 
     @GetMapping("/{id}")
     public Category getById(@PathVariable Long id) {
-        return categoryRepository.findById(id)
+        return categoryRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada."));
     }
 
     @PostMapping
     public ResponseEntity<Category> create(@Valid @RequestBody Category category) {
-        if (categoryRepository.existsByNameIgnoreCase(category.getName())) {
+        if (categoryRepository.existsByNameIgnoreCaseAndActiveTrue(category.getName())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Categoria já cadastrada.");
         }
+        category.setName(category.getName().trim());
+        category.setActive(true);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryRepository.save(category));
     }
 
     @PutMapping("/{id}")
     public Category update(@PathVariable Long id, @Valid @RequestBody Category updated) {
-        Category existing = categoryRepository.findById(id)
+        Category existing = categoryRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada."));
 
-        if (categoryRepository.existsByNameIgnoreCaseAndIdNot(updated.getName(), id)) {
+        if (categoryRepository.existsByNameIgnoreCaseAndIdNotAndActiveTrue(updated.getName(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe outra categoria com esse nome.");
         }
 
@@ -61,10 +63,10 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada.");
-        }
-        categoryRepository.deleteById(id);
+        Category existing = categoryRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada."));
+        existing.setActive(false);
+        categoryRepository.save(existing);
         return ResponseEntity.noContent().build();
     }
 }
