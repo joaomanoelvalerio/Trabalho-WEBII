@@ -10,4 +10,5 @@ export interface User {
   address: Address;
   password: string;
   birthDate?: string;
+  active: boolean;
 }

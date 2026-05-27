@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../../features/authentication/services/auth.service';
 
-/** Permite apenas CLIENT */
+  // Permite apenas CLIENT
 export const clientGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
