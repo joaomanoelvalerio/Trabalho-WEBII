@@ -7,7 +7,6 @@ import { Address } from '../../../shared/models/address.model';
 import { ViaCepService } from '../../../shared/services/via-cep.service';
 import { UserService } from '../../../shared/services/user.service';
 import { first } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +19,6 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly viaCepService = inject(ViaCepService);
   private readonly userService = inject(UserService);
-  private readonly authService = inject(AuthService);
 
   currentStep = 1;
 

@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { StorageService } from '../../../shared/services/storage';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
+import { User } from '../../../shared/models/user.model';
 import { MaintenanceDialogComponent } from '../maintenance-dialog/maintenance-dialog';
 import { FinalizeDialogComponent } from '../finalize-dialog/finalize-dialog';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
@@ -20,7 +21,6 @@ interface StatusStyle {
   badgeClass: string;
 }
 
-/** Mapeamento de cada status para seu label e classes CSS de badge/linha da tabela. */
 const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   [RequestStatus.OPEN]:       { label: 'Aberta',         rowClass: 'table-secondary', badgeClass: 'badge-open'       },
   [RequestStatus.QUOTED]:     { label: 'Orçada',         rowClass: 'row-quoted',      badgeClass: 'badge-quoted'     },
@@ -33,7 +33,6 @@ const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   [RequestStatus.IN_PROGRESS]:{ label: 'Em Andamento',   rowClass: 'row-progress',    badgeClass: 'badge-progress'   },
 };
 
-/** Configuração padrão do snackbar — canto superior direito, longe da tabela. */
 const SNACK = {
   duration: 3000,
   horizontalPosition: 'end' as const,
@@ -54,34 +53,55 @@ export class SolicitationsListComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
 
-  /** Modo de filtro de data ativo: hoje, período ou todas. */
+  
   filterMode: FilterMode = 'ALL';
 
-  /** Data de início do filtro por período (formato YYYY-MM-DD). */
   periodStart = '';
-
-  /** Data de fim do filtro por período (formato YYYY-MM-DD). */
+  
   periodEnd = '';
 
-  /** Solicitações exibidas após aplicação dos filtros. */
-  requests: Solicitation[] = [];
 
-  /** ID do funcionário logado, usado para filtrar redirecionamentos. */
+  requests: Solicitation[] = [];
+  allRequests: Solicitation[] = [];
+  allUsers: User[] = [];
+  employees: User[] = [];
+
+  
   currentEmployeeId = 0;
 
   ngOnInit(): void {
     const user = this.authService.getLoggedInUser();
     this.currentEmployeeId = user?.id ?? 0;
-    this.applyFilter();
+    this.refreshData();
   }
 
-  /**
-   * Aplica os filtros de período sobre todas as solicitações.
-   * Solicitações REDIRECTED só aparecem para o funcionário-destino.
-   */
+  private refreshData(): void {
+    this.loadRequests();
+
+    this.userService.getAllUsers().subscribe({
+      next: (users) => this.allUsers = users,
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+    });
+
+    this.userService.getEmployees().subscribe({
+      next: (employees) => this.employees = employees,
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+    });
+  }
+
+  private loadRequests(): void {
+    this.storageService.getRequests().subscribe({
+      next: (requests) => {
+        this.allRequests = requests;
+        this.applyFilter();
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+    });
+  }
+
   applyFilter(): void {
     const empId = this.currentEmployeeId;
-    let filtered = this.storageService.getRequests().filter((r) => {
+    let filtered = this.allRequests.filter((r) => {
       if (r.status === RequestStatus.REDIRECTED) {
         return r.redirectedToEmployeeId === empId;
       }
@@ -100,51 +120,42 @@ export class SolicitationsListComponent implements OnInit {
       });
     }
 
-    // Ordena do mais antigo ao mais recente
+   
     this.requests = filtered.sort(
       (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime(),
     );
   }
 
-  /** Altera o modo de filtro e reaplica imediatamente. */
+  
   setFilter(mode: FilterMode): void {
     this.filterMode = mode;
     this.applyFilter();
   }
 
-  /** Retorna as classes CSS e o label de exibição para um dado status. */
+ 
   getStyle(status: RequestStatus): StatusStyle {
     return STATUS_STYLE[status] ?? { label: status, rowClass: '', badgeClass: '' };
   }
 
-  /** Trunca a descrição do equipamento para 30 caracteres para exibição na tabela. */
+ 
   getShortDesc(desc: string): string {
     if (!desc) return '—';
     return desc.length <= 30 ? desc : desc.substring(0, 27) + '...';
   }
 
-  /**
-   * Verifica se o botão de manutenção deve ser exibido.
-   * Aparece para solicitações APPROVED ou REDIRECTED ao funcionário atual.
-   */
   showMaintenanceButton(req: Solicitation): boolean {
     if (req.status === RequestStatus.APPROVED) return true;
     if (req.status === RequestStatus.REDIRECTED && req.redirectedToEmployeeId === this.currentEmployeeId) return true;
     return false;
   }
 
-  /** Verifica se o botão de finalização deve ser exibido (status PAID). */
+  
   showFinalizeButton(req: Solicitation): boolean {
     return req.status === RequestStatus.PAID;
   }
 
-  /**
-   * Abre o dialog de orçamento para uma solicitação OPEN.
-   * Ao confirmar, atualiza o status para QUOTED e registra no histórico.
-   */
   onDoQuote(request: Solicitation): void {
-    const allUsers = this.userService.getAllUsers();
-    const client = allUsers.find((u) => u.id === request.clientId);
+    const client = this.allUsers.find((u) => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
       width: '560px',
@@ -173,20 +184,20 @@ export class SolicitationsListComponent implements OnInit {
           quotedByEmployeeName: user?.name,
           quotedAt: now,
           history,
+        }).subscribe({
+          next: () => {
+            const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
+            this.loadRequests();
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
         });
-        const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
-        this.applyFilter();
       }
     });
   }
 
-  /**
-   * Abre o dialog de manutenção para uma solicitação APPROVED ou REDIRECTED.
-   * O funcionário pode registrar a manutenção (→ FIXED) ou redirecionar (→ REDIRECTED).
-   */
   onDoMaintenance(req: Solicitation): void {
-    const employees = this.userService.getEmployees().filter((e) => e.id !== this.currentEmployeeId);
+    const employees = this.employees.filter((e) => e.id !== this.currentEmployeeId);
     const dialogRef = this.dialog.open(MaintenanceDialogComponent, {
       width: '600px',
       data: { request: req, employees },
@@ -210,10 +221,15 @@ export class SolicitationsListComponent implements OnInit {
           maintainedByEmployeeName: user?.name,
           maintainedAt: now,
           history,
+        }).subscribe({
+          next: () => {
+            this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
+            this.loadRequests();
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
         });
-        this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
       } else if (result.action === 'REDIRECT') {
-        const target = this.userService.getAllUsers().find((u) => u.id === result.targetEmployeeId);
+        const target = this.allUsers.find((u) => u.id === result.targetEmployeeId);
         const history = [
           ...(req.history || []),
           { date: now, fromStatus: req.status, toStatus: RequestStatus.REDIRECTED, employeeId: user?.id, employeeName: user?.name, note: `Redirecionado para ${target?.name ?? '#' + result.targetEmployeeId}` },
@@ -223,19 +239,17 @@ export class SolicitationsListComponent implements OnInit {
           redirectedToEmployeeId: result.targetEmployeeId,
           redirectedToEmployeeName: target?.name,
           history,
+        }).subscribe({
+          next: () => {
+            this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
+            this.loadRequests();
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
         });
-        this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
-        this.applyFilter();
       }
-
-      this.applyFilter();
     });
   }
 
-  /**
-   * Abre o dialog de finalização para uma solicitação PAID.
-   * Ao confirmar, atualiza o status para FINALIZED e registra no histórico.
-   */
   onFinalize(req: Solicitation): void {
     const dialogRef = this.dialog.open(FinalizeDialogComponent, {
       width: '480px',
@@ -256,13 +270,16 @@ export class SolicitationsListComponent implements OnInit {
         finalizedByEmployeeName: user?.name,
         finalizedAt: now,
         history,
+      }).subscribe({
+        next: () => {
+          this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
+          this.loadRequests();
+        },
+        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
       });
-      this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
-      this.applyFilter();
     });
   }
 
-  /** Abre o dialog de detalhes de uma solicitação em modo somente leitura. */
   onViewDetails(req: Solicitation): void {
     this.dialog.open(SolicitationDetailDialogComponent, {
       width: '580px',

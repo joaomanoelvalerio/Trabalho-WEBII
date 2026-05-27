@@ -47,4 +47,10 @@ body { background: #f8fafc !important; color: #1e293b; font-family: 'Inter', sys
 .text-muted { color: #64748b !important; }
 .fw-bold { color: #0f172a; }
 
+*,
+*::before,
+*::after {
+    animation: none !important;
+    transition: none !important;
+}
 

@@ -32,7 +32,16 @@ export class ClientNewRequest implements OnInit {
   };
 
   ngOnInit(): void {
-    this.categories = this.categoryService.getAll();
+    this.categoryService.getAll().subscribe({
+      next: (categories) => this.categories = categories,
+      error: () => {
+        this.snackBar.open('Erro ao carregar categorias.', 'Fechar', {
+          duration: 3500,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+        });
+      },
+    });
   }
 
   countWords(text: string): number {
@@ -63,14 +72,23 @@ export class ClientNewRequest implements OnInit {
           note: 'Solicitação aberta pelo cliente.',
         },
       ],
+    }).subscribe({
+      next: () => {
+        this.snackBar.open('Solicitação enviada com sucesso!', 'Fechar', {
+          duration: 3500,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+        });
+        this.router.navigate(['/client']);
+      },
+      error: (e: Error) => {
+        this.snackBar.open(e.message, 'Fechar', {
+          duration: 3500,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+        });
+      },
     });
-
-    this.snackBar.open('Solicitação enviada com sucesso!', 'Fechar', {
-      duration: 3500,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-    });
-    this.router.navigate(['/client']);
   }
 
   onCancel(): void {

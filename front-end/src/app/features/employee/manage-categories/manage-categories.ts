@@ -35,21 +35,24 @@ export class ManageCategoriesComponent implements OnInit {
 
   /** Recarrega a lista de categorias a partir do serviço. */
   load(): void {
-    this.categories = this.categoryService.getAll();
+    this.categoryService.getAll().subscribe({
+      next: (categories) => this.categories = categories,
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   /** Cadastra uma nova categoria com o nome digitado e recarrega a lista. */
   addCategory(): void {
     const name = this.newCategoryName.trim();
     if (!name) return;
-    try {
-      this.categoryService.registerCategory(name);
-      this.newCategoryName = '';
-      this.load();
-      this.snackBar.open('Categoria adicionada com sucesso!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
-    } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
-    }
+    this.categoryService.registerCategory(name).subscribe({
+      next: () => {
+        this.newCategoryName = '';
+        this.load();
+        this.snackBar.open('Categoria adicionada com sucesso!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   /**
@@ -72,14 +75,14 @@ export class ManageCategoriesComponent implements OnInit {
   saveEdit(cat: Category): void {
     const name = this.editingName.trim();
     if (!name) return;
-    try {
-      this.categoryService.atualizarCategoria({ id: cat.id, name });
-      this.cancelEdit();
-      this.load();
-      this.snackBar.open('Categoria atualizada!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
-    } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
-    }
+    this.categoryService.atualizarCategoria({ ...cat, name }).subscribe({
+      next: () => {
+        this.cancelEdit();
+        this.load();
+        this.snackBar.open('Categoria atualizada!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 
   /**
@@ -98,13 +101,13 @@ export class ManageCategoriesComponent implements OnInit {
 
   /** Confirma e executa a remoção da categoria após aprovação do usuário. */
   confirmDelete(id: number): void {
-    try {
-      this.categoryService.removerCategoria(id);
-      this.confirmDeleteId = null;
-      this.load();
-      this.snackBar.open('Categoria removida.', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
-    } catch (e: any) {
-      this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' });
-    }
+    this.categoryService.removerCategoria(id).subscribe({
+      next: () => {
+        this.confirmDeleteId = null;
+        this.load();
+        this.snackBar.open('Categoria removida.', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+    });
   }
 }
