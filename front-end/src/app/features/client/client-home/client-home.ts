@@ -65,10 +65,16 @@ export class ClientHomeComponent implements OnInit {
 
   loadRequests(): void {
     const user = this.authService.getLoggedInUser();
-    if (!user) return;
-    this.requests = this.storageService
-      .getRequestsByClientId(user.id)
-      .sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
+    if (!user) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.storageService.getRequestsByClientId(user.id).subscribe({
+      next: (requests) => {
+        this.requests = requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+    });
   }
 
   getStatusMeta(status: RequestStatus): StatusMeta {
@@ -124,10 +130,14 @@ export class ClientHomeComponent implements OnInit {
             note: `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`,
           } as any,
         ];
-        this.storageService.updateRequest(updatedReq.id, updatedReq);
-        this.loadRequests();
-        const valor = req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', SNACK);
+        this.storageService.updateRequest(updatedReq.id, updatedReq).subscribe({
+          next: () => {
+            this.loadRequests();
+            const valor = req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', SNACK);
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+        });
 
       } else if (result.action === 'REJECT') {
         updatedReq.status = RequestStatus.REJECTED;
@@ -141,9 +151,13 @@ export class ClientHomeComponent implements OnInit {
             note: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
           } as any,
         ];
-        this.storageService.updateRequest(updatedReq.id, updatedReq);
-        this.loadRequests();
-        this.snackBar.open('Serviço rejeitado.', 'Fechar', SNACK);
+        this.storageService.updateRequest(updatedReq.id, updatedReq).subscribe({
+          next: () => {
+            this.loadRequests();
+            this.snackBar.open('Serviço rejeitado.', 'Fechar', SNACK);
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+        });
       }
     });
   }
@@ -173,9 +187,13 @@ export class ClientHomeComponent implements OnInit {
             note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
           },
         ],
+      }).subscribe({
+        next: () => {
+          this.loadRequests();
+          this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', SNACK);
+        },
+        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
       });
-      this.loadRequests();
-      this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', SNACK);
     });
   }
 
@@ -200,9 +218,13 @@ export class ClientHomeComponent implements OnInit {
             note: `Pagamento efetuado pelo cliente. Valor: R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
           },
         ],
+      }).subscribe({
+        next: () => {
+          this.loadRequests();
+          this.snackBar.open('Pagamento confirmado!', 'Fechar', SNACK);
+        },
+        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
       });
-      this.loadRequests();
-      this.snackBar.open('Pagamento confirmado!', 'Fechar', SNACK);
     });
   }
 }

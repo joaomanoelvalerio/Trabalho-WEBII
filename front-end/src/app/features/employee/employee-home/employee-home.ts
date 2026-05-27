@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
 import { StorageService } from '../../../shared/services/storage';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
+import { User } from '../../../shared/models/user.model';
 import { UserService } from '../../../shared/services/user.service';
 import { AuthService } from '../../authentication/services/auth.service';
 
@@ -28,13 +29,27 @@ export class Employee implements OnInit {
   private readonly authService = inject(AuthService);
 
   requests: Solicitation[] = [];
+  allUsers: User[] = [];
 
-  ngOnInit(): void { this.loadRequests(); }
+  ngOnInit(): void {
+    this.loadRequests();
+    this.loadUsers();
+  }
+
+  private loadUsers(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => this.allUsers = users,
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
+    });
+  }
 
   loadRequests(): void {
-    this.requests = this.storageService
-      .getOpenRequests()
-      .sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
+    this.storageService.getOpenRequests().subscribe({
+      next: (requests) => {
+        this.requests = requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
+      },
+      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
+    });
   }
 
   getShortDescription(description: string): string {
@@ -58,8 +73,7 @@ export class Employee implements OnInit {
 
   onSubmitQuote(request: Solicitation): void {
     // RF012: pass full client data to dialog
-    const allUsers = this.userService.getAllUsers();
-    const client = allUsers.find(u => u.id === request.clientId);
+    const client = this.allUsers.find(u => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
       width: '560px',
@@ -85,12 +99,18 @@ export class Employee implements OnInit {
           quotedByEmployeeName: user?.name,
           quotedAt: now,
           history,
+        }).subscribe({
+          next: () => {
+            const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            this.snackBar.open(`Orçamento de ${formatted} registrado com sucesso!`, 'Fechar', {
+              duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom',
+            });
+            this.loadRequests();
+          },
+          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', {
+            duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom',
+          }),
         });
-        const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        this.snackBar.open(`Orçamento de ${formatted} registrado com sucesso!`, 'Fechar', {
-          duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom',
-        });
-        this.loadRequests();
       }
     });
   }
