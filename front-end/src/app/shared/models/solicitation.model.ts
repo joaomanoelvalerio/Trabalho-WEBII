@@ -3,7 +3,6 @@ export enum RequestStatus {
   QUOTED = 'QUOTED',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
-  IN_PROGRESS = 'IN_PROGRESS',
   FIXED = 'FIXED',
   PAID = 'PAID',
   FINALIZED = 'FINALIZED',
@@ -40,7 +39,6 @@ export interface Solicitation {
   finalizedAt?: string;
   paidAt?: string;
   history: HistoryEntry[];
-
   clientName?: string;
   categoryName?: string;
   quotedByEmployeeName?: string;
