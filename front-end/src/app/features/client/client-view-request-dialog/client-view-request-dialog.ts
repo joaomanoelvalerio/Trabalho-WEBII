@@ -38,7 +38,6 @@ export class ClientViewRequestDialogComponent {
       [RequestStatus.QUOTED]:      'Orçada',
       [RequestStatus.APPROVED]:    'Aprovada',
       [RequestStatus.REJECTED]:    'Rejeitada',
-      [RequestStatus.IN_PROGRESS]: 'Em Andamento',
       [RequestStatus.FIXED]:       'Arrumada',
       [RequestStatus.PAID]:        'Paga',
       [RequestStatus.FINALIZED]:   'Finalizada',

@@ -30,7 +30,7 @@ const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   [RequestStatus.FIXED]:      { label: 'Arrumada',       rowClass: 'table-primary',   badgeClass: 'badge-fixed'      },
   [RequestStatus.PAID]:       { label: 'Paga',           rowClass: 'row-paid',        badgeClass: 'badge-paid'       },
   [RequestStatus.FINALIZED]:  { label: 'Finalizada',     rowClass: 'table-success',   badgeClass: 'badge-finalized'  },
-  [RequestStatus.IN_PROGRESS]:{ label: 'Em Andamento',   rowClass: 'row-progress',    badgeClass: 'badge-progress'   },
+
 };
 
 const SNACK = {
@@ -80,12 +80,12 @@ export class SolicitationsListComponent implements OnInit {
 
     this.userService.getAllUsers().subscribe({
       next: (users) => this.allUsers = users,
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', SNACK),
     });
 
     this.userService.getEmployees().subscribe({
       next: (employees) => this.employees = employees,
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', SNACK),
     });
   }
 
@@ -95,7 +95,7 @@ export class SolicitationsListComponent implements OnInit {
         this.allRequests = requests;
         this.applyFilter();
       },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', SNACK),
     });
   }
 
@@ -190,7 +190,7 @@ export class SolicitationsListComponent implements OnInit {
             this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
             this.loadRequests();
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar orçamento', 'Fechar', SNACK),
         });
       }
     });
@@ -226,7 +226,7 @@ export class SolicitationsListComponent implements OnInit {
             this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
             this.loadRequests();
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar manutenção', 'Fechar', SNACK),
         });
       } else if (result.action === 'REDIRECT') {
         const target = this.allUsers.find((u) => u.id === result.targetEmployeeId);
@@ -244,7 +244,7 @@ export class SolicitationsListComponent implements OnInit {
             this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
             this.loadRequests();
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao redirecionar solicitação', 'Fechar', SNACK),
         });
       }
     });
@@ -275,7 +275,7 @@ export class SolicitationsListComponent implements OnInit {
           this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
           this.loadRequests();
         },
-        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+        error: (e: any) => this.snackBar.open(e?.message || 'Erro ao finalizar solicitação', 'Fechar', SNACK),
       });
     });
   }

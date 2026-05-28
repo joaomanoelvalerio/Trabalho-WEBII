@@ -19,15 +19,14 @@ interface StatusMeta {
 const SHORT_DESC_LIMIT = 30;
 
 const STATUS_META: Record<RequestStatus, StatusMeta> = {
-  [RequestStatus.OPEN]:        { label: 'Aberta',        badgeClass: 'bg-secondary' },
-  [RequestStatus.QUOTED]:      { label: 'Orçada',        badgeClass: 'bg-warning text-dark' },
-  [RequestStatus.APPROVED]:    { label: 'Aprovada',      badgeClass: 'bg-success' },
-  [RequestStatus.REJECTED]:    { label: 'Rejeitada',     badgeClass: 'bg-danger' },
-  [RequestStatus.IN_PROGRESS]: { label: 'Em Andamento',  badgeClass: 'bg-primary' },
-  [RequestStatus.FIXED]:       { label: 'Arrumada',      badgeClass: 'bg-info text-dark' },
-  [RequestStatus.PAID]:        { label: 'Paga',          badgeClass: 'bg-success bg-opacity-75' },
-  [RequestStatus.FINALIZED]:   { label: 'Finalizada',    badgeClass: 'bg-dark' },
-  [RequestStatus.REDIRECTED]:  { label: 'Redirecionada', badgeClass: 'bg-secondary' },
+  [RequestStatus.OPEN]:       { label: 'Aberta',        badgeClass: 'bg-secondary' },
+  [RequestStatus.QUOTED]:     { label: 'Orçada',        badgeClass: 'bg-warning text-dark' },
+  [RequestStatus.APPROVED]:   { label: 'Aprovada',      badgeClass: 'bg-success' },
+  [RequestStatus.REJECTED]:   { label: 'Rejeitada',     badgeClass: 'bg-danger' },
+  [RequestStatus.FIXED]:      { label: 'Arrumada',      badgeClass: 'bg-info text-dark' },
+  [RequestStatus.PAID]:       { label: 'Paga',          badgeClass: 'bg-success bg-opacity-75' },
+  [RequestStatus.FINALIZED]:  { label: 'Finalizada',    badgeClass: 'bg-dark' },
+  [RequestStatus.REDIRECTED]: { label: 'Redirecionada', badgeClass: 'bg-secondary' },
 };
 
 const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
@@ -51,11 +50,11 @@ const SNACK = {
   styleUrls: ['./client-home.css'],
 })
 export class ClientHomeComponent implements OnInit {
-  private readonly dialog      = inject(MatDialog);
-  private readonly router      = inject(Router);
+  private readonly dialog         = inject(MatDialog);
+  private readonly router         = inject(Router);
   private readonly storageService = inject(StorageService);
-  private readonly authService = inject(AuthService);
-  private readonly snackBar    = inject(MatSnackBar);
+  private readonly authService    = inject(AuthService);
+  private readonly snackBar       = inject(MatSnackBar);
 
   requests: Solicitation[] = [];
 
@@ -65,16 +64,14 @@ export class ClientHomeComponent implements OnInit {
 
   loadRequests(): void {
     const user = this.authService.getLoggedInUser();
-    if (!user) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.storageService.getRequestsByClientId(user.id).subscribe({
-      next: (requests) => {
-        this.requests = requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
-      },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
-    });
+    if (!user) return;
+    this.storageService
+      .getRequestsByClientId(user.id)
+      .subscribe((requests: Solicitation[]) => {
+        this.requests = requests.sort(
+          (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()
+        );
+      });
   }
 
   getStatusMeta(status: RequestStatus): StatusMeta {
@@ -136,7 +133,7 @@ export class ClientHomeComponent implements OnInit {
             const valor = req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', SNACK);
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+          error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
         });
 
       } else if (result.action === 'REJECT') {
@@ -156,7 +153,7 @@ export class ClientHomeComponent implements OnInit {
             this.loadRequests();
             this.snackBar.open('Serviço rejeitado.', 'Fechar', SNACK);
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+          error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
         });
       }
     });
@@ -192,7 +189,7 @@ export class ClientHomeComponent implements OnInit {
           this.loadRequests();
           this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', SNACK);
         },
-        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+        error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
       });
     });
   }
@@ -223,7 +220,7 @@ export class ClientHomeComponent implements OnInit {
           this.loadRequests();
           this.snackBar.open('Pagamento confirmado!', 'Fechar', SNACK);
         },
-        error: (e: Error) => this.snackBar.open(e.message, 'Fechar', SNACK),
+        error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
       });
     });
   }

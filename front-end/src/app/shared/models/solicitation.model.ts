@@ -3,7 +3,6 @@ export enum RequestStatus {
   QUOTED = 'QUOTED',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
-  IN_PROGRESS = 'IN_PROGRESS',
   FIXED = 'FIXED',
   PAID = 'PAID',
   FINALIZED = 'FINALIZED',
