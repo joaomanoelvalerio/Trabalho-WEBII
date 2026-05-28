@@ -1,12 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { User } from '../../../shared/models/user.model';
 import { Address } from '../../../shared/models/address.model';
 import { ViaCepService } from '../../../shared/services/via-cep.service';
 import { UserService } from '../../../shared/services/user.service';
-import { first } from 'rxjs/operators';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 @Component({
   selector: 'app-register',
@@ -15,10 +17,12 @@ import { first } from 'rxjs/operators';
   templateUrl: './register.html',
   styleUrls: ['./register.css'],
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly viaCepService = inject(ViaCepService);
   private readonly userService = inject(UserService);
+  private readonly snackConfig = inject(SnackConfig);
+  private readonly destroy$ = new Subject<void>();
 
   currentStep = 1;
 
@@ -40,6 +44,11 @@ export class RegisterComponent {
 
   isAddressLoading = false;
   errorMessage: string | null = null;
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   nextStep() {
     this.errorMessage = null;
@@ -91,7 +100,7 @@ export class RegisterComponent {
     if (!zipCode || zipCode.length !== 8) { this.isAddressLoading = false; return; }
     this.isAddressLoading = true;
     this.errorMessage = null;
-    this.viaCepService.buscarCep(zipCode).pipe(first()).subscribe({
+    this.viaCepService.buscarCep(zipCode).pipe(takeUntil(this.destroy$)).subscribe({
       next: (address: Address) => {
         this.user.address.street       = address.street;
         this.user.address.neighborhood = address.neighborhood;
@@ -108,7 +117,7 @@ export class RegisterComponent {
 
   onSubmit() {
     this.errorMessage = null;
-    this.userService.register(this.user).subscribe({
+    this.userService.register(this.user).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         alert(
           `Cadastro realizado com sucesso!\n\nSua senha temporária é: ${res.temporaryPassword}\n\nGuarde-a para fazer o login.`

@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { StorageService } from '../../../shared/services/storage';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
@@ -12,6 +14,7 @@ import { FinalizeDialogComponent } from '../finalize-dialog/finalize-dialog';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
 import { SolicitationDetailDialogComponent } from '../solicitation-detail-dialog/solicitation-detail-dialog';
 import { UserService } from '../../../shared/services/user.service';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 type FilterMode = 'TODAY' | 'PERIOD' | 'ALL';
 
@@ -30,13 +33,6 @@ const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   [RequestStatus.FIXED]:      { label: 'Arrumada',       rowClass: 'table-primary',   badgeClass: 'badge-fixed'      },
   [RequestStatus.PAID]:       { label: 'Paga',           rowClass: 'row-paid',        badgeClass: 'badge-paid'       },
   [RequestStatus.FINALIZED]:  { label: 'Finalizada',     rowClass: 'table-success',   badgeClass: 'badge-finalized'  },
-
-};
-
-const SNACK = {
-  duration: 3000,
-  horizontalPosition: 'end' as const,
-  verticalPosition: 'top' as const,
 };
 
 @Component({
@@ -46,12 +42,14 @@ const SNACK = {
   templateUrl: './solicitations-list.html',
   styleUrl: './solicitations-list.css',
 })
-export class SolicitationsListComponent implements OnInit {
+export class SolicitationsListComponent implements OnInit, OnDestroy {
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
+  private readonly snackConfig = inject(SnackConfig);
+  private readonly destroy$ = new Subject<void>();
 
   
   filterMode: FilterMode = 'ALL';
@@ -75,27 +73,32 @@ export class SolicitationsListComponent implements OnInit {
     this.refreshData();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private refreshData(): void {
     this.loadRequests();
 
-    this.userService.getAllUsers().subscribe({
+    this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: (users) => this.allUsers = users,
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', this.snackConfig.default),
     });
 
-    this.userService.getEmployees().subscribe({
+    this.userService.getEmployees().pipe(takeUntil(this.destroy$)).subscribe({
       next: (employees) => this.employees = employees,
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', this.snackConfig.default),
     });
   }
 
   private loadRequests(): void {
-    this.storageService.getRequests().subscribe({
+    this.storageService.getRequests().pipe(takeUntil(this.destroy$)).subscribe({
       next: (requests) => {
         this.allRequests = requests;
         this.applyFilter();
       },
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', SNACK),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', this.snackConfig.default),
     });
   }
 
@@ -184,13 +187,13 @@ export class SolicitationsListComponent implements OnInit {
           quotedByEmployeeName: user?.name,
           quotedAt: now,
           history,
-        }).subscribe({
+        }).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', { ...SNACK, duration: 4000 });
+            this.snackBar.open(`Orçamento de ${formatted} registrado!`, 'Fechar', this.snackConfig.long);
             this.loadRequests();
           },
-          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar orçamento', 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar orçamento', 'Fechar', this.snackConfig.default),
         });
       }
     });
@@ -221,12 +224,12 @@ export class SolicitationsListComponent implements OnInit {
           maintainedByEmployeeName: user?.name,
           maintainedAt: now,
           history,
-        }).subscribe({
+        }).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
-            this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', SNACK);
+            this.snackBar.open('Manutenção registrada com sucesso!', 'Fechar', this.snackConfig.default);
             this.loadRequests();
           },
-          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar manutenção', 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar manutenção', 'Fechar', this.snackConfig.default),
         });
       } else if (result.action === 'REDIRECT') {
         const target = this.allUsers.find((u) => u.id === result.targetEmployeeId);
@@ -239,12 +242,12 @@ export class SolicitationsListComponent implements OnInit {
           redirectedToEmployeeId: result.targetEmployeeId,
           redirectedToEmployeeName: target?.name,
           history,
-        }).subscribe({
+        }).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
-            this.snackBar.open('Solicitação redirecionada!', 'Fechar', SNACK);
+            this.snackBar.open('Solicitação redirecionada!', 'Fechar', this.snackConfig.default);
             this.loadRequests();
           },
-          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao redirecionar solicitação', 'Fechar', SNACK),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao redirecionar solicitação', 'Fechar', this.snackConfig.default),
         });
       }
     });
@@ -270,12 +273,12 @@ export class SolicitationsListComponent implements OnInit {
         finalizedByEmployeeName: user?.name,
         finalizedAt: now,
         history,
-      }).subscribe({
+      }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          this.snackBar.open('Solicitação finalizada!', 'Fechar', SNACK);
+          this.snackBar.open('Solicitação finalizada!', 'Fechar', this.snackConfig.default);
           this.loadRequests();
         },
-        error: (e: any) => this.snackBar.open(e?.message || 'Erro ao finalizar solicitação', 'Fechar', SNACK),
+        error: (e: any) => this.snackBar.open(e?.message || 'Erro ao finalizar solicitação', 'Fechar', this.snackConfig.default),
       });
     });
   }

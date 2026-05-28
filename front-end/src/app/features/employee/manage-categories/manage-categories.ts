@@ -1,9 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { CategoryService } from '../../../shared/services/category.service';
 import { Category } from '../../../shared/models/category.model';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 @Component({
   selector: 'app-manage-categories',
@@ -11,9 +14,11 @@ import { Category } from '../../../shared/models/category.model';
   imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './manage-categories.html',
 })
-export class ManageCategoriesComponent implements OnInit {
+export class ManageCategoriesComponent implements OnInit, OnDestroy {
   private readonly categoryService = inject(CategoryService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly snackConfig = inject(SnackConfig);
+  private readonly destroy$ = new Subject<void>();
 
   categories: Category[] = [];
 
@@ -33,11 +38,16 @@ export class ManageCategoriesComponent implements OnInit {
     this.load();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   /** Recarrega a lista de categorias a partir do serviço. */
   load(): void {
-    this.categoryService.getAll().subscribe({
+    this.categoryService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
       next: (categories) => this.categories = categories,
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar categorias', 'Fechar', this.snackConfig.long),
     });
   }
 
@@ -45,13 +55,13 @@ export class ManageCategoriesComponent implements OnInit {
   addCategory(): void {
     const name = this.newCategoryName.trim();
     if (!name) return;
-    this.categoryService.registerCategory(name).subscribe({
+    this.categoryService.registerCategory(name).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.newCategoryName = '';
         this.load();
-        this.snackBar.open('Categoria adicionada com sucesso!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+        this.snackBar.open('Categoria adicionada com sucesso!', 'Fechar', this.snackConfig.default);
       },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao adicionar categoria', 'Fechar', this.snackConfig.long),
     });
   }
 
@@ -75,13 +85,13 @@ export class ManageCategoriesComponent implements OnInit {
   saveEdit(cat: Category): void {
     const name = this.editingName.trim();
     if (!name) return;
-    this.categoryService.atualizarCategoria({ ...cat, name }).subscribe({
+    this.categoryService.atualizarCategoria({ ...cat, name }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.cancelEdit();
         this.load();
-        this.snackBar.open('Categoria atualizada!', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+        this.snackBar.open('Categoria atualizada!', 'Fechar', this.snackConfig.default);
       },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao atualizar categoria', 'Fechar', this.snackConfig.long),
     });
   }
 
@@ -101,13 +111,13 @@ export class ManageCategoriesComponent implements OnInit {
 
   /** Confirma e executa a remoção da categoria após aprovação do usuário. */
   confirmDelete(id: number): void {
-    this.categoryService.removerCategoria(id).subscribe({
+    this.categoryService.removerCategoria(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.confirmDeleteId = null;
         this.load();
-        this.snackBar.open('Categoria removida.', 'Fechar', { duration: 3000, horizontalPosition: 'end' });
+        this.snackBar.open('Categoria removida.', 'Fechar', this.snackConfig.default);
       },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 4000, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao remover categoria', 'Fechar', this.snackConfig.long),
     });
   }
 }

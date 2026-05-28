@@ -1,7 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { StorageService } from '../../../shared/services/storage';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
@@ -10,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ClientQuoteDialogComponent } from '../client-quote-dialog/client-quote-dialog';
 import { ClientViewRequestDialogComponent } from '../client-view-request-dialog/client-view-request-dialog';
 import { PayServiceDialogComponent } from '../pay-service-dialog/pay-service-dialog';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 interface StatusMeta {
   label: string;
@@ -36,12 +39,6 @@ const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
   RequestStatus.APPROVED,
 ]);
 
-const SNACK = {
-  duration: 3500,
-  horizontalPosition: 'end' as const,
-  verticalPosition: 'top' as const,
-};
-
 @Component({
   selector: 'app-client-home',
   standalone: true,
@@ -49,12 +46,14 @@ const SNACK = {
   templateUrl: './client-home.html',
   styleUrls: ['./client-home.css'],
 })
-export class ClientHomeComponent implements OnInit {
+export class ClientHomeComponent implements OnInit, OnDestroy {
   private readonly dialog         = inject(MatDialog);
   private readonly router         = inject(Router);
   private readonly storageService = inject(StorageService);
   private readonly authService    = inject(AuthService);
   private readonly snackBar       = inject(MatSnackBar);
+  private readonly snackConfig    = inject(SnackConfig);
+  private readonly destroy$       = new Subject<void>();
 
   requests: Solicitation[] = [];
 
@@ -62,11 +61,17 @@ export class ClientHomeComponent implements OnInit {
     this.loadRequests();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadRequests(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
     this.storageService
       .getRequestsByClientId(user.id)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((requests: Solicitation[]) => {
         this.requests = requests.sort(
           (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()
@@ -127,13 +132,13 @@ export class ClientHomeComponent implements OnInit {
             note: `Orçamento aprovado pelo cliente. Valor: R$ ${req.quoteValue || 0}`,
           } as any,
         ];
-        this.storageService.updateRequest(updatedReq.id, updatedReq).subscribe({
+        this.storageService.updateRequest(updatedReq.id, updatedReq).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.loadRequests();
             const valor = req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', SNACK);
+            this.snackBar.open(`Serviço aprovado no valor R$ ${valor}`, 'Fechar', this.snackConfig.default);
           },
-          error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
+          error: (err) => this.snackBar.open(err.message, 'Fechar', this.snackConfig.default),
         });
 
       } else if (result.action === 'REJECT') {
@@ -148,12 +153,12 @@ export class ClientHomeComponent implements OnInit {
             note: `Orçamento rejeitado pelo cliente. Motivo: ${result.reason}`,
           } as any,
         ];
-        this.storageService.updateRequest(updatedReq.id, updatedReq).subscribe({
+        this.storageService.updateRequest(updatedReq.id, updatedReq).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.loadRequests();
-            this.snackBar.open('Serviço rejeitado.', 'Fechar', SNACK);
+            this.snackBar.open('Serviço rejeitado.', 'Fechar', this.snackConfig.default);
           },
-          error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
+          error: (err) => this.snackBar.open(err.message, 'Fechar', this.snackConfig.default),
         });
       }
     });
@@ -184,12 +189,12 @@ export class ClientHomeComponent implements OnInit {
             note: 'Serviço resgatado pelo cliente (Rejeitada → Aprovada)',
           },
         ],
-      }).subscribe({
+      }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.loadRequests();
-          this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', SNACK);
+          this.snackBar.open('Serviço resgatado com sucesso!', 'Fechar', this.snackConfig.default);
         },
-        error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
+        error: (err) => this.snackBar.open(err.message, 'Fechar', this.snackConfig.default),
       });
     });
   }
@@ -215,12 +220,12 @@ export class ClientHomeComponent implements OnInit {
             note: `Pagamento efetuado pelo cliente. Valor: R$ ${req.quoteValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
           },
         ],
-      }).subscribe({
+      }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.loadRequests();
-          this.snackBar.open('Pagamento confirmado!', 'Fechar', SNACK);
+          this.snackBar.open('Pagamento confirmado!', 'Fechar', this.snackConfig.default);
         },
-        error: (err) => this.snackBar.open(err.message, 'Fechar', SNACK),
+        error: (err) => this.snackBar.open(err.message, 'Fechar', this.snackConfig.default),
       });
     });
   }

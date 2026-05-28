@@ -1,13 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { StorageService } from '../../../shared/services/storage';
 import { AuthService } from '../../authentication/services/auth.service';
 import { Category } from '../../../shared/models/category.model';
 import { RequestStatus } from '../../../shared/models/solicitation.model';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 @Component({
   selector: 'app-client-new-request',
@@ -16,12 +19,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './client-new-request.html',
   styleUrl: './client-new-request.css',
 })
-export class ClientNewRequest implements OnInit {
+export class ClientNewRequest implements OnInit, OnDestroy {
   private readonly router          = inject(Router);
   private readonly storageService  = inject(StorageService);
   private readonly authService     = inject(AuthService);
   private readonly categoryService = inject(CategoryService);
   private readonly snackBar        = inject(MatSnackBar);
+  private readonly snackConfig     = inject(SnackConfig);
+  private readonly destroy$        = new Subject<void>();
 
   categories: Category[] = [];
 
@@ -32,16 +37,17 @@ export class ClientNewRequest implements OnInit {
   };
 
   ngOnInit(): void {
-    this.categoryService.getAll().subscribe({
+    this.categoryService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
       next: (categories) => this.categories = categories,
       error: () => {
-        this.snackBar.open('Erro ao carregar categorias.', 'Fechar', {
-          duration: 3500,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-        });
+        this.snackBar.open('Erro ao carregar categorias.', 'Fechar', this.snackConfig.long);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   countWords(text: string): number {
@@ -72,21 +78,13 @@ export class ClientNewRequest implements OnInit {
           note: 'Solicitação aberta pelo cliente.',
         },
       ],
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.snackBar.open('Solicitação enviada com sucesso!', 'Fechar', {
-          duration: 3500,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-        });
+        this.snackBar.open('Solicitação enviada com sucesso!', 'Fechar', this.snackConfig.default);
         this.router.navigate(['/client']);
       },
-      error: (e: Error) => {
-        this.snackBar.open(e.message, 'Fechar', {
-          duration: 3500,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-        });
+      error: (e: any) => {
+        this.snackBar.open(e?.message || 'Erro ao enviar solicitação', 'Fechar', this.snackConfig.default);
       },
     });
   }
