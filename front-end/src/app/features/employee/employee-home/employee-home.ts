@@ -1,14 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
 import { StorageService } from '../../../shared/services/storage';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { User } from '../../../shared/models/user.model';
 import { UserService } from '../../../shared/services/user.service';
 import { AuthService } from '../../authentication/services/auth.service';
+import { SnackConfig } from '../../../shared/services/snack-config';
 
 const SHORT_DESC_LIMIT = 30;
 
@@ -18,15 +21,16 @@ const SHORT_DESC_LIMIT = 30;
   imports: [CommonModule, MatDialogModule, MatSnackBarModule],
   templateUrl: './employee-home.html',
   styleUrl: './employee-home.css',
-
 })
-export class Employee implements OnInit {
+export class Employee implements OnInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly storageService = inject(StorageService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly snackConfig = inject(SnackConfig);
+  private readonly destroy$ = new Subject<void>();
 
   requests: Solicitation[] = [];
   allUsers: User[] = [];
@@ -36,19 +40,24 @@ export class Employee implements OnInit {
     this.loadUsers();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private loadUsers(): void {
-    this.userService.getAllUsers().subscribe({
+    this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: (users) => this.allUsers = users,
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', this.snackConfig.default),
     });
   }
 
   loadRequests(): void {
-    this.storageService.getOpenRequests().subscribe({
+    this.storageService.getOpenRequests().pipe(takeUntil(this.destroy$)).subscribe({
       next: (requests) => {
         this.requests = requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
       },
-      error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
+      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', this.snackConfig.default),
     });
   }
 
@@ -72,7 +81,6 @@ export class Employee implements OnInit {
   }
 
   onSubmitQuote(request: Solicitation): void {
-    // RF012: pass full client data to dialog
     const client = this.allUsers.find(u => u.id === request.clientId);
 
     const dialogRef = this.dialog.open(QuoteDialogComponent, {
@@ -99,17 +107,13 @@ export class Employee implements OnInit {
           quotedByEmployeeName: user?.name,
           quotedAt: now,
           history,
-        }).subscribe({
+        }).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             const formatted = quoteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            this.snackBar.open(`Orçamento de ${formatted} registrado com sucesso!`, 'Fechar', {
-              duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom',
-            });
+            this.snackBar.open(`Orçamento de ${formatted} registrado com sucesso!`, 'Fechar', this.snackConfig.long);
             this.loadRequests();
           },
-          error: (e: Error) => this.snackBar.open(e.message, 'Fechar', {
-            duration: 4000, horizontalPosition: 'end', verticalPosition: 'bottom',
-          }),
+          error: (e: any) => this.snackBar.open(e?.message || 'Erro ao registrar orçamento', 'Fechar', this.snackConfig.default),
         });
       }
     });

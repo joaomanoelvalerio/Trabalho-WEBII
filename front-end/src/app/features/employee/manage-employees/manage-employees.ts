@@ -32,17 +32,14 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
   employees: User[] = [];
   currentUserId = 0;
 
-  // Formulário de adição
   showAddForm = false;
   newForm: EmployeeForm = { name: '', email: '', password: '', birthDate: '' };
 
-  // Edição
   editingId: number | null = null;
   editForm: EmployeeForm & { changePassword: boolean } = {
     name: '', email: '', password: '', birthDate: '', changePassword: false,
   };
 
-  // Remoção
   confirmDeleteId: number | null = null;
 
   ngOnInit(): void {
