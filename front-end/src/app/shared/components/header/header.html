@@ -26,8 +26,15 @@
           }
         </div>
 
-        <button class="btn btn-sm btn-outline-light ms-2 border-0" (click)="logout()" title="Sair do sistema">
-          <i class="bi bi-box-arrow-right fs-5"></i>
+        <button
+          class="btn btn-sm btn-light ms-2 d-inline-flex align-items-center gap-1"
+          type="button"
+          (click)="logout()"
+          title="Sair do sistema"
+          aria-label="Sair do sistema"
+        >
+          <i class="material-icons" style="font-size: 18px;">logout</i>
+          <span>Sair</span>
         </button>
 
       </div>
