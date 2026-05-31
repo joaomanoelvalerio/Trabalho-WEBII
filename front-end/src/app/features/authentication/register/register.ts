@@ -115,19 +115,22 @@ export class RegisterComponent implements OnDestroy {
     });
   }
 
-    onSubmit() {
-      this.errorMessage = null;
-      this.userService.register(this.user).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          alert('Cadastro realizado com sucesso!\n\nVerifique sua caixa de entrada para pegar sua senha de acesso.');
-          this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          console.error("Erro da API:", err);
-          this.errorMessage = err.error?.message || 'Erro ao realizar o cadastro. Verifique os dados.';
-        },
-      });
+onSubmit() {
+  this.errorMessage = null;
+  this.userService.register(this.user).pipe(takeUntil(this.destroy$)).subscribe({
+    next: () => {
+      alert('Cadastro realizado com sucesso!\n\nVerifique sua caixa de entrada para pegar sua senha de acesso.');
+      this.router.navigate(['/login']);
+    },
+  error: (err) => {
+    this.errorMessage = err.message || 'Erro ao realizar o cadastro. Verifique os dados.';
+    const msg = (err.message || '').toLowerCase();
+    if (msg.includes('cpf') || msg.includes('e-mail') || msg.includes('email')) {
+      this.currentStep = 1;
     }
+  },
+  });
+}
 
   navigateToLogin() {
     this.router.navigate(['/login']);
