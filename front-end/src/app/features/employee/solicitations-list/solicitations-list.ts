@@ -49,7 +49,7 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
   private readonly snackConfig = inject(SnackConfig);
-  private readonly cdr = inject(ChangeDetectorRef); // <-- adicionado
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   filterMode: FilterMode = 'ALL';
@@ -79,7 +79,7 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
     this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: (users) => {
         this.allUsers = users;
-        this.cdr.detectChanges(); // <-- adicionado
+        this.cdr.detectChanges(); 
       },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', this.snackConfig.default),
     });
@@ -87,7 +87,7 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
     this.userService.getEmployees().pipe(takeUntil(this.destroy$)).subscribe({
       next: (employees) => {
         this.employees = employees;
-        this.cdr.detectChanges(); // <-- adicionado
+        this.cdr.detectChanges();
       },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', this.snackConfig.default),
     });
@@ -98,7 +98,7 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
       next: (requests) => {
         this.allRequests = requests;
         this.applyFilter();
-        this.cdr.detectChanges(); // <-- adicionado
+        this.cdr.detectChanges(); 
       },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', this.snackConfig.default),
     });
