@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.manutencao.service.EmailService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -30,10 +31,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
-    }
+       this.emailService = emailService;
+    }   
 
     @GetMapping
     public List<UserDto> getAllUsers() {
@@ -51,7 +54,7 @@ public class UserController {
                 .toList();
     }
 
-    @PostMapping("/register-client")
+   @PostMapping("/register-client")
     public ResponseEntity<RegisterClientResponse> registerClient(@RequestBody RegisterClientRequest request) {
         requireNotBlank(request.name, "Nome é obrigatório.");
         requireNotBlank(request.email, "E-mail é obrigatório.");
@@ -90,10 +93,13 @@ public class UserController {
                 .build();
 
         userRepository.save(user);
+        
+        // Dispara o e-mail com a senha temporária gerada
+        emailService.enviarSenhaCadastro(user.getEmail(), user.getNameUser(), tempPassword);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new RegisterClientResponse(true, tempPassword));
     }
-
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
         requireNotBlank(request.email, "E-mail é obrigatório.");

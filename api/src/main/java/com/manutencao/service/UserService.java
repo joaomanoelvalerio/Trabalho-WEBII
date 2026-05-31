@@ -1,16 +1,14 @@
 package com.manutencao.service;
 
-import com.manutencao.entity.User;
-
-import com.manutencao.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import java.util.Optional;
+import com.manutencao.entity.User;
+import com.manutencao.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -18,16 +16,25 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(User user) {
+    @Autowired
+    private EmailService emailService;
+
+   public User createUser(User user) {
         if (userRepository.existsByCpfUser(user.getCpfUser())) {
             throw new IllegalArgumentException("CPF já cadastrado");
         }
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
-        return userRepository.save(user);
-    }
+        String senhaAleatoria = String.format("%04d", new Random().nextInt(10000));
+        
+        user.setPassword(senhaAleatoria);
+        user.setSalt("gerar_salt_aqui"); 
+        User savedUser = userRepository.save(user);
+        emailService.enviarSenhaCadastro(savedUser.getEmail(), savedUser.getNameUser(), senhaAleatoria);
 
+        return savedUser;
+    }
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

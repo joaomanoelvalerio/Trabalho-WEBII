@@ -115,17 +115,16 @@ export class RegisterComponent implements OnDestroy {
     });
   }
 
-  onSubmit() {
+onSubmit() {
     this.errorMessage = null;
     this.userService.register(this.user).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
-        alert(
-          `Cadastro realizado com sucesso!\n\nSua senha temporária é: ${res.temporaryPassword}\n\nGuarde-a para fazer o login.`
-        );
+        alert('Cadastro realizado com sucesso!\n\nVerifique sua caixa de entrada para pegar sua senha de acesso.');
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.errorMessage = err.message;
+        console.error("Erro da API:", err);
+        this.errorMessage = err.error?.message || 'Erro ao realizar o cadastro. Verifique os dados.';
       },
     });
   }
