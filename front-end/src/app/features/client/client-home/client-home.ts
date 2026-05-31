@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -53,6 +53,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
   private readonly authService    = inject(AuthService);
   private readonly snackBar       = inject(MatSnackBar);
   private readonly snackConfig    = inject(SnackConfig);
+  private readonly cdr            = inject(ChangeDetectorRef); // <-- adicionado
   private readonly destroy$       = new Subject<void>();
 
   requests: Solicitation[] = [];
@@ -76,6 +77,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
         this.requests = requests.sort(
           (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()
         );
+        this.cdr.detectChanges(); // <-- adicionado
       });
   }
 

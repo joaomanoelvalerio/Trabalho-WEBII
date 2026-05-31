@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -49,22 +49,17 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
   private readonly snackConfig = inject(SnackConfig);
+  private readonly cdr = inject(ChangeDetectorRef); // <-- adicionado
   private readonly destroy$ = new Subject<void>();
 
-  
   filterMode: FilterMode = 'ALL';
-
   periodStart = '';
-  
   periodEnd = '';
-
 
   requests: Solicitation[] = [];
   allRequests: Solicitation[] = [];
   allUsers: User[] = [];
   employees: User[] = [];
-
-  
   currentEmployeeId = 0;
 
   ngOnInit(): void {
@@ -82,12 +77,18 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
     this.loadRequests();
 
     this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (users) => this.allUsers = users,
+      next: (users) => {
+        this.allUsers = users;
+        this.cdr.detectChanges(); // <-- adicionado
+      },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar usuários', 'Fechar', this.snackConfig.default),
     });
 
     this.userService.getEmployees().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (employees) => this.employees = employees,
+      next: (employees) => {
+        this.employees = employees;
+        this.cdr.detectChanges(); // <-- adicionado
+      },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', this.snackConfig.default),
     });
   }
@@ -97,6 +98,7 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
       next: (requests) => {
         this.allRequests = requests;
         this.applyFilter();
+        this.cdr.detectChanges(); // <-- adicionado
       },
       error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar solicitações', 'Fechar', this.snackConfig.default),
     });
@@ -123,24 +125,20 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
       });
     }
 
-   
     this.requests = filtered.sort(
       (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime(),
     );
   }
 
-  
   setFilter(mode: FilterMode): void {
     this.filterMode = mode;
     this.applyFilter();
   }
 
- 
   getStyle(status: RequestStatus): StatusStyle {
     return STATUS_STYLE[status] ?? { label: status, rowClass: '', badgeClass: '' };
   }
 
- 
   getShortDesc(desc: string): string {
     if (!desc) return '—';
     return desc.length <= 30 ? desc : desc.substring(0, 27) + '...';
@@ -152,7 +150,6 @@ export class SolicitationsListComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  
   showFinalizeButton(req: Solicitation): boolean {
     return req.status === RequestStatus.PAID;
   }
