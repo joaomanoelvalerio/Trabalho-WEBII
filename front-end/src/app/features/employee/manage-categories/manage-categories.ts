@@ -43,7 +43,7 @@ export class ManageCategoriesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (categories) => {
-          this.categories = categories;
+          this.categories = [...categories].sort((a, b) => a.id - b.id);
           this.cdr.detectChanges();
         },
         error: (e: any) => {
