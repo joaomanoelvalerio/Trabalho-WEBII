@@ -4,6 +4,7 @@ import com.manutencao.entity.Endereco;
 import com.manutencao.entity.Role;
 import com.manutencao.entity.User;
 import com.manutencao.repository.UserRepository;
+import com.manutencao.util.PasswordUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -72,6 +73,8 @@ public class UserController {
         }
 
         String tempPassword = String.valueOf(ThreadLocalRandom.current().nextInt(1000, 10000));
+        String salt = PasswordUtil.generateSalt();
+        String hashedPassword = PasswordUtil.hash(tempPassword, salt);
 
         User user = User.builder()
                 .cpfUser(cpf)
@@ -79,7 +82,8 @@ public class UserController {
                 .email(request.email.trim().toLowerCase())
                 .phone(request.phone.trim())
                 .address(toEndereco(request.address))
-                .password(tempPassword)
+                .password(hashedPassword)
+                .salt(salt)
                 .birthdate(parseOptionalDate(request.birthDate))
                 .role(Role.CLIENT)
                 .active(true)
@@ -102,7 +106,8 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário inativo.");
         }
 
-        if (!user.getPassword().equals(request.password)) {
+        String hashedInput = PasswordUtil.hash(request.password, user.getSalt());
+        if (!hashedInput.equals(user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos.");
         }
 
@@ -121,10 +126,14 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado.");
         }
 
+        String salt = PasswordUtil.generateSalt();
+        String hashedPassword = PasswordUtil.hash(request.password.trim(), salt);
+
         User user = User.builder()
                 .nameUser(request.name.trim())
                 .email(email)
-                .password(request.password.trim())
+                .password(hashedPassword)
+                .salt(salt)
                 .birthdate(parseRequiredDate(request.birthDate, "Data de nascimento inválida."))
                 .role(Role.EMPLOYEE)
                 .active(true)
@@ -155,8 +164,11 @@ public class UserController {
         user.setNameUser(request.name.trim());
         user.setEmail(email);
         user.setBirthdate(parseRequiredDate(request.birthDate, "Data de nascimento inválida."));
+
         if (!isBlank(request.password)) {
-            user.setPassword(request.password.trim());
+            String salt = PasswordUtil.generateSalt();
+            user.setSalt(salt);
+            user.setPassword(PasswordUtil.hash(request.password.trim(), salt));
         }
 
         return toDto(userRepository.save(user));
@@ -198,7 +210,6 @@ public class UserController {
         dto.phone = user.getPhone() == null ? "" : user.getPhone();
         dto.role = user.getRole().name();
         dto.address = toAddressDto(user.getAddress());
-        dto.password = user.getPassword();
         dto.birthDate = user.getBirthdate() == null ? null : user.getBirthdate().toString();
         dto.active = Boolean.TRUE.equals(user.getActive());
         return dto;
@@ -207,39 +218,30 @@ public class UserController {
     private AddressDto toAddressDto(Endereco endereco) {
         AddressDto dto = new AddressDto();
         if (endereco == null) {
-            dto.zipCode = "";
-            dto.street = "";
-            dto.number = "";
-            dto.complement = "";
-            dto.neighborhood = "";
-            dto.city = "";
-            dto.state = "";
+            dto.zipCode = ""; dto.street = ""; dto.number = "";
+            dto.complement = ""; dto.neighborhood = ""; dto.city = ""; dto.state = "";
             return dto;
         }
-        dto.zipCode = nullToEmpty(endereco.getCep());
-        dto.street = nullToEmpty(endereco.getRua());
-        dto.number = nullToEmpty(endereco.getNumero());
-        dto.complement = nullToEmpty(endereco.getComplemento());
+        dto.zipCode      = nullToEmpty(endereco.getCep());
+        dto.street       = nullToEmpty(endereco.getRua());
+        dto.number       = nullToEmpty(endereco.getNumero());
+        dto.complement   = nullToEmpty(endereco.getComplemento());
         dto.neighborhood = nullToEmpty(endereco.getBairro());
-        dto.city = nullToEmpty(endereco.getCidade());
-        dto.state = nullToEmpty(endereco.getEstado());
+        dto.city         = nullToEmpty(endereco.getCidade());
+        dto.state        = nullToEmpty(endereco.getEstado());
         return dto;
     }
 
     private Endereco toEndereco(AddressDto dto) {
-        requireNotBlank(dto.zipCode, "CEP é obrigatório.");
-        requireNotBlank(dto.street, "Rua é obrigatória.");
-        requireNotBlank(dto.number, "Número é obrigatório.");
+        requireNotBlank(dto.zipCode,      "CEP é obrigatório.");
+        requireNotBlank(dto.street,       "Rua é obrigatória.");
+        requireNotBlank(dto.number,       "Número é obrigatório.");
         requireNotBlank(dto.neighborhood, "Bairro é obrigatório.");
-        requireNotBlank(dto.city, "Cidade é obrigatória.");
-        requireNotBlank(dto.state, "Estado é obrigatório.");
-
+        requireNotBlank(dto.city,         "Cidade é obrigatória.");
+        requireNotBlank(dto.state,        "Estado é obrigatório.");
         return new Endereco(
-                dto.zipCode.trim(),
-                dto.street.trim(),
-                dto.number.trim(),
-                dto.neighborhood.trim(),
-                dto.city.trim(),
+                dto.zipCode.trim(), dto.street.trim(), dto.number.trim(),
+                dto.neighborhood.trim(), dto.city.trim(),
                 dto.state.trim().toUpperCase(),
                 dto.complement == null ? "" : dto.complement.trim()
         );
@@ -250,9 +252,7 @@ public class UserController {
     }
 
     private LocalDate parseOptionalDate(String date) {
-        if (isBlank(date)) {
-            return null;
-        }
+        if (isBlank(date)) return null;
         return parseRequiredDate(date, "Data de nascimento inválida.");
     }
 
@@ -265,9 +265,7 @@ public class UserController {
     }
 
     private void requireNotBlank(String value, String message) {
-        if (isBlank(value)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
-        }
+        if (isBlank(value)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 
     private boolean isBlank(String value) {
@@ -278,42 +276,27 @@ public class UserController {
         return value == null ? "" : value;
     }
 
+    // ── DTOs e inner classes ──────────────────────────────────────────────────
+
     public static class AddressDto {
-        public String zipCode;
-        public String street;
-        public String number;
-        public String complement;
-        public String neighborhood;
-        public String city;
-        public String state;
+        public String zipCode, street, number, complement, neighborhood, city, state;
     }
 
     public static class UserDto {
         public Long id;
-        public String cpf;
-        public String name;
-        public String email;
-        public String phone;
-        public String role;
+        public String cpf, name, email, phone, role, birthDate;
         public AddressDto address;
-        public String password;
-        public String birthDate;
         public Boolean active;
     }
 
     public static class RegisterClientRequest {
-        public String name;
-        public String email;
-        public String cpf;
-        public String phone;
+        public String name, email, cpf, phone, birthDate;
         public AddressDto address;
-        public String birthDate;
     }
 
     public static class RegisterClientResponse {
         public boolean success;
         public String temporaryPassword;
-
         public RegisterClientResponse(boolean success, String temporaryPassword) {
             this.success = success;
             this.temporaryPassword = temporaryPassword;
@@ -321,14 +304,12 @@ public class UserController {
     }
 
     public static class LoginRequest {
-        public String email;
-        public String password;
+        public String email, password;
     }
 
     public static class LoginResponse {
         public boolean success;
         public UserDto user;
-
         public LoginResponse(boolean success, UserDto user) {
             this.success = success;
             this.user = user;
@@ -336,9 +317,6 @@ public class UserController {
     }
 
     public static class EmployeeRequest {
-        public String name;
-        public String email;
-        public String password;
-        public String birthDate;
+        public String name, email, password, birthDate;
     }
 }
