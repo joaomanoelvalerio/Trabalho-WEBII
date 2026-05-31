@@ -27,8 +27,7 @@ public class EmailService {
             helper.setText(
                 "Olá " + nomeUsuario + ",\n\n" +
                 "Seu autocadastro no sistema foi realizado com sucesso.\n" +
-                "Seu login é o seu e-mail e sua senha temporária é: " + senha + "\n\n" +
-                "Recomendamos alterar essa senha no seu primeiro acesso."
+                "Seu login é o seu e-mail e sua senha temporária é: " + senha + "\n\n"
             );
 
             mailSender.send(message);
