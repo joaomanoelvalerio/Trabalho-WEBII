@@ -1,5 +1,12 @@
 package com.manutencao.config;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 import com.manutencao.entity.Category;
 import com.manutencao.entity.Endereco;
 import com.manutencao.entity.HistoryEntry;
@@ -10,12 +17,6 @@ import com.manutencao.entity.User;
 import com.manutencao.repository.CategoryRepository;
 import com.manutencao.repository.SolicitationRepository;
 import com.manutencao.repository.UserRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -161,6 +162,21 @@ public class DataSeeder implements CommandLineRunner {
         solicitations.add(buildPaid(joana, maria, "Notebook Lenovo - Bateria não carrega", 1L, "Notebook", "Bateria não segura carga há 2 semanas.", "2024-03-06T08:00:00", 320.0, "2024-03-07T09:00:00", "2024-03-09T15:00:00", "2024-03-10T10:00:00"));
         solicitations.add(buildFinalized(joana, mario, "Mouse Logitech - Clique duplo", 5L, "Mouse", "Botão esquerdo ativa clique duplo com um clique.", "2024-03-08T10:00:00", 120.0, "2024-03-09T08:00:00", "2024-03-11T11:00:00", "2024-03-11T14:00:00", "2024-03-12T09:00:00"));
         solicitations.add(buildRedirected(joaquina, maria, mario, "Desktop Dell - Superaquecimento", 2L, "Desktop", "Computador desliga sozinho por superaquecimento.", "2024-03-10T09:00:00", 260.0, "2024-03-11T08:30:00", "2024-03-11T14:00:00"));
+        solicitations.add(buildOpen(jose, "Desktop Gamer - Placa de vídeo com defeito", 2L, "Desktop", "Artefatos visuais e tela preta intermitente.", "2024-03-15T08:30:00"));
+        solicitations.add(buildQuoted(joana, maria, "Teclado Mecânico - Tecla N não funciona", 4L, "Teclado", "Tecla N parou de responder após derramar líquido.", "2024-03-10T11:00:00", 180.0, "2024-03-11T08:00:00"));
+        solicitations.add(buildQuoted(joaquina, mario, "Mouse Gamer - Scroll quebrado", 5L, "Mouse", "Scroll não rola para baixo desde a semana passada.", "2024-03-20T09:00:00", 95.0, "2024-03-21T10:00:00"));
+        solicitations.add(buildApproved(joana, maria, "Notebook Lenovo - Bateria não carrega", 1L, "Notebook", "Bateria não segura carga há 2 semanas.", "2024-03-06T08:00:00", 320.0, "2024-03-07T09:00:00", "2024-03-08T10:00:00"));
+        solicitations.add(buildRejected(jose, maria, "Impressora Epson - Cabeça de impressão", 3L, "Impressora", "Impressão saindo com listras e borrões.", "2024-03-12T14:00:00", 620.0, "2024-03-13T09:30:00", "Prefiro comprar uma impressora nova.", "2024-03-13T15:00:00"));
+        solicitations.add(buildRedirected(joao, mario, maria, "Notebook Acer - Dobradiça quebrada", 1L, "Notebook", "Tampa não fecha corretamente, dobradiça partiu.", "2024-03-18T10:00:00", 290.0, "2024-03-19T09:00:00", "2024-03-19T16:00:00"));
+        solicitations.add(buildFixed(joana, mario, "Impressora Canon - Sem conexão Wi-Fi", 3L, "Impressora", "Impressora não aparece na rede desde a atualização.", "2024-03-08T13:00:00", 150.0, "2024-03-09T08:00:00", "2024-03-10T11:00:00"));
+        solicitations.add(buildFixed(joaquina, maria, "Notebook Samsung - Teclado com falhas", 1L, "Notebook", "Várias teclas digitam caracteres errados.", "2024-03-14T09:00:00", 230.0, "2024-03-15T08:00:00", "2024-03-16T15:00:00"));
+        solicitations.add(buildPaid(jose, mario, "Desktop HP - HD com barulho", 2L, "Desktop", "HD faz barulho de clique ao ligar.", "2024-02-22T10:00:00", 480.0, "2024-02-23T08:30:00", "2024-02-25T14:00:00", "2024-02-26T09:00:00"));
+        solicitations.add(buildPaid(joao, maria, "Mouse Logitech - Botão com duplo clique", 5L, "Mouse", "Clique simples registra como duplo clique.", "2024-02-28T11:00:00", 110.0, "2024-03-01T08:00:00", "2024-03-02T10:00:00", "2024-03-03T09:00:00"));
+        solicitations.add(buildFinalized(jose, maria, "Notebook Dell - Superaquecimento", 1L, "Notebook", "Notebook esquenta muito e trava durante uso.", "2024-02-01T09:00:00", 270.0, "2024-02-02T08:30:00", "2024-02-04T14:00:00", "2024-02-05T10:00:00", "2024-02-06T09:00:00"));
+        solicitations.add(buildFinalized(joao, mario, "Impressora HP - Sem tinta detectada", 3L, "Impressora", "Impressora não reconhece o cartucho de tinta.", "2024-02-05T11:00:00", 90.0, "2024-02-06T09:00:00", "2024-02-07T10:00:00", "2024-02-07T15:00:00", "2024-02-08T09:00:00"));
+        solicitations.add(buildFinalized(joaquina, maria, "Desktop Gamer - Fonte queimada", 2L, "Desktop", "Computador não liga, cheiro de queimado.", "2024-02-10T08:00:00", 350.0, "2024-02-11T09:00:00", "2024-02-13T14:00:00", "2024-02-14T10:00:00", "2024-02-15T08:30:00"));
+        solicitations.add(buildFinalized(joana, mario, "Teclado Sem Fio - Sem conexão", 4L, "Teclado", "Teclado Bluetooth não emparelha com nenhum dispositivo.", "2024-01-20T10:00:00", 140.0, "2024-01-21T09:00:00", "2024-01-22T11:00:00", "2024-01-22T15:00:00", "2024-01-23T09:00:00"));
+        solicitations.add(buildFinalized(jose, maria, "Mouse Sem Fio - Receptor USB perdido", 5L, "Mouse", "Receptor USB do mouse sem fio se perdeu.", "2024-01-25T14:00:00", 60.0, "2024-01-26T08:30:00", "2024-01-27T10:00:00", "2024-01-27T14:00:00", "2024-01-28T09:00:00"));
 
         solicitationRepository.saveAll(solicitations);
     }
