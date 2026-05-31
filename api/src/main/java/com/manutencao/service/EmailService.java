@@ -1,7 +1,8 @@
 package com.manutencao.service;
 
-import org.springframework.mail.SimpleMailMessage;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +17,23 @@ public class EmailService {
 
     @Async
     public void enviarSenhaCadastro(String emailDestino, String nomeUsuario, String senha) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(emailDestino);
-        message.setSubject("Bem-vindo(a)! Seu cadastro foi concluído");
-        message.setText("Olá " + nomeUsuario + ",\n\n" +
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("seuemail@gmail.com", "Manutenção de Equipamentos");
+            helper.setTo(emailDestino);
+            helper.setSubject("Bem-vindo(a)! Seu cadastro foi concluído");
+            helper.setText(
+                "Olá " + nomeUsuario + ",\n\n" +
                 "Seu autocadastro no sistema foi realizado com sucesso.\n" +
                 "Seu login é o seu e-mail e sua senha temporária é: " + senha + "\n\n" +
-                "Recomendamos alterar essa senha no seu primeiro acesso.");
-        
-        mailSender.send(message);
+                "Recomendamos alterar essa senha no seu primeiro acesso."
+            );
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar e-mail", e);
+        }
     }
 }

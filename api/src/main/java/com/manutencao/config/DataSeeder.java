@@ -221,3 +221,4 @@ public class DataSeeder implements CommandLineRunner {
     private String formatMoney(Double value) {
         return String.format("%.2f", value).replace('.', ',');
     }
+}

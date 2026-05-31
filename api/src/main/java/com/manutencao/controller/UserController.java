@@ -94,7 +94,6 @@ public class UserController {
 
         userRepository.save(user);
         
-        // Dispara o e-mail com a senha temporária gerada
         emailService.enviarSenhaCadastro(user.getEmail(), user.getNameUser(), tempPassword);
 
         return ResponseEntity.status(HttpStatus.CREATED)
