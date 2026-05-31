@@ -11,6 +11,7 @@ import { RequestStatus } from '../../../shared/models/solicitation.model';
 import { CategoryService } from '../../../shared/services/category.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackConfig } from '../../../shared/services/snack-config';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-client-new-request',
@@ -27,9 +28,9 @@ export class ClientNewRequest implements OnInit, OnDestroy {
   private readonly snackBar        = inject(MatSnackBar);
   private readonly snackConfig     = inject(SnackConfig);
   private readonly destroy$        = new Subject<void>();
+  private readonly cdr             = inject(ChangeDetectorRef);
 
   categories: Category[] = [];
-  loadingCategories = true;
 
   newRequest = {
     equipmentDescription: '',
@@ -39,12 +40,11 @@ export class ClientNewRequest implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.categoryService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (categories) => {
+          next: (categories) => {
         this.categories = categories;
-        this.loadingCategories = false;
+        this.cdr.detectChanges();
       },
       error: () => {
-        this.loadingCategories = false;
         this.snackBar.open('Erro ao carregar categorias.', 'Fechar', this.snackConfig.long);
       },
     });
@@ -63,7 +63,9 @@ export class ClientNewRequest implements OnInit, OnDestroy {
   onSubmit(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
+
     const dataAtual = new Date().toISOString();
+
     this.storageService.saveRequest({
       clientId: user.id,
       clientName: user.name,
