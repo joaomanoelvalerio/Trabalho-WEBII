@@ -2,7 +2,6 @@ package com.manutencao.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,25 +15,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private EmailService emailService;
-
-   public User createUser(User user) {
-        if (userRepository.existsByCpfUser(user.getCpfUser())) {
-            throw new IllegalArgumentException("CPF já cadastrado");
-        }
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado");
-        }
-        String senhaAleatoria = String.format("%04d", new Random().nextInt(10000));
-        
-        user.setPassword(senhaAleatoria);
-        user.setSalt("gerar_salt_aqui"); 
-        User savedUser = userRepository.save(user);
-        emailService.enviarSenhaCadastro(savedUser.getEmail(), savedUser.getNameUser(), senhaAleatoria);
-
-        return savedUser;
-    }
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -54,20 +34,17 @@ public class UserService {
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        
-        if (!user.getEmail().equals(userDetails.getEmail()) && 
+
+        if (!user.getEmail().equals(userDetails.getEmail()) &&
             userRepository.existsByEmail(userDetails.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
-        
+
         user.setNameUser(userDetails.getNameUser());
-
         user.setEmail(userDetails.getEmail());
-
         user.setPhone(userDetails.getPhone());
-        
         user.setAddress(userDetails.getAddress());
-        
+
         return userRepository.save(user);
     }
 

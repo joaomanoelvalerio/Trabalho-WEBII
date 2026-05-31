@@ -64,7 +64,7 @@ export class UserService {
   }
 
   private mapHttpError(error: HttpErrorResponse) {
-    const message = error.error?.message || error.error?.error || error.message || 'Erro na requisição.';
+    const message = error.error?.message || error.error?.error || error.error || error.message || 'Erro na requisição.';
     return throwError(() => new Error(message));
   }
 }
