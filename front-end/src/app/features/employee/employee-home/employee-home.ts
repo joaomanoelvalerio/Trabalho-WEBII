@@ -75,6 +75,14 @@ export class Employee implements OnInit {
     this.router.navigate(['/employee/solicitations']);
   }
 
+  goToCategories(): void {
+  this.router.navigate(['/employee/categories']);
+}
+
+  goToEmployees(): void {
+    this.router.navigate(['/employee/employees']);
+  }
+
   onSubmitQuote(request: Solicitation): void {
     const client = this.allUsers.find(u => u.id === request.clientId);
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -27,17 +27,28 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
   private readonly snackConfig = inject(SnackConfig);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
   employees: User[] = [];
   currentUserId = 0;
 
   showAddForm = false;
-  newForm: EmployeeForm = { name: '', email: '', password: '', birthDate: '' };
+  newForm: EmployeeForm = {
+    name: '',
+    email: '',
+    password: '',
+    birthDate: '',
+  };
 
   editingId: number | null = null;
+
   editForm: EmployeeForm & { changePassword: boolean } = {
-    name: '', email: '', password: '', birthDate: '', changePassword: false,
+    name: '',
+    email: '',
+    password: '',
+    birthDate: '',
+    changePassword: false,
   };
 
   confirmDeleteId: number | null = null;
@@ -53,33 +64,71 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
   }
 
   load(): void {
-    this.userService.getEmployees().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (employees) => this.employees = employees,
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao carregar funcionários', 'Fechar', this.snackConfig.long),
-    });
+    this.userService
+      .getEmployees()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (employees) => {
+          this.employees = employees;
+          this.cdr.detectChanges();
+        },
+        error: (e: any) => {
+          this.snackBar.open(
+            e?.message || 'Erro ao carregar funcionários',
+            'Fechar',
+            this.snackConfig.long
+          );
+        },
+      });
   }
 
   toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
-    this.newForm = { name: '', email: '', password: '', birthDate: '' };
+    this.newForm = {
+      name: '',
+      email: '',
+      password: '',
+      birthDate: '',
+    };
     this.editingId = null;
     this.confirmDeleteId = null;
   }
 
   addEmployee(): void {
-    this.userService.addEmployee(this.newForm).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.showAddForm = false;
-        this.newForm = { name: '', email: '', password: '', birthDate: '' };
-        this.load();
-        this.snackBar.open('Funcionário cadastrado com sucesso!', 'Fechar', this.snackConfig.default);
-      },
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao cadastrar funcionário', 'Fechar', this.snackConfig.long),
-    });
+    this.userService
+      .addEmployee(this.newForm)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.showAddForm = false;
+          this.newForm = {
+            name: '',
+            email: '',
+            password: '',
+            birthDate: '',
+          };
+
+          this.load();
+
+          this.snackBar.open(
+            'Funcionário cadastrado com sucesso!',
+            'Fechar',
+            this.snackConfig.default
+          );
+        },
+        error: (e: any) => {
+          this.snackBar.open(
+            e?.message || 'Erro ao cadastrar funcionário',
+            'Fechar',
+            this.snackConfig.long
+          );
+        },
+      });
   }
 
   startEdit(emp: User): void {
     this.editingId = emp.id;
+
     this.editForm = {
       name: emp.name,
       email: emp.email,
@@ -87,6 +136,7 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
       birthDate: emp.birthDate ?? '',
       changePassword: false,
     };
+
     this.confirmDeleteId = null;
     this.showAddForm = false;
   }
@@ -101,17 +151,36 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
       email: this.editForm.email,
       birthDate: this.editForm.birthDate,
     };
-    if (this.editForm.changePassword && this.editForm.password?.trim()) {
+
+    if (
+      this.editForm.changePassword &&
+      this.editForm.password?.trim()
+    ) {
       data.password = this.editForm.password.trim();
     }
-    this.userService.updateEmployee(emp.id, data).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.cancelEdit();
-        this.load();
-        this.snackBar.open('Funcionário atualizado!', 'Fechar', this.snackConfig.default);
-      },
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao atualizar funcionário', 'Fechar', this.snackConfig.long),
-    });
+
+    this.userService
+      .updateEmployee(emp.id, data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.load();
+
+          this.snackBar.open(
+            'Funcionário atualizado!',
+            'Fechar',
+            this.snackConfig.default
+          );
+        },
+        error: (e: any) => {
+          this.snackBar.open(
+            e?.message || 'Erro ao atualizar funcionário',
+            'Fechar',
+            this.snackConfig.long
+          );
+        },
+      });
   }
 
   askDelete(id: number): void {
@@ -126,19 +195,36 @@ export class ManageEmployeesComponent implements OnInit, OnDestroy {
 
   confirmDelete(id: number): void {
     const loggedUser = this.authService.getLoggedInUser();
+
     if (!loggedUser) return;
-    this.userService.removeEmployee(id, loggedUser.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.confirmDeleteId = null;
-        this.load();
-        this.snackBar.open('Funcionário removido.', 'Fechar', this.snackConfig.default);
-      },
-      error: (e: any) => this.snackBar.open(e?.message || 'Erro ao remover funcionário', 'Fechar', this.snackConfig.error),
-    });
+
+    this.userService
+      .removeEmployee(id, loggedUser.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.confirmDeleteId = null;
+          this.load();
+
+          this.snackBar.open(
+            'Funcionário removido.',
+            'Fechar',
+            this.snackConfig.default
+          );
+        },
+        error: (e: any) => {
+          this.snackBar.open(
+            e?.message || 'Erro ao remover funcionário',
+            'Fechar',
+            this.snackConfig.error
+          );
+        },
+      });
   }
 
   formatDate(date?: string): string {
     if (!date) return '—';
+
     const [y, m, d] = date.split('-');
     return `${d}/${m}/${y}`;
   }

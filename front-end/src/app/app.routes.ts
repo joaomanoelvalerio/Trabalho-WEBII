@@ -20,7 +20,7 @@ export const routes: Routes = [
   { path: 'employee/solicitations',   component: SolicitationsListComponent,  canActivate: [employeeGuard] },
   { path: 'employee/reports',         component: RevenueReportsComponent,     canActivate: [employeeGuard] },
   { path: 'employee/categories',      component: ManageCategoriesComponent,   canActivate: [employeeGuard] },
-  { path: 'employee/employees',       component: ManageEmployeesComponent,    canActivate: [employeeGuard] },
+  { path: 'employee/manageemployees', component: ManageEmployeesComponent,    canActivate: [employeeGuard] },
   { path: '',                         redirectTo: '/login',                   pathMatch: 'full'            },
   { path: '**',                       redirectTo: '/login'                                                 },
 ];
