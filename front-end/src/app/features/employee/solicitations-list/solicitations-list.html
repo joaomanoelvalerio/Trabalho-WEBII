@@ -16,7 +16,7 @@
       <div class="row g-3 align-items-end">
         <div class="col-12 col-md-auto">
           <label class="form-label fw-bold small text-muted">Filtrar por</label>
-          <div class="btn-group d-flex" role="group">
+          <div class="d-flex gap-2" role="group">
             <button type="button" class="btn btn-sm"
                     [class.btn-primary]="filterMode === 'TODAY'"
                     [class.btn-outline-primary]="filterMode !== 'TODAY'"
@@ -102,28 +102,21 @@
               </td>
               <td class="text-center">
                 <div class="d-flex justify-content-center gap-2 flex-wrap">
-                  <!-- RF012: Efetuar Orçamento (ABERTA) -->
                   <button *ngIf="req.status === 'OPEN'"
                           class="btn btn-sm btn-outline-primary"
                           (click)="onDoQuote(req)">
                     <i class="bi bi-cash-coin me-1"></i> Efetuar Orçamento
                   </button>
-
-                  <!-- RF014/RF015: Efetuar Manutenção (APROVADA ou REDIRECIONADA para mim) -->
                   <button *ngIf="showMaintenanceButton(req)"
                           class="btn btn-sm btn-outline-success"
                           (click)="onDoMaintenance(req)">
                     <i class="bi bi-tools me-1"></i> Efetuar Manutenção
                   </button>
-
-                  <!-- RF016: Finalizar Solicitação (PAGA) -->
                   <button *ngIf="showFinalizeButton(req)"
                           class="btn btn-sm btn-outline-dark"
                           (click)="onFinalize(req)">
                     <i class="bi bi-check2-circle me-1"></i> Finalizar
                   </button>
-
-                  <!-- Visualizar para estados sem ação -->
                   <button *ngIf="req.status !== 'OPEN' && !showMaintenanceButton(req) && !showFinalizeButton(req)"
                           class="btn btn-sm btn-outline-secondary"
                           (click)="onViewDetails(req)">

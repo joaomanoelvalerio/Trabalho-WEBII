@@ -4,29 +4,23 @@
       <i class="material-icons">settings_suggest</i>
       <span class="d-none d-sm-inline">Manutenção de Equipamentos</span>
     </a>
-
     @if (authService.getLoggedInUser(); as user) {
       <div class="d-flex align-items-center flex-wrap gap-2">
-
         <div class="me-3 d-none d-md-block text-white-50 small">
           Olá, <strong class="text-white">{{ user.name }}</strong>
         </div>
-
-        <div class="btn-group shadow-sm">
-
-          @if (user.role === 'CLIENT') {
-            <a class="btn btn-sm btn-light" routerLink="/client">
-              <i class="bi bi-list-task me-1"></i> Minhas Solicitações
-            </a>
-          }
-
-          @if (user.role === 'EMPLOYEE' || user.role === 'ADMIN') {
+        @if (user.role === 'CLIENT') {
+          <a class="btn btn-sm btn-light" routerLink="/client">
+            <i class="bi bi-list-task me-1"></i> Minhas Solicitações
+          </a>
+        }
+        @if (user.role === 'EMPLOYEE' || user.role === 'ADMIN') {
+          <div class="d-flex align-items-center gap-2">
             <a class="btn btn-sm btn-light" routerLink="/employee">Painel</a>
             <a class="btn btn-sm btn-light" routerLink="/employee/solicitations">Listagem</a>
             <a class="btn btn-sm btn-light" routerLink="/employee/reports">Relatórios</a>
-          }
-        </div>
-
+          </div>
+        }
         <button
           class="btn btn-sm btn-light ms-2 d-inline-flex align-items-center gap-1"
           type="button"
@@ -37,7 +31,6 @@
           <i class="material-icons" style="font-size: 18px;">logout</i>
           <span>Sair</span>
         </button>
-
       </div>
     }
   </div>

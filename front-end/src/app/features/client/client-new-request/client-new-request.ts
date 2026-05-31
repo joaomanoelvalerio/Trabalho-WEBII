@@ -29,6 +29,7 @@ export class ClientNewRequest implements OnInit, OnDestroy {
   private readonly destroy$        = new Subject<void>();
 
   categories: Category[] = [];
+  loadingCategories = true;
 
   newRequest = {
     equipmentDescription: '',
@@ -38,8 +39,12 @@ export class ClientNewRequest implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.categoryService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (categories) => this.categories = categories,
+      next: (categories) => {
+        this.categories = categories;
+        this.loadingCategories = false;
+      },
       error: () => {
+        this.loadingCategories = false;
         this.snackBar.open('Erro ao carregar categorias.', 'Fechar', this.snackConfig.long);
       },
     });
@@ -58,9 +63,7 @@ export class ClientNewRequest implements OnInit, OnDestroy {
   onSubmit(): void {
     const user = this.authService.getLoggedInUser();
     if (!user) return;
-
     const dataAtual = new Date().toISOString();
-
     this.storageService.saveRequest({
       clientId: user.id,
       clientName: user.name,
