@@ -48,6 +48,7 @@ public class SolicitationController {
 
     @PostMapping
     public ResponseEntity<Solicitation> create(@Valid @RequestBody Solicitation solicitation) {
+        validateRequestText(solicitation);
         return ResponseEntity.status(HttpStatus.CREATED).body(solicitationRepository.save(solicitation));
     }
 
@@ -55,6 +56,7 @@ public class SolicitationController {
     public Solicitation update(@PathVariable Long id, @Valid @RequestBody Solicitation updated) {
         solicitationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Solicitação não encontrada."));
+        validateRequestText(updated);
         updated.setId(id);
         return solicitationRepository.save(updated);
     }
@@ -66,5 +68,23 @@ public class SolicitationController {
         }
         solicitationRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validateRequestText(Solicitation solicitation) {
+        if (countWords(solicitation.getEquipmentDescription()) < 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A descrição do equipamento deve ter pelo menos 3 palavras.");
+        }
+        if (countWords(solicitation.getDefectDescription()) < 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A descrição do defeito deve ter pelo menos 3 palavras.");
+        }
+    }
+
+    private int countWords(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return 0;
+        }
+        return (int) java.util.Arrays.stream(value.trim().split("\\s+"))
+                .filter(word -> !word.isBlank())
+                .count();
     }
 }

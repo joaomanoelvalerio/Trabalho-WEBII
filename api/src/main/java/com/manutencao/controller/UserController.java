@@ -5,6 +5,9 @@ import com.manutencao.entity.Role;
 import com.manutencao.entity.User;
 import com.manutencao.repository.UserRepository;
 import com.manutencao.util.PasswordUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -55,10 +58,8 @@ public class UserController {
     }
 
    @PostMapping("/register-client")
-    public ResponseEntity<RegisterClientResponse> registerClient(@RequestBody RegisterClientRequest request) {
+    public ResponseEntity<RegisterClientResponse> registerClient(@Valid @RequestBody RegisterClientRequest request) {
         requireNotBlank(request.name, "Nome é obrigatório.");
-        requireNotBlank(request.email, "E-mail é obrigatório.");
-        requireNotBlank(request.cpf, "CPF é obrigatório.");
         requireNotBlank(request.phone, "Telefone é obrigatório.");
         if (request.address == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Endereço é obrigatório.");
@@ -71,7 +72,9 @@ public class UserController {
         if (userRepository.existsByCpfUser(cpf)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado.");
         }
-        if (userRepository.existsByEmail(request.email)) {
+
+        String email = request.email.trim().toLowerCase();
+        if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado.");
         }
 
@@ -82,7 +85,7 @@ public class UserController {
         User user = User.builder()
                 .cpfUser(cpf)
                 .nameUser(request.name.trim())
-                .email(request.email.trim().toLowerCase())
+                .email(email)
                 .phone(request.phone.trim())
                 .address(toEndereco(request.address))
                 .password(hashedPassword)
@@ -100,7 +103,7 @@ public class UserController {
                 .body(new RegisterClientResponse(true, tempPassword));
     }
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         requireNotBlank(request.email, "E-mail é obrigatório.");
         requireNotBlank(request.password, "Senha é obrigatória.");
 
@@ -120,7 +123,7 @@ public class UserController {
     }
 
     @PostMapping("/employees")
-    public ResponseEntity<UserDto> createEmployee(@RequestBody EmployeeRequest request) {
+    public ResponseEntity<UserDto> createEmployee(@Valid @RequestBody EmployeeRequest request) {
         requireNotBlank(request.name, "Nome é obrigatório.");
         requireNotBlank(request.email, "E-mail é obrigatório.");
         requireNotBlank(request.password, "Senha é obrigatória.");
@@ -149,7 +152,7 @@ public class UserController {
     }
 
     @PutMapping("/employees/{id}")
-    public UserDto updateEmployee(@PathVariable Long id, @RequestBody EmployeeRequest request) {
+    public UserDto updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado."));
 
@@ -295,7 +298,20 @@ public class UserController {
     }
 
     public static class RegisterClientRequest {
-        public String name, email, cpf, phone, birthDate;
+        @NotBlank(message = "Nome é obrigatório.")
+        public String name;
+
+        @NotBlank(message = "E-mail é obrigatório.")
+        @Email(message = "O e-mail deve ser válido.")
+        public String email;
+
+        @NotBlank(message = "CPF é obrigatório.")
+        public String cpf;
+
+        @NotBlank(message = "Telefone é obrigatório.")
+        public String phone;
+
+        public String birthDate;
         public AddressDto address;
     }
 
@@ -309,7 +325,12 @@ public class UserController {
     }
 
     public static class LoginRequest {
-        public String email, password;
+        @NotBlank(message = "E-mail é obrigatório.")
+        @Email(message = "O e-mail deve ser válido.")
+        public String email;
+
+        @NotBlank(message = "Senha é obrigatória.")
+        public String password;
     }
 
     public static class LoginResponse {
@@ -322,6 +343,16 @@ public class UserController {
     }
 
     public static class EmployeeRequest {
-        public String name, email, password, birthDate;
+        @NotBlank(message = "Nome é obrigatório.")
+        public String name;
+
+        @NotBlank(message = "E-mail é obrigatório.")
+        @Email(message = "O e-mail deve ser válido.")
+        public String email;
+
+        public String password;
+
+        @NotBlank(message = "Data de nascimento é obrigatória.")
+        public String birthDate;
     }
 }

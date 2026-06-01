@@ -24,26 +24,26 @@
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold small text-muted">Nome *</label>
-            <input type="text" class="form-control" [(ngModel)]="newForm.name" placeholder="Nome completo" maxlength="100" />
+            <input type="text" class="form-control" [(ngModel)]="newForm.name" placeholder="Nome completo" maxlength="100" required />
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold small text-muted">E-mail *</label>
-            <input type="email" class="form-control" [(ngModel)]="newForm.email" placeholder="email@empresa.com" maxlength="100" />
+            <input type="email" class="form-control" [(ngModel)]="newForm.email" #newEmailCtrl="ngModel" placeholder="email@empresa.com" maxlength="100" required email />
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold small text-muted">Senha *</label>
-            <input type="password" class="form-control" [(ngModel)]="newForm.password" placeholder="Senha de acesso" maxlength="100" />
+            <input type="password" class="form-control" [(ngModel)]="newForm.password" placeholder="Senha de acesso" maxlength="100" required />
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label fw-semibold small text-muted">Data de Nascimento *</label>
-            <input type="date" class="form-control" [(ngModel)]="newForm.birthDate" />
+            <input type="date" class="form-control" [(ngModel)]="newForm.birthDate" required />
           </div>
           <div class="col-12 d-flex justify-content-end gap-2">
             <button class="btn btn-outline-secondary" (click)="toggleAddForm()">Cancelar</button>
             <button
               class="btn btn-primary"
               (click)="addEmployee()"
-              [disabled]="!newForm.name.trim() || !newForm.email.trim() || !newForm.password.trim() || !newForm.birthDate"
+              [disabled]="!newForm.name.trim() || !newForm.email.trim() || newEmailCtrl.invalid || !newForm.password.trim() || !newForm.birthDate"
             >
               <i class="bi bi-check-lg me-1"></i>Cadastrar
             </button>
@@ -79,15 +79,15 @@
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-semibold small text-muted">Nome *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="editForm.name" maxlength="100" />
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="editForm.name" maxlength="100" required />
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-semibold small text-muted">E-mail *</label>
-                  <input type="email" class="form-control form-control-sm" [(ngModel)]="editForm.email" maxlength="100" />
+                  <input type="email" class="form-control form-control-sm" [(ngModel)]="editForm.email" #editEmailCtrl="ngModel" maxlength="100" required email />
                 </div>
                 <div class="col-12 col-md-6">
                   <label class="form-label fw-semibold small text-muted">Data de Nascimento *</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="editForm.birthDate" />
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="editForm.birthDate" required />
                 </div>
                 <div class="col-12 col-md-6">
                   <div class="form-check mt-1 mb-1">
@@ -95,7 +95,7 @@
                     <label class="form-check-label small fw-semibold text-muted" for="chkPwd_{{emp.id}}">Alterar senha</label>
                   </div>
                   @if (editForm.changePassword) {
-                    <input type="password" class="form-control form-control-sm" [(ngModel)]="editForm.password" placeholder="Nova senha" maxlength="100" />
+                    <input type="password" class="form-control form-control-sm" [(ngModel)]="editForm.password" placeholder="Nova senha" maxlength="100" required />
                   }
                 </div>
                 <div class="col-12 d-flex justify-content-end gap-2">
@@ -105,7 +105,7 @@
                   <button
                     class="btn btn-success btn-sm"
                     (click)="saveEdit(emp)"
-                    [disabled]="!editForm.name.trim() || !editForm.email.trim() || !editForm.birthDate"
+                    [disabled]="!editForm.name.trim() || !editForm.email.trim() || editEmailCtrl.invalid || !editForm.birthDate || (editForm.changePassword && !editForm.password.trim())"
                   >
                     <i class="bi bi-check-lg me-1"></i>Salvar
                   </button>

@@ -48,6 +48,7 @@ public class Solicitation {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String equipmentDescription;
 
+    @NotNull(message = "A categoria é obrigatória")
     private Long categoryId;
 
     @Column(length = 100)
