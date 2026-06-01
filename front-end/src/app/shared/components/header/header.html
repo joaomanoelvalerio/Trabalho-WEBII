@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" routerLink="/">
-      <i class="material-icons">settings_suggest</i>
+      <i class="bi bi-gear-fill"></i>
       <span class="d-none d-sm-inline">Manutenção de Equipamentos</span>
     </a>
     @if (authService.getLoggedInUser(); as user) {
@@ -30,7 +30,7 @@
           title="Sair do sistema"
           aria-label="Sair do sistema"
         >
-          <i class="material-icons" style="font-size: 18px;">logout</i>
+          <i class="bi bi-box-arrow-right"></i>
           <span>Sair</span>
         </button>
       </div>
