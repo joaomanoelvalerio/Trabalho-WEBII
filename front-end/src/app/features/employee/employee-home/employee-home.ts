@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { QuoteDialogComponent } from '../quote-dialog/quote-dialog';
-import { StorageService } from '../../../shared/services/storage';
+import { SolicitationService } from '../../../shared/services/solicitation.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { User } from '../../../shared/models/user.model';
 import { UserService } from '../../../shared/services/user.service';
@@ -22,11 +22,11 @@ const SHORT_DESC_LIMIT = 30;
 export class Employee implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly storageService = inject(StorageService);
+  private readonly storageService = inject(SolicitationService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly cdr = inject(ChangeDetectorRef);  // <-- adicionado
+  private readonly cdr = inject(ChangeDetectorRef); 
 
   requests: Solicitation[] = [];
   allUsers: User[] = [];
@@ -40,7 +40,7 @@ export class Employee implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.allUsers = users;
-        this.cdr.detectChanges();  // <-- força atualização
+        this.cdr.detectChanges(); 
       },
       error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
     });
@@ -50,7 +50,7 @@ export class Employee implements OnInit {
     this.storageService.getOpenRequests().subscribe({
       next: (requests) => {
         this.requests = requests.sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime());
-        this.cdr.detectChanges();  // <-- força atualização
+        this.cdr.detectChanges(); 
       },
       error: (e: Error) => this.snackBar.open(e.message, 'Fechar', { duration: 3500, horizontalPosition: 'end' }),
     });

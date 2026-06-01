@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StorageService } from '../../../shared/services/storage';
+import { SolicitationService } from '../../../shared/services/solicitation.service';
 import { AuthService } from '../../authentication/services/auth.service';
 import { Category } from '../../../shared/models/category.model';
 import { RequestStatus } from '../../../shared/models/solicitation.model';
@@ -22,7 +22,7 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class ClientNewRequest implements OnInit, OnDestroy {
   private readonly router          = inject(Router);
-  private readonly storageService  = inject(StorageService);
+  private readonly SolicitationService  = inject(SolicitationService);
   private readonly authService     = inject(AuthService);
   private readonly categoryService = inject(CategoryService);
   private readonly snackBar        = inject(MatSnackBar);
@@ -66,7 +66,7 @@ export class ClientNewRequest implements OnInit, OnDestroy {
 
     const dataAtual = new Date().toISOString();
 
-    this.storageService.saveRequest({
+    this.SolicitationService.saveRequest({
       clientId: user.id,
       clientName: user.name,
       openedAt: dataAtual,

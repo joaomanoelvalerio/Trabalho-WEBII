@@ -5,7 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Solicitation, RequestStatus } from '../models/solicitation.model';
 
 @Injectable({ providedIn: 'root' })
-export class StorageService {
+export class SolicitationService {
   private readonly apiUrl = 'http://localhost:8080/api/solicitations';
 
   constructor(private http: HttpClient) {}

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StorageService } from '../../../shared/services/storage';
+import { SolicitationService } from '../../../shared/services/solicitation.service';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -49,11 +49,11 @@ const STATUSES_WITH_DEDICATED_ACTION = new Set<RequestStatus>([
 export class ClientHomeComponent implements OnInit, OnDestroy {
   private readonly dialog         = inject(MatDialog);
   private readonly router         = inject(Router);
-  private readonly storageService = inject(StorageService);
+  private readonly storageService = inject(SolicitationService);
   private readonly authService    = inject(AuthService);
   private readonly snackBar       = inject(MatSnackBar);
   private readonly snackConfig    = inject(SnackConfig);
-  private readonly cdr            = inject(ChangeDetectorRef); // <-- adicionado
+  private readonly cdr            = inject(ChangeDetectorRef);
   private readonly destroy$       = new Subject<void>();
 
   requests: Solicitation[] = [];
@@ -77,7 +77,7 @@ export class ClientHomeComponent implements OnInit, OnDestroy {
         this.requests = requests.sort(
           (a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime()
         );
-        this.cdr.detectChanges(); // <-- adicionado
+        this.cdr.detectChanges();
       });
   }
 

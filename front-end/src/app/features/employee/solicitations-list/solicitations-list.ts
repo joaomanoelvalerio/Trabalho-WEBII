@@ -5,7 +5,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { StorageService } from '../../../shared/services/storage';
+import { SolicitationService } from '../../../shared/services/solicitation.service';
 import { AuthService } from '../../authentication/services/auth.service';
 import { RequestStatus, Solicitation } from '../../../shared/models/solicitation.model';
 import { User } from '../../../shared/models/user.model';
@@ -43,7 +43,7 @@ const STATUS_STYLE: Record<RequestStatus, StatusStyle> = {
   styleUrl: './solicitations-list.css',
 })
 export class SolicitationsListComponent implements OnInit, OnDestroy {
-  private readonly storageService = inject(StorageService);
+  private readonly storageService = inject(SolicitationService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
