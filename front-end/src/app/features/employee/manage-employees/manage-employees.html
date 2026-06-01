@@ -14,7 +14,6 @@
     </div>
   </div>
 
-  <!-- Formulário de novo funcionário -->
   @if (showAddForm) {
     <div class="card shadow-sm border-0 mb-4 border-start border-4 border-primary">
       <div class="card-header bg-white fw-bold text-primary border-bottom">
@@ -53,7 +52,6 @@
     </div>
   }
 
-  <!-- Listagem -->
   <div class="card shadow-sm border-0">
     <div class="card-header bg-white fw-bold text-primary border-bottom">
       <i class="bi bi-people me-2"></i>Funcionários Cadastrados
@@ -71,7 +69,6 @@
         @for (emp of employees; track emp.id) {
           <li class="list-group-item px-4 py-3">
 
-            <!-- Modo edição -->
             @if (editingId === emp.id) {
               <div class="row g-3">
                 <div class="col-12">
@@ -113,7 +110,6 @@
               </div>
             }
 
-            <!-- Confirmação de remoção -->
             @else if (confirmDeleteId === emp.id) {
               <div class="row g-2 align-items-center">
                 <div class="col">
@@ -131,7 +127,6 @@
               </div>
             }
 
-            <!-- Modo normal -->
             @else {
               <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-3">

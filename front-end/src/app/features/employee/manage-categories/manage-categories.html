@@ -9,8 +9,7 @@
       <span class="badge bg-secondary rounded-pill px-3 py-2">{{ categories.length }} categorias</span>
     </div>
   </div>
-
-  <!-- Adicionar nova categoria -->
+  
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white fw-bold text-primary border-bottom">
       <i class="bi bi-plus-circle me-2"></i>Nova Categoria
@@ -36,7 +35,6 @@
     </div>
   </div>
 
-  <!-- Listagem -->
   <div class="card shadow-sm border-0">
     <div class="card-header bg-white fw-bold text-primary border-bottom">
       <i class="bi bi-list-ul me-2"></i>Categorias Cadastradas
@@ -54,7 +52,6 @@
         @for (cat of categories; track cat.id) {
           <li class="list-group-item px-4 py-3">
 
-            <!-- Modo edição -->
             @if (editingId === cat.id) {
               <div class="row g-2 align-items-center">
                 <div class="col">
@@ -79,7 +76,6 @@
               </div>
             }
 
-            <!-- Confirmação de remoção -->
             @else if (confirmDeleteId === cat.id) {
               <div class="row g-2 align-items-center">
                 <div class="col">
@@ -99,7 +95,6 @@
               </div>
             }
 
-            <!-- Modo normal -->
             @else {
               <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">

@@ -4,7 +4,6 @@
     <h5 class="fw-bold text-primary mb-0">Efetuar Manutenção</h5>
   </div>
 
-  <!-- Dados da solicitação -->
   <div class="p-3 mb-4 bg-light rounded border-start border-4 border-primary">
     <div class="row mb-2">
       <div class="col-4 text-muted fw-bold small">Cliente</div>
@@ -26,7 +25,6 @@
     </div>
   </div>
 
-  <!-- Escolha inicial -->
   <div *ngIf="mode === 'CHOOSE'" class="d-flex flex-column gap-3">
     <p class="text-muted mb-1">O que deseja fazer com esta solicitação?</p>
     <button class="btn btn-primary" (click)="mode = 'MAINTAIN'">
@@ -39,7 +37,6 @@
     <button class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
   </div>
 
-  <!-- Formulário de Manutenção (RF014) -->
   <div *ngIf="mode === 'MAINTAIN'">
     <div class="mb-3">
       <label class="form-label fw-bold">
@@ -62,7 +59,6 @@
     </div>
   </div>
 
-  <!-- Formulário de Redirecionamento (RF015) -->
   <div *ngIf="mode === 'REDIRECT'">
     <div class="mb-4">
       <label class="form-label fw-bold">
